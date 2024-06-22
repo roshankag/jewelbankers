@@ -40,6 +40,12 @@ public class CustomerController {
     public Customer updateCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
         return customerService.updateCustomer(id, customer);
     }
+    
+    @GetMapping("/search")
+    @ResponseBody
+    public List<Customer> searchCustomersByName(@RequestParam("customerName") String customerName) {
+        return customerService.findCustomersByName(customerName);
+    }
 
 //(@PathVariable("id") Long id)
     @GetMapping("/{id}")

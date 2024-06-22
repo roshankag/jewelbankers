@@ -1,14 +1,13 @@
 package com.jewelbankers.services;
 
-import com.jewelbankers.entity.Customer;
-import com.jewelbankers.repository.CustomerRepository;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Objects;
+import com.jewelbankers.entity.Customer;
+import com.jewelbankers.repository.CustomerRepository;
 
 @Service
 public class CustomerService {
@@ -16,7 +15,16 @@ public class CustomerService {
 	
 	@Autowired
 	private CustomerRepository customerRepository;
-    private List<Customer> customers;
+	
+	public List<Customer> findCustomersByName(String customerName) {
+		//String customername="%"+CustomerName+"%";
+		//String customername=customerName;
+		//System.out.println(customerName);		
+        //return customerRepository.findByStreetIgnoreCaseContaining(customername);
+        return customerRepository.findByCustomerNameIgnoreCaseContaining(customerName);
+        
+    }
+	
 
     public CustomerService() {
         //this.customers = buildFakeCustomers();
