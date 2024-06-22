@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jewelbankers.model.Product;
+import com.jewelbankers.entity.Product;
 import com.jewelbankers.services.ProductService;
 
 @RestController

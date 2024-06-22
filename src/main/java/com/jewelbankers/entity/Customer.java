@@ -1,8 +1,7 @@
-package com.jewelbankers.model;
+package com.jewelbankers.entity;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
-import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,7 +40,7 @@ public class Customer {
 	@Column(name = "Pincode")
 	private int pincode;
 
-	@Column(name = "CustomerName")
+	@Column(name = "Customername")
 	private String customerName;
 	
 	@Column(name = "Street")

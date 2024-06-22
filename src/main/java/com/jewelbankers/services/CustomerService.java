@@ -1,6 +1,6 @@
 package com.jewelbankers.services;
 
-import com.jewelbankers.model.Customer;
+import com.jewelbankers.entity.Customer;
 import com.jewelbankers.repository.CustomerRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

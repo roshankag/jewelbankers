@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 //@EnableJpaRepositories
 @EnableJpaRepositories(basePackages = "com.jewelbankers.repository") 
-@EntityScan("com.jewelbankers.model")   
+@EntityScan("com.jewelbankers.entity")   
 @ComponentScan({ "com" })
 public class JewelBankers {
 

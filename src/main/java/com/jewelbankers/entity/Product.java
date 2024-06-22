@@ -1,4 +1,4 @@
-package com.jewelbankers.model;
+package com.jewelbankers.entity;
 public class Product {
 private Long id;
     private String name;

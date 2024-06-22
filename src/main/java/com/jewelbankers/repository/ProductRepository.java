@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import com.jewelbankers.model.Product;
+import com.jewelbankers.entity.Product;
 
 @Repository
 //@Component

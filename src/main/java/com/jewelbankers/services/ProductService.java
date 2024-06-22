@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.jewelbankers.model.Product;
+import com.jewelbankers.entity.Product;
 import com.jewelbankers.repository.ProductRepository;
 
 @Service
