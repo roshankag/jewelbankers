@@ -41,5 +41,10 @@ public class CustomerService {
 
 	
 	  public Optional<Customer> findById(Long id) { return this.customerRepository.findById(id); }
+
+	public Customer saveCustomer(Customer customer) {
+		// TODO Auto-generated method stub
+		return customerRepository.save(customer);
+	}
 	 
 }

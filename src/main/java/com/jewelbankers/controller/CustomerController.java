@@ -20,6 +20,13 @@ public class CustomerController {
     public List<Customer> getAllCustomers() {
         return customerService.findAll();
     }
+    
+    @PostMapping
+    @ResponseBody
+    public Customer saveCustomer(@RequestBody Customer customer) {
+        return customerService.saveCustomer(customer);
+    }
+
 //(@PathVariable("id") Long id)
     @GetMapping("/{id}")
     public Optional<Customer> getCustomerById(@PathVariable("id") Long id) {

@@ -21,9 +21,13 @@ public class Customer {
 	@Id
 	// @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CUST_SEQ")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "CustomerID")
+	@Column(name = "Customerid")
 	private Long id;
 	
+	public Long getId() {
+		return id;
+	}
+
 	@Column(name = "area")
 	private String area;
 	
@@ -155,14 +159,5 @@ public class Customer {
 	 * public Customer(Long id,String name, String email, String phone) { this.name
 	 * = name; this.email = email; this.phone = phone; this.id = id; }
 	 */
-
-	// Getters and Setters
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 }
