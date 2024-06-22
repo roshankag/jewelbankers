@@ -46,5 +46,42 @@ public class CustomerService {
 		// TODO Auto-generated method stub
 		return customerRepository.save(customer);
 	}
+
+	public String deleteCustomer(Long id) {
+		// TODO Auto-generated method stub
+		if (customerRepository.existsById(id)) {
+		    customerRepository.deleteById(id);
+		    return("Sucessfully deleted for Customer Id "+id);
+
+		} else {
+		     return("Customer ID is not found");
+		}
+		
+	}
+
+	public Customer updateCustomer(Long id, Customer customer) {
+		// TODO Auto-generated method stub
+		 Customer existingCustomer = customerRepository.findById(id).orElse(null);
+	        if (existingCustomer != null) {
+	            existingCustomer.setCustomerName(customer.getCustomerName());
+	            existingCustomer.setAddress(customer.getAddress());
+	            existingCustomer.setStreet(customer.getStreet());
+	            existingCustomer.setArea(customer.getArea());
+	            existingCustomer.setCountry(customer.getCountry());
+	            existingCustomer.setDistrict(customer.getDistrict());
+	            existingCustomer.setEmail(customer.getEmail());
+	            existingCustomer.setPhone(customer.getPhone());
+	            existingCustomer.setPincode(customer.getPincode());
+	            existingCustomer.setRelationShip(customer.getRelationShip());
+	            existingCustomer.setRelationShipName(customer.getRelationShipName());
+	           // existingCustomer.setEmail(customer.getEmail());
+	            // Update other fields as needed
+	            return customerRepository.save(existingCustomer);
+	        } else {
+	            // Handle case where customer is not found, e.g., throw an exception
+	            return null;
+	        }
+		//return null;
+	}
 	 
 }

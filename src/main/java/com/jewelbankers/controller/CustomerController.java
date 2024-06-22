@@ -26,6 +26,20 @@ public class CustomerController {
     public Customer saveCustomer(@RequestBody Customer customer) {
         return customerService.saveCustomer(customer);
     }
+    
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    public String deleteCustomer(@PathVariable("id") Long id) {
+        return customerService.deleteCustomer(id);
+        //return "Sucessfully deleted for Customer Id "+id;
+        
+    }
+    
+    @PutMapping("/{id}")
+    @ResponseBody
+    public Customer updateCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
+        return customerService.updateCustomer(id, customer);
+    }
 
 //(@PathVariable("id") Long id)
     @GetMapping("/{id}")
