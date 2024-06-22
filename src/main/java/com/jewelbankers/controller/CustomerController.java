@@ -22,9 +22,9 @@ public class CustomerController {
     }
 //(@PathVariable("id") Long id)
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable("id") Long id) {
-        Optional<Customer> customer = customerService.findById(id);
-        return customer.map(ResponseEntity::ok)
-                       .orElseGet(() -> ResponseEntity.notFound().build());
+    public Optional<Customer> getCustomerById(@PathVariable("id") Long id) {
+        return customerService.findById(id);
+        /*return customer.map(ResponseEntity::ok)
+                       .orElseGet(() -> ResponseEntity.notFound().build());*/
     }
 }
