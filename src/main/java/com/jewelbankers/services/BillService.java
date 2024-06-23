@@ -12,6 +12,10 @@ import java.util.Optional;
 public class BillService {
     @Autowired
     private BillRepository billRepository;
+    
+    public List<Bill> findBillsByBillSequence(int billSequence) {
+        return billRepository.findById(billSequence);
+    }
 
     public List<Bill> getAllBills() {
         return billRepository.findAll();
