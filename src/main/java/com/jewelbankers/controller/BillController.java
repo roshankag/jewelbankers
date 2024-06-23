@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jewelbankers.entity.Bill;
@@ -30,7 +30,8 @@ public class BillController {
     public ResponseEntity<?> getBillsByBillSequence(@PathVariable("billSequence") int billSequence) {
         List<Bill> bills = billService.findBillsByBillSequence(billSequence);
         if (bills.isEmpty()) {
-            return ((BodyBuilder) ResponseEntity.notFound()).body("No bills found with billSequence: " + billSequence);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("No bills found with billSequence: " + billSequence);
         } else {
             return ResponseEntity.ok(bills);
         }
@@ -42,7 +43,7 @@ public class BillController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBillById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> getBillById(@PathVariable("id") Long id) {
         Optional<Bill> billOptional = billService.findById(id);
         if (billOptional.isPresent()) {
             return ResponseEntity.ok(billOptional.get());
@@ -56,9 +57,22 @@ public class BillController {
     public Bill createBill(@RequestBody Bill bill) {
         return billService.saveBill(bill);
     }
+    
+    @GetMapping("/search")
+    public List<Bill> getBillsByCustomerName(@RequestParam(value = "customerName", required = false) String customerName, 
+    		@RequestParam(value = "street", required = false)  String street , 
+    		@RequestParam(value = "billNo", required = false)  Integer billNo) {
+        return billService.findBillsByCustomerName(customerName,street,billNo);
+    }
+    
+	/*
+	 * @GetMapping("/search") public List<Bill>
+	 * getBillsByCustomerStreet(@RequestParam("street") String street) { return
+	 * billService.findBillsByCustomerStreet(street); }
+	 */
 
     @PutMapping("/{id}")
-    public ResponseEntity<Bill> updateBillByBillNo(@PathVariable("id") Integer id, @RequestBody Bill billDetails) {
+    public ResponseEntity<Bill> updateBillByBillNo(@PathVariable("id") Long id, @RequestBody Bill billDetails) {
         Optional<Bill> billOptional = billService.findById(id);
         if (!billOptional.isPresent()) {
             return ResponseEntity.notFound().build();
@@ -70,7 +84,7 @@ public class BillController {
         if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
         if (billDetails.getBillNo() != null) existingBill.setBillNo(billDetails.getBillNo());
         if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
-        if (billDetails.getCustomerId() != null) existingBill.setCustomerId(billDetails.getCustomerId());
+        if (billDetails.getCustomer() != null) existingBill.setCustomer(billDetails.getCustomer());
         if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
         if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
         if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
@@ -91,7 +105,7 @@ public class BillController {
         return ResponseEntity.ok(updatedBill);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBill(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> deleteBill(@PathVariable("id") Long id) {
         Optional<Bill> billOptional = billService.findById(id);
         if (billOptional.isPresent()) {
             billService.deleteBill(id);

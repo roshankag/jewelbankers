@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.jewelbankers.entity.Bill;
 
 @Repository
-public interface BillRepository extends JpaRepository<Bill, Integer> {
-	List<Bill> findById(int billSequence);
+public interface BillRepository extends JpaRepository<Bill, Long> {
+	List<Bill> findByBillSequence(int billSequence);
+	//List<Bill> findByCustomer(Customer customer);
+	List<Bill> findByCustomerCustomerNameOrCustomerStreetOrBillNo(String customerName, String street, Integer billNo);
+	List<Bill> findByCustomerCustomerNameAndCustomerStreetAndBillNo(String customerName, String street, Integer billNo);
+	List<Bill> findByCustomerStreet(String street);
 }

@@ -2,22 +2,30 @@ package com.jewelbankers.entity;
 
 import java.math.BigDecimal;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-@EntityScan
+//@EntityScan
 @Entity
 @Table(name = "bill_header")
 public class Bill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billSequence;
+    private Integer productNo;
+    
+    @Column(name = "productDescription")
+    private String productDescription;
+    
+    @Column(name = "productQuantity")
+    private Integer productQuantity;
 
     @Column(name = "billSerial")
     private Character billSerial;
@@ -26,17 +34,115 @@ public class Bill {
     private Integer billNo;
 
     @Column(name = "billDate")
-    private String billDate;
+    private String billDate1;
     
-    @Column(name = "customerId")
-    private Integer customerId;
+	/*
+	 * @Column(name = "CustomerId") private String CustomerId;
+	 */
+    
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "customerid")
+    private Customer customer;
 
-    public Integer getBillSequence() {
+	public String getBillDate1() {
+		return billDate1;
+	}
+
+	public void setBillDate1(String billDate1) {
+		this.billDate1 = billDate1;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	public void setBillSequence(Integer billSequence) {
+		this.billSequence = billSequence;
+	}
+
+	public void setBillSerial(Character billSerial) {
+		this.billSerial = billSerial;
+	}
+
+	public void setBillNo(Integer billNo) {
+		this.billNo = billNo;
+	}
+
+	public void setProductTypeNo(Integer productTypeNo) {
+		this.productTypeNo = productTypeNo;
+	}
+
+	public void setAmount(Integer amount) {
+		this.amount = amount;
+	}
+
+	public void setPresentValue(Integer presentValue) {
+		this.presentValue = presentValue;
+	}
+
+	public void setMonthlyIncome(Integer monthlyIncome) {
+		this.monthlyIncome = monthlyIncome;
+	}
+
+	public void setRedemptionStatus(Character redemptionStatus) {
+		this.redemptionStatus = redemptionStatus;
+	}
+
+	public void setBillRedemSerial(Character billRedemSerial) {
+		this.billRedemSerial = billRedemSerial;
+	}
+
+	public void setBillRedemNo(Integer billRedemNo) {
+		this.billRedemNo = billRedemNo;
+	}
+
+	/*
+	 * public String getCustomerId() { return CustomerId; }
+	 * 
+	 * public void setCustomerId(String customerId) { CustomerId = customerId; }
+	 */
+	public Integer getBillSequence() {
 		return billSequence;
 	}
 
 	public void setBillSequence(int billSequence) {
 		this.billSequence = billSequence;
+	}
+
+	public Integer getProductNo() {
+		return productNo;
+	}
+
+	public void setProductNo(Integer productNo) {
+		this.productNo = productNo;
+	}
+
+	public String getProductDescription() {
+		return productDescription;
+	}
+
+//	public Customer getCustomer() {
+//		return customer;
+//	}
+//
+//	public void setCustomer(Customer customer) {
+//		this.customer = customer;
+//	}
+
+	public void setProductDescription(String productDescription) {
+		this.productDescription = productDescription;
+	}
+
+	public Integer getProductQuantity() {
+		return productQuantity;
+	}
+
+	public void setProductQuantity(Integer productQuantity) {
+		this.productQuantity = productQuantity;
 	}
 
 	public Character getBillSerial() {
@@ -56,19 +162,11 @@ public class Bill {
 	}
 
 	public String getBillDate() {
-		return billDate;
+		return billDate1;
 	}
 
 	public void setBillDate(String billDate) {
-		this.billDate = billDate;
-	}
-
-	public Integer getCustomerId() {
-		return customerId;
-	}
-
-	public void setCustomerId(int customerId) {
-		this.customerId = customerId;
+		this.billDate1 = billDate;
 	}
 
 	public String getCareOf() {
@@ -203,7 +301,7 @@ public class Bill {
     @Column(name = "amount")
     private Integer amount;
 
-    @Column(name = "amountInwords")
+    @Column(name = "amountInWords")
     private String amountInWords;
      
     @Column(name = "presentValue")
@@ -235,4 +333,6 @@ public class Bill {
 
     @Column(name = "comments")
     private String comments;
+
+	
 }

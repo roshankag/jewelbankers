@@ -53,6 +53,18 @@ public class Customer {
 	@Column(name = "District")
 	private String district;
 	
+//	public List<Bill> getBills() {
+//		return bills;
+//	}
+//
+//	public void setBills(List<Bill> bills) {
+//		this.bills = bills;
+//	}
+//
+//	public void setId(Long id) {
+//		this.id = id;
+//	}
+
 	@Column(name = "Country")
 	private String country;
  
@@ -62,6 +74,9 @@ public class Customer {
 	@Column(name = "RelationShipName ")
 	private String relationShipName ;
 	 
+//	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Bill> bills;
+	
 	public int getPincode() {
 		return pincode;
 	}
