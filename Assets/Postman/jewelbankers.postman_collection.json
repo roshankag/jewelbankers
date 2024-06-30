@@ -1,0 +1,376 @@
+{
+	"info": {
+		"_postman_id": "e156ca82-0650-47fa-ac83-7c92ab5c8eaa",
+		"name": "jewelbankers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26194680"
+	},
+	"item": [
+		{
+			"name": "GET -> Customers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"area\": \"Vysarpadi\",\r\n        \"email\": \"mahesh4kc@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 600039,\r\n        \"customerName\": \"maheshkumar\",\r\n        \"street\": \"Thoripakkam\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,10th Central Cross Street.\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Customer name by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create Customers",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"area\": \"kelambakkam\",\r\n        \"email\": \"dkag709@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 603103,\r\n        \"customerName\": \"Deepak\",\r\n        \"street\": \"Masjid nagar\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,10th Central Cross Street.\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> Update Customers",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"area\": \"OMR\",\r\n        \"email\": \"mahesh4kc@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 600099,\r\n        \"customerName\": \"maheshkumar\",\r\n        \"street\": \"Thoripakkam\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,3th Street.\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/customers/3914",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers",
+						"3914"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE -> Delete Customer",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/customers/3914",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers",
+						"3914"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> search by customer name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/customers/search?customerName=mahesh",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers",
+						"search"
+					],
+					"query": [
+						{
+							"key": "customerName",
+							"value": "mahesh"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Bills",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Bill No by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills/161",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"161"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create bill ",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"billSequence\": 161,\r\n    \"productNo\": null,\r\n    \"productDescription\": null,\r\n    \"productQuantity\": null,\r\n    \"billSerial\": \"B\",\r\n    \"billNo\": 1591,\r\n    \"billDate1\": \"26/06/2024\",\r\n    \"customer\": {\r\n        \"id\": 135,\r\n        \"area\": \"MKB Nagar\",\r\n        \"email\": \"roshankag2003@gmail.com\",\r\n        \"phone\": \"9444338872\",\r\n        \"pincode\": 600039,\r\n        \"customerName\": \"ROSHAN B T\",\r\n        \"street\": \"10TH CENTRAL CROSS STREET\",\r\n        \"district\": \"CHENNAI\",\r\n        \"country\": \"INDIA\",\r\n        \"relationShip\": null,\r\n        \"relationShipName\": null,\r\n        \"address\": \"NO.870\"\r\n    },\r\n    \"careOf\": null,\r\n    \"productTypeNo\": 5,\r\n    \"rateOfInterest\": 2,\r\n    \"amount\": 11000,\r\n    \"amountInWords\": \" ELEVEN THOUSAND RUPEES ONLY\",\r\n    \"presentValue\": 11100,\r\n    \"grams\": 7.00,\r\n    \"monthlyIncome\": 8600,\r\n    \"redemptionDate\": \"26/06/2024\",\r\n    \"redemptionInterest\": 5413.10,\r\n    \"redemptionTotal\": 16413.10,\r\n    \"redemptionStatus\": \"R\",\r\n    \"billRedemSerial\": \"C\",\r\n    \"billRedemNo\": 1842,\r\n    \"comments\": \"\",\r\n    \"billDate\": \"26/06/2024\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/bills",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create bill  Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"billSequence\": 161,\r\n    \"productNo\": null,\r\n    \"productDescription\": null,\r\n    \"productQuantity\": null,\r\n    \"billSerial\": \"B\",\r\n    \"billNo\": 1591,\r\n    \"billDate1\": \"26/06/2024\",\r\n    \"customer\": {\r\n        \"id\": 135,\r\n        \"area\": \"MKB Nagar\",\r\n        \"email\": \"roshankag2003@gmail.com\",\r\n        \"phone\": \"9444338872\",\r\n        \"pincode\": 600039,\r\n        \"customerName\": \"ROSHAN B T\",\r\n        \"street\": \"10TH CENTRAL CROSS STREET\",\r\n        \"district\": \"CHENNAI\",\r\n        \"country\": \"INDIA\",\r\n        \"relationShip\": null,\r\n        \"relationShipName\": null,\r\n        \"address\": \"NO.870\"\r\n    },\r\n    \"careOf\": null,\r\n    \"productTypeNo\": 5,\r\n    \"rateOfInterest\": 2,\r\n    \"amount\": 11000,\r\n    \"amountInWords\": \" ELEVEN THOUSAND RUPEES ONLY\",\r\n    \"presentValue\": 11100,\r\n    \"grams\": 7.00,\r\n    \"monthlyIncome\": 8600,\r\n    \"redemptionDate\": \"26/06/2024\",\r\n    \"redemptionInterest\": 5413.10,\r\n    \"redemptionTotal\": 16413.10,\r\n    \"redemptionStatus\": \"R\",\r\n    \"billRedemSerial\": \"C\",\r\n    \"billRedemNo\": 1842,\r\n    \"comments\": \"\",\r\n    \"billDate\": \"26/06/2024\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/bills",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE -> Delete bill ",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills/161",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"161"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> Update customer",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"billSequence\": 161,\r\n    \"productNo\": null,\r\n    \"productDescription\": null,\r\n    \"productQuantity\": null,\r\n    \"billSerial\": \"B\",\r\n    \"billNo\": 1591,\r\n    \"billDate1\": \"26/06/2024\",\r\n    \"customer\": {\r\n        \"id\": 135,\r\n        \"area\": \"MKB Nagar\",\r\n        \"email\": \"roshankag2003@gmail.com\",\r\n        \"phone\": \"9444338872\",\r\n        \"pincode\": 600039,\r\n        \"customerName\": \"ROSHAN B T\",\r\n        \"street\": \"10TH CENTRAL CROSS STREET\",\r\n        \"district\": \"CHENNAI\",\r\n        \"country\": \"INDIA\",\r\n        \"relationShip\": null,\r\n        \"relationShipName\": null,\r\n        \"address\": \"NO.870\"\r\n    },\r\n    \"careOf\": null,\r\n    \"productTypeNo\": 5,\r\n    \"rateOfInterest\": 2,\r\n    \"amount\": 10000,\r\n    \"amountInWords\": \" TEN THOUSAND RUPEES ONLY\",\r\n    \"presentValue\": 11000,\r\n    \"grams\": 7.00,\r\n    \"monthlyIncome\": 8600,\r\n    \"redemptionDate\": \"26/06/2024\",\r\n    \"redemptionInterest\": 5413.10,\r\n    \"redemptionTotal\": 16413.10,\r\n    \"redemptionStatus\": \"R\",\r\n    \"billRedemSerial\": \"C\",\r\n    \"billRedemNo\": 1842,\r\n    \"comments\": \"\",\r\n    \"billDate\": \"26/06/2024\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/bills/176",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"176"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET - > Search by BillSequenceNo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills/byBillSequence/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"byBillSequence",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": " GET -> Settings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/settings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"settings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> ID",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"paramSeq\": 2,\r\n\"paramValue\": \"VYSARPADI\",\r\n\"paramExample\": \"THULASIRAM\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/settings/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"settings",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
