@@ -27,12 +27,13 @@ public class BillController {
     @Autowired
     private BillService billService;
 
-    @GetMapping("/byBillSequence/{billSequence}")
-    public ResponseEntity<?> getBillsByBillSequence(@PathVariable("billSequence") int billSequence) {
-        List<Bill> bills = billService.findBillsByBillSequence(billSequence);
+    @GetMapping("/number")
+    public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo",required  = false) Integer billNo,
+    		@RequestParam(value = "billSequence",required  = false) Long billSequence) {
+        List<Bill> bills = billService.findBillsByBillNo(billNo,billSequence);
         if (bills.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body("No bills found with billSequence: " + billSequence);
+                                 .body("No bills found with billSequence: " + billNo);
         } else {
             return ResponseEntity.ok(bills);
         }

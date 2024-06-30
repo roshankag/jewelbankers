@@ -14,41 +14,52 @@ import com.jewelbankers.repository.BillRepository;
 
 @Service
 public class BillService {
-    @Autowired
-    private BillRepository billRepository;
-    
-    public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
-        return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street,billNo);
-    }
-    
-    public List<Bill> findBillsByCustomerStreet(String street) {
-        return billRepository.findByCustomerStreet(street);
-    }
+	@Autowired
+	private BillRepository billRepository;
+
+	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
+		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);
+	}
+
+	public List<Bill> findBillsByCustomerStreet(String street) {
+		return billRepository.findByCustomerStreet(street);
+	}
 
 	/*
 	 * public List<Bill> getAllBills() { return billRepository.findAll(); }
 	 */
-    
-    public Page<Bill> getAllBills(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return billRepository.findAll(pageable);
-    }
-    public Optional<Bill> findById(Long billSequence){ 
-        return billRepository.findById(billSequence);
-    }
 
-    public Bill saveBill(Bill bill) {
-        return billRepository.save(bill);
-    }
-
-    public void deleteBill(Long id) {
-        billRepository.deleteById(id);
-    }
-
-	public List<Bill> findBillsByBillSequence(int billSequence) {
-		// TODO Auto-generated method stub
-		return null;
+	public Page<Bill> getAllBills(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		return billRepository.findAll(pageable);
 	}
 
+	public Optional<Bill> findById(Long billSequence) {
+		return billRepository.findById(billSequence);
+	}
+
+	public Bill saveBill(Bill bill) {
+		return billRepository.save(bill);
+	}
+
+	public void deleteBill(Long id) {
+		billRepository.deleteById(id);
+	}
+
+	public List<Bill> findBillsByBillNo(Integer billNo) {
+		return billRepository.findByBillNo(billNo);
+	}
 	
+	/*
+	 * public List<Bill> findBillsByBillSequence(Long billSeq) { return
+	 * billRepository.findByBillSequence(billSeq); }
+	 */
+	  
+	  public List<Bill> findBillsByBillNo(Integer billNo, Long billSequence ) 
+	  { 
+		  if(billNo != null && billNo >0) return findBillsByBillNo(billNo);
+		  else return billRepository.findByBillSequence(billSequence);
+	  
+	  }
+	 
 }

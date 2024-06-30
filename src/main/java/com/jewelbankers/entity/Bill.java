@@ -54,7 +54,7 @@ public class Bill {
 	@JsonManagedReference
     private List<BillDetail> billDetails;
     
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "customerid")
     private Customer customer;
 
