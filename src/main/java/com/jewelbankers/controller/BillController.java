@@ -29,8 +29,9 @@ public class BillController {
 
     @GetMapping("/number")
     public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo",required  = false) Integer billNo,
-    		@RequestParam(value = "billSequence",required  = false) Long billSequence) {
-        List<Bill> bills = billService.findBillsByBillNo(billNo,billSequence);
+    		@RequestParam(value = "billSequence",required  = false) Long billSequence,
+    @RequestParam(value = "billSerial",required  = false) Character billSerial) {
+        List<Bill> bills = billService.findBillsByBillNo(billSerial,billNo,billSequence);
         if (bills.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body("No bills found with billSequence: " + billNo);

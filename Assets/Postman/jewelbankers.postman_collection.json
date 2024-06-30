@@ -364,12 +364,12 @@
 			"response": []
 		},
 		{
-			"name": "GET -> Bill No",
+			"name": "GET -> Bill No and Bill Serial",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/bills/number?billNo=8765",
+					"raw": "http://localhost:8080/bills/number?billNo=9815&billSerial=A",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -382,7 +382,11 @@
 					"query": [
 						{
 							"key": "billNo",
-							"value": "8765"
+							"value": "9815"
+						},
+						{
+							"key": "billSerial",
+							"value": "A"
 						}
 					]
 				}

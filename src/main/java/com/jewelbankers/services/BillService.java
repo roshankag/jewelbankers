@@ -55,9 +55,9 @@ public class BillService {
 	 * billRepository.findByBillSequence(billSeq); }
 	 */
 	  
-	  public List<Bill> findBillsByBillNo(Integer billNo, Long billSequence ) 
+	  public List<Bill> findBillsByBillNo(Character billSerial,Integer billNo, Long billSequence ) 
 	  { 
-		  if(billNo != null && billNo >0) return findBillsByBillNo(billNo);
+		  if(billNo != null && billNo >0) return billRepository.findByBillSerialAndBillNo(billSerial,billNo);
 		  else return billRepository.findByBillSequence(billSequence);
 	  
 	  }
