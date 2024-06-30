@@ -1,7 +1,11 @@
 package com.jewelbankers.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -18,14 +23,15 @@ import jakarta.persistence.Table;
 public class Bill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "billSequence") 
     private Integer billSequence;
-    private Integer productNo;
-    
-    @Column(name = "productDescription")
-    private String productDescription;
-    
-    @Column(name = "productQuantity")
-    private Integer productQuantity;
+	/*
+	 * private Integer productNo;
+	 * 
+	 * @Column(name = "productDescription") private String productDescription;
+	 * 
+	 * @Column(name = "productQuantity") private Integer productQuantity;
+	 */
 
     @Column(name = "billSerial")
     private Character billSerial;
@@ -34,23 +40,25 @@ public class Bill {
     private Integer billNo;
 
     @Column(name = "billDate")
-    private String billDate1;
+    private String billDate;
     
-	/*
-	 * @Column(name = "CustomerId") private String CustomerId;
-	 */
+    public List<BillDetail> getBillDetails() {
+		return billDetails;
+	}
+
+	public void setBillDetails(List<BillDetail> billDetails) {
+		this.billDetails = billDetails;
+	}
+
+	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+    private List<BillDetail> billDetails;
     
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customerid")
     private Customer customer;
 
-	public String getBillDate1() {
-		return billDate1;
-	}
-
-	public void setBillDate1(String billDate1) {
-		this.billDate1 = billDate1;
-	}
+	
 
 	public Customer getCustomer() {
 		return customer;
@@ -113,17 +121,13 @@ public class Bill {
 		this.billSequence = billSequence;
 	}
 
-	public Integer getProductNo() {
-		return productNo;
-	}
-
-	public void setProductNo(Integer productNo) {
-		this.productNo = productNo;
-	}
-
-	public String getProductDescription() {
-		return productDescription;
-	}
+	/*
+	 * public Integer getProductNo() { return productNo; }
+	 * 
+	 * public void setProductNo(Integer productNo) { this.productNo = productNo; }
+	 * 
+	 * public String getProductDescription() { return productDescription; }
+	 */
 
 //	public Customer getCustomer() {
 //		return customer;
@@ -133,17 +137,15 @@ public class Bill {
 //		this.customer = customer;
 //	}
 
-	public void setProductDescription(String productDescription) {
-		this.productDescription = productDescription;
-	}
-
-	public Integer getProductQuantity() {
-		return productQuantity;
-	}
-
-	public void setProductQuantity(Integer productQuantity) {
-		this.productQuantity = productQuantity;
-	}
+	/*
+	 * public void setProductDescription(String productDescription) {
+	 * this.productDescription = productDescription; }
+	 * 
+	 * public Integer getProductQuantity() { return productQuantity; }
+	 * 
+	 * public void setProductQuantity(Integer productQuantity) {
+	 * this.productQuantity = productQuantity; }
+	 */
 
 	public Character getBillSerial() {
 		return billSerial;
@@ -162,11 +164,11 @@ public class Bill {
 	}
 
 	public String getBillDate() {
-		return billDate1;
+		return billDate;
 	}
 
 	public void setBillDate(String billDate) {
-		this.billDate1 = billDate;
+		this.billDate = billDate;
 	}
 
 	public String getCareOf() {
@@ -295,7 +297,7 @@ public class Bill {
     @Column(name = "productTypeNo")
     private Integer productTypeNo;
 
-    @Column(name = "rateOfInterst")
+    @Column(name = "rateOfInterest")
     private BigDecimal rateOfInterest;
     
     @Column(name = "amount")
