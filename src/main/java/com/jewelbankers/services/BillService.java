@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.jewelbankers.entity.Bill;
@@ -22,10 +25,14 @@ public class BillService {
         return billRepository.findByCustomerStreet(street);
     }
 
-    public List<Bill> getAllBills() {
-        return billRepository.findAll();
+	/*
+	 * public List<Bill> getAllBills() { return billRepository.findAll(); }
+	 */
+    
+    public Page<Bill> getAllBills(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return billRepository.findAll(pageable);
     }
-
     public Optional<Bill> findById(Long billSequence){ 
         return billRepository.findById(billSequence);
     }
