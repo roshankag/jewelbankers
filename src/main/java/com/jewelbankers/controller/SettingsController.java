@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jewelbankers.entity.Parameters;
+import com.jewelbankers.entity.Settings;
 import com.jewelbankers.services.SettingsService;
 
 
@@ -24,27 +24,27 @@ public class SettingsController {
 	private SettingsService settingsService;
 	
 	@GetMapping
-	public List<Parameters> getParameters() {
-		return settingsService.getParameters();
+	public List<Settings> getSettings() {
+		return settingsService.getSettings();
 	}
 	
 	@PutMapping("/{id}")
-    public ResponseEntity<Parameters> updateParameter(@PathVariable("id") Long paramSeq, @RequestBody Parameters inputParameter) {
-		Optional<Parameters> existingParameter = settingsService.findByParamSeq(paramSeq);
+    public ResponseEntity<Settings> updateSettings(@PathVariable("id") Long paramSeq, @RequestBody Settings inputSettings) {
+		Optional<Settings> existingSettings = settingsService.findByParamSeq(paramSeq);
 		
-        if (!existingParameter.isPresent()) {
+        if (!existingSettings.isPresent()) {
         	return ResponseEntity.notFound().build();        
         	}
 
-        Parameters parameterSelect= existingParameter.get();
+        Settings settingsSelect= existingSettings.get();
         
-        if (inputParameter.getParamSeq() != null) parameterSelect.setParamSeq(inputParameter.getParamSeq());
-        if (inputParameter.getParamId() != null) parameterSelect.setParamId(inputParameter.getParamId());
-        if (inputParameter.getParamValue() != null) parameterSelect.setParamValue(inputParameter.getParamValue());
-        if (inputParameter.getParamExample()!= null) parameterSelect.setParamExample(inputParameter.getParamExample());
+        if (inputSettings.getParamSeq() != null) settingsSelect.setParamSeq(inputSettings.getParamSeq());
+        if (inputSettings.getParamId() != null) settingsSelect.setParamId(inputSettings.getParamId());
+        if (inputSettings.getParamValue() != null) settingsSelect.setParamValue(inputSettings.getParamValue());
+        if (inputSettings.getParamExample()!= null) settingsSelect.setParamExample(inputSettings.getParamExample());
         
         
-        Parameters updateParameters = settingsService.save(parameterSelect);
-        return ResponseEntity.ok(updateParameters);
+        Settings updateSettings = settingsService.save(settingsSelect);
+        return ResponseEntity.ok(updateSettings);
 }
 }
