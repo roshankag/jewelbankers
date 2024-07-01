@@ -43,14 +43,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/customers",
+					"raw": "http://localhost:8080/customers/3914",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"customers"
+						"customers",
+						"3914"
 					]
 				}
 			},
@@ -63,7 +64,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n        \"area\": \"kelambakkam\",\r\n        \"email\": \"dkag709@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 603103,\r\n        \"customerName\": \"Deepak\",\r\n        \"street\": \"Masjid nagar\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,10th Central Cross Street.\"\r\n    }",
+					"raw": "{\r\n        \"area\": \"kelambakkam\",\r\n        \"email\": \"dkag709@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 603103,\r\n        \"customerName\": \"DEEPAK S/O OMPRAKASH\",\r\n        \"street\": \"Masjid nagar\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,10th Central Cross Street.\"\r\n    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -139,7 +140,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/customers/search?customerName=mahesh",
+					"raw": "http://localhost:8080/customers/search?customerName=murgan",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -152,7 +153,7 @@
 					"query": [
 						{
 							"key": "customerName",
-							"value": "mahesh"
+							"value": "murgan"
 						}
 					]
 				}
@@ -185,67 +186,13 @@
 			"response": []
 		},
 		{
-			"name": "GET -> Bill No by id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/bills/no?billNo=7426",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"bills",
-						"no"
-					],
-					"query": [
-						{
-							"key": "billNo",
-							"value": "7426"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "POST -> Create bill ",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "        {\r\n        \r\n            \"billSerial\": \"A\",\r\n            \"billNo\": 9815,\r\n            \"billDate\": \"30/06/2024\",\r\n            \"billDetails\": [\r\n                {\r\n                    \"productNo\": 1,\r\n                    \"productDescription\": \"ONE PAIR SILVER GULLASH, \",\r\n                    \"productQuantity\": 1\r\n                },\r\n                 {\r\n                    \"productNo\": 3,\r\n                    \"productDescription\": \"ONE PAIR SILVER chain gulluse, \",\r\n                    \"productQuantity\": 2\r\n                }\r\n            ],\r\n            \"customer\": {\r\n                \"id\": null,\r\n                \"area\": \"\",\r\n                \"email\": null,\r\n                \"phone\": \"TAMIL NADU\",\r\n                \"pincode\": 603103,\r\n                \"customerName\": \"roshan D/O SEHKAR\",\r\n                \"street\": \"THAIYUR\",\r\n                \"district\": \"KANCHEEPURAM\",\r\n                \"country\": \"INDIA\",\r\n                \"relationShip\": null,\r\n                \"relationShipName\": null,\r\n                \"address\": \"ESWARAN KOIL ST. CHENGALMAL\"\r\n            },\r\n            \"careOf\": null,\r\n            \"productTypeNo\": 3,\r\n            \"rateOfInterest\": 2,\r\n            \"amount\": 4500,\r\n            \"amountInWords\": \" FOUR THOUSAND FIVE HUNDRED RUPEES ONLY\",\r\n            \"presentValue\": 4600,\r\n            \"grams\": 0.00,\r\n            \"monthlyIncome\": 8600,\r\n            \"redemptionDate\": \"05/12/2018\",\r\n            \"redemptionInterest\": 3890.25,\r\n            \"redemptionTotal\": 8390.25,\r\n            \"redemptionStatus\": \"R\",\r\n            \"billRedemSerial\": \"C\",\r\n            \"billRedemNo\": 630,\r\n            \"comments\": \"\"\r\n        }",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/bills",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"bills"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "POST -> Create bill  Copy",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"billSequence\": 161,\r\n    \"productNo\": null,\r\n    \"productDescription\": null,\r\n    \"productQuantity\": null,\r\n    \"billSerial\": \"B\",\r\n    \"billNo\": 1591,\r\n    \"billDate1\": \"26/06/2024\",\r\n    \"customer\": {\r\n        \"id\": 135,\r\n        \"area\": \"MKB Nagar\",\r\n        \"email\": \"roshankag2003@gmail.com\",\r\n        \"phone\": \"9444338872\",\r\n        \"pincode\": 600039,\r\n        \"customerName\": \"ROSHAN B T\",\r\n        \"street\": \"10TH CENTRAL CROSS STREET\",\r\n        \"district\": \"CHENNAI\",\r\n        \"country\": \"INDIA\",\r\n        \"relationShip\": null,\r\n        \"relationShipName\": null,\r\n        \"address\": \"NO.870\"\r\n    },\r\n    \"careOf\": null,\r\n    \"productTypeNo\": 5,\r\n    \"rateOfInterest\": 2,\r\n    \"amount\": 11000,\r\n    \"amountInWords\": \" ELEVEN THOUSAND RUPEES ONLY\",\r\n    \"presentValue\": 11100,\r\n    \"grams\": 7.00,\r\n    \"monthlyIncome\": 8600,\r\n    \"redemptionDate\": \"26/06/2024\",\r\n    \"redemptionInterest\": 5413.10,\r\n    \"redemptionTotal\": 16413.10,\r\n    \"redemptionStatus\": \"R\",\r\n    \"billRedemSerial\": \"C\",\r\n    \"billRedemNo\": 1842,\r\n    \"comments\": \"\",\r\n    \"billDate\": \"26/06/2024\"\r\n}",
+					"raw": "        {\r\n        \r\n            \"billSerial\": \"A\",\r\n            \"billNo\": 9816,\r\n            \"billDate\": \"30/06/2024\",\r\n            \"billDetails\": [\r\n                {\r\n                    \"productNo\": 1,\r\n                    \"productDescription\": \"ONE PAIR SILVER GULLASH, \",\r\n                    \"productQuantity\": 1\r\n                },\r\n                 {\r\n                    \"productNo\": 3,\r\n                    \"productDescription\": \"ONE PAIR SILVER chain gulluse, \",\r\n                    \"productQuantity\": 2\r\n                }\r\n            ],\r\n            \"customer\": {\r\n                \"id\": null,\r\n                \"area\": \"\",\r\n                \"email\": null,\r\n                \"phone\": \"TAMIL NADU\",\r\n                \"pincode\": 603103,\r\n                \"customerName\": \"maheshkumar D/O SEHKAR\",\r\n                \"street\": \"THAIYUR\",\r\n                \"district\": \"KANCHEEPURAM\",\r\n                \"country\": \"INDIA\",\r\n                \"relationShip\": null,\r\n                \"relationShipName\": null,\r\n                \"address\": \"ESWARAN KOIL ST. CHENGALMAL\"\r\n            },\r\n            \"careOf\": null,\r\n            \"productTypeNo\": 3,\r\n            \"rateOfInterest\": 2,\r\n            \"amount\": 4500,\r\n            \"amountInWords\": \" FOUR THOUSAND FIVE HUNDRED RUPEES ONLY\",\r\n            \"presentValue\": 4600,\r\n            \"grams\": 0.00,\r\n            \"monthlyIncome\": 8600,\r\n            \"redemptionDate\": \"05/12/2018\",\r\n            \"redemptionInterest\": 3890.25,\r\n            \"redemptionTotal\": 8390.25,\r\n            \"redemptionStatus\": \"R\",\r\n            \"billRedemSerial\": \"C\",\r\n            \"billRedemNo\": 630,\r\n            \"comments\": \"\"\r\n        }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -287,7 +234,7 @@
 			"response": []
 		},
 		{
-			"name": "PUT -> Update customer",
+			"name": "PUT -> Update BILL",
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -301,7 +248,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/bills/176",
+					"raw": "http://localhost:8080/bills/17125",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -309,7 +256,7 @@
 					"port": "8080",
 					"path": [
 						"bills",
-						"176"
+						"17125"
 					]
 				}
 			},
@@ -341,7 +288,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"paramSeq\": 1,\r\n\"paramValue\": \"MKB NAGAR\",\r\n\"paramExample\": \"ROSHAN\"\r\n}",
+					"raw": "{\r\n\"paramSeq\": 2,\r\n\"paramValue\": \"MKB NAGAR\",\r\n\"paramExample\": \"DEEPAK\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -349,7 +296,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/settings/1",
+					"raw": "http://localhost:8080/settings/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -357,7 +304,7 @@
 					"port": "8080",
 					"path": [
 						"settings",
-						"1"
+						"2"
 					]
 				}
 			},
@@ -369,7 +316,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/bills/number?billNo=9815&billSerial=A",
+					"raw": "http://localhost:8080/bills/number?billNo=9816&billSerial=A",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -382,7 +329,7 @@
 					"query": [
 						{
 							"key": "billNo",
-							"value": "9815"
+							"value": "9816"
 						},
 						{
 							"key": "billSerial",
@@ -399,7 +346,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/bills/number?billSequence=8765",
+					"raw": "http://localhost:8080/bills/number?billSequence=17126",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -412,8 +359,104 @@
 					"query": [
 						{
 							"key": "billSequence",
-							"value": "8765"
+							"value": "17126"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> product_types",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/product_types",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create product_type",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"productTypeCode\": \"PLATINUM\",\r\n        \"productTypeDescription\": \"PLATINUM\",\r\n        \"rateOfInterest\": 15.0\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/product_types",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> Update ProductType",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"productTypeCode\": \"BRONZE\",\r\n        \"productTypeDescription\": \"BRONZE\",\r\n        \"rateOfInterest\": 12.0\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/product_types/6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE -> Delete ProductType",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/product_types/8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types",
+						"8"
 					]
 				}
 			},
