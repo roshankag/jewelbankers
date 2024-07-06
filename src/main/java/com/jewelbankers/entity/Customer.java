@@ -38,7 +38,7 @@ public class Customer {
     private String Address;
 	
 	@Column(name = "State")
-	private String phone;
+	private String state;
 	
 
 	@Column(name = "Pincode")
@@ -73,10 +73,32 @@ public class Customer {
 	
 	@Column(name = "RelationShipName ")
 	private String relationShipName ;
-	 
+	
+
+	@Column(name = "PhoneNo")
+	private Integer phone;
+	
+	@Column(name = "MobileNo")
+	private Integer MobileNo;
 //	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Bill> bills;
 	
+	public Integer getPhone() {
+		return phone;
+	}
+
+	public void setPhone(Integer phone) {
+		this.phone = phone;
+	}
+
+	public Integer getMobileNo() {
+		return MobileNo;
+	}
+
+	public void setMobileNo(Integer mobileNo) {
+		MobileNo = mobileNo;
+	}
+
 	public int getPincode() {
 		return pincode;
 	}
@@ -157,12 +179,18 @@ public class Customer {
 	  public void setEmail(String email) { this.email = email; }
 	 
 
-	public String getPhone() {
-		return phone;
+	
+
+	public String getState() {
+		return state;
 	}
 
-	public void setPhone(String phone) {
-		this.phone = phone;
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	// Constructors

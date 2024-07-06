@@ -78,6 +78,7 @@ public class CustomerService {
 	            existingCustomer.setCountry(customer.getCountry());
 	            existingCustomer.setDistrict(customer.getDistrict());
 	            existingCustomer.setEmail(customer.getEmail());
+	            existingCustomer.setMobileNo(customer.getMobileNo());
 	            existingCustomer.setPhone(customer.getPhone());
 	            existingCustomer.setPincode(customer.getPincode());
 	            existingCustomer.setRelationShip(customer.getRelationShip());

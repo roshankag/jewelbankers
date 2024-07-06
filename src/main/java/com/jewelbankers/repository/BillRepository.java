@@ -16,5 +16,4 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
 	List<Bill> findByCustomerStreet(String street);
 	List<Bill> findByBillNo(Integer billNo);
 	List<Bill> findByBillSerialAndBillNo(Character billSerial,Integer billNo);
-
 }

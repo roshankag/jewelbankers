@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import com.jewelbankers.services.BillService;
 
 @RestController
 @RequestMapping("/bills")
+@CrossOrigin(origins = "http://localhost:4200")
 public class BillController {
    
     @Autowired
@@ -31,6 +33,7 @@ public class BillController {
     public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo",required  = false) Integer billNo,
     		@RequestParam(value = "billSequence",required  = false) Long billSequence,
     @RequestParam(value = "billSerial",required  = false) Character billSerial) {
+    	//Log.debug("input bill no"+billNo+ "bill serial"+billSerial);
         List<Bill> bills = billService.findBillsByBillNo(billSerial,billNo,billSequence);
         if (bills.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
