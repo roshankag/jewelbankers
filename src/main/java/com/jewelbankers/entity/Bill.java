@@ -55,7 +55,7 @@ public class Bill {
     private List<BillDetail> billDetails;
     
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "customerid")
+    @JoinColumn(name = "customerid", referencedColumnName = "customerid")
     private Customer customer;
 
 	

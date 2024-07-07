@@ -21,12 +21,18 @@ public class Customer {
 	@Id
 	// @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CUST_SEQ")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "Customerid")
-	private Long id;
+	@Column(name = "customerid")
+	private Long customerid;
 	
-	public Long getId() {
-		return id;
+	
+	public Long getCustomerid() {
+		return customerid;
 	}
+
+	public void setCustomerid(Long customerid) {
+		this.customerid = customerid;
+	}
+
 
 	@Column(name = "area")
 	private String area;
@@ -189,10 +195,7 @@ public class Customer {
 		this.state = state;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
+	
 	// Constructors
 	public Customer() {
 	}
