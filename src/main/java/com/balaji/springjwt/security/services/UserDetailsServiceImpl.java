@@ -1,4 +1,4 @@
-package com.bezkoder.springjwt.security.services;
+package com.balaji.springjwt.security.services;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bezkoder.springjwt.models.User;
-import com.bezkoder.springjwt.repository.UserRepository;
+import com.balaji.springjwt.models.User;
+import com.balaji.springjwt.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

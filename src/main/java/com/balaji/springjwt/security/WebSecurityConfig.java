@@ -1,4 +1,4 @@
-package com.bezkoder.springjwt.security;
+package com.balaji.springjwt.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,9 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.bezkoder.springjwt.security.jwt.AuthEntryPointJwt;
-import com.bezkoder.springjwt.security.jwt.AuthTokenFilter;
-import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
+import com.balaji.springjwt.security.jwt.AuthEntryPointJwt;
+import com.balaji.springjwt.security.jwt.AuthTokenFilter;
+import com.balaji.springjwt.security.services.UserDetailsServiceImpl;
 
 @Configuration
 @EnableMethodSecurity
@@ -83,7 +83,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
   
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
+    http.cors().and().csrf().disable()
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> 

@@ -1,4 +1,4 @@
-package com.bezkoder.springjwt.controllers;
+package com.balaji.springjwt.controllers;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bezkoder.springjwt.models.User;
-import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
+import com.balaji.springjwt.models.User;
+import com.balaji.springjwt.security.services.UserDetailsServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
