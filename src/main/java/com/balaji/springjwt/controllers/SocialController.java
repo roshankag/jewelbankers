@@ -44,10 +44,13 @@ import com.balaji.springjwt.dto.LoginResponse;
 import com.balaji.springjwt.dto.TokenDto;
 import com.balaji.springjwt.models.Role;
 import com.balaji.springjwt.models.User;
+import com.balaji.springjwt.repository.UserRepository;
 import com.balaji.springjwt.security.jwt.JwtUtils;
 import com.balaji.springjwt.security.services.UserDetailsImpl;
 import com.balaji.springjwt.services.RoleService;
 import com.balaji.springjwt.services.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -86,12 +89,13 @@ public class SocialController {
 
     private String email;
 
+    @Autowired
+    private UserRepository userRepository;
 
-    @Value("${google.id}")
-    private String idClient;
+    private Claims claims;
 
-    @Value("${mySecret.password}")
-    private String password;
+    @Autowired
+  JwtUtils jwtUtils;
 
     @Autowired
     public SocialController(UserService userService,RoleService roleService,JwtUtils tokenService,PasswordEncoder passwordEncoder) {
@@ -128,16 +132,46 @@ System.out.println("g_csrf_token: " + gCsrfToken);
 // Validate the ID token
 boolean isValid = validateGoogleIdToken(credential);
 if (isValid) {
+    String userEmail = claims.get("email", String.class);
+    User userDetails =  userRepository.findByEmail(userEmail);    
+    List<String> roles = userDetails.getRoles().stream()
+    .map(role -> role.getName().name()) // Extract role name from Enum
+    .collect(Collectors.toList());
 
     System.out.println("Valid token");
-
+    String token = jwtUtils.generateJwtToken(userEmail);
 
 // Handle the authentication response here
 // You can extract user details from the token if needed
+Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("token", token);
+
+            responseBody.put("userId", userDetails.getId());
+            responseBody.put("username", userDetails.getUsername());
+            responseBody.put("email", userEmail);
+            responseBody.put("roles", roles);
+            // Convert the response body to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = "";
+            try {
+                jsonResponse = objectMapper.writeValueAsString(responseBody);
+            } catch (JsonProcessingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            // Set content type and write the JSON response
+            httpServletResponse.setContentType("application/json");
+            httpServletResponse.setCharacterEncoding("UTF-8");
+            try {
+                httpServletResponse.getWriter().write(jsonResponse);
+                httpServletResponse.getWriter().flush();    
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
 // Redirect to the frontend dashboard
-httpServletResponse.setHeader("Location", "http://localhost:4200/admin-dashboard");
-httpServletResponse.setStatus(HttpServletResponse.SC_FOUND); // 302 status code
 } else {
 httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 status code
 }
@@ -153,16 +187,17 @@ httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 statu
     }
 
     private Map<String, String> parseRequestBody(String requestBody) {
+        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> params = new HashMap<>();
-        String[] pairs = requestBody.split("&");
-        for (String pair : pairs) {
-            String[] keyValue = pair.split("=");
-            if (keyValue.length == 2) {
-                String key = java.net.URLDecoder.decode(keyValue[0], java.nio.charset.StandardCharsets.UTF_8);
-                String value = java.net.URLDecoder.decode(keyValue[1], java.nio.charset.StandardCharsets.UTF_8);
-                params.put(key, value);
-            }
+        
+        try {
+            // Parse JSON string to Map
+            params = objectMapper.readValue(requestBody, new TypeReference<Map<String, String>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle parsing exception as needed
         }
+        
         return params;
     }
 
@@ -183,7 +218,7 @@ httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 statu
                     .parseClaimsJws(jwt);
 
             // Print user information
-            Claims claims = claimsJws.getBody();
+            claims = claimsJws.getBody();
             String userId = claims.getSubject();
             String email = claims.get("email", String.class);
             String name = claims.get("name", String.class);

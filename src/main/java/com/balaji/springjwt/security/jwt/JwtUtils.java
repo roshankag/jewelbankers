@@ -2,19 +2,28 @@ package com.balaji.springjwt.security.jwt;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.balaji.springjwt.dto.JwtLogin;
 import com.balaji.springjwt.dto.LoginResponse;
+import com.balaji.springjwt.models.User;
+import com.balaji.springjwt.models.UserPrincipal;
+import com.balaji.springjwt.repository.UserRepository;
 import com.balaji.springjwt.security.services.UserDetailsImpl;
+import com.balaji.springjwt.security.services.UserDetailsServiceImpl;
+import com.balaji.springjwt.services.UserService;
+
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -30,6 +39,25 @@ public class JwtUtils {
 
   @Value("${bezkoder.app.jwtExpirationMs}")
   private int jwtExpirationMs;
+
+
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
+
+  public String generateJwtToken(String email) {
+
+
+      UserDetails userPrincaple = userDetailsService.loadUserByEmail(email);
+
+      System.out.println(email);
+    System.out.println(userPrincaple.getUsername());
+    return Jwts.builder()
+            .setSubject(userPrincaple.getUsername())
+            .setIssuedAt(new Date())
+            .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+            .signWith(key(), SignatureAlgorithm.HS256)
+            .compact();
+}
 
   public String generateJwtToken(Authentication authentication) {
 

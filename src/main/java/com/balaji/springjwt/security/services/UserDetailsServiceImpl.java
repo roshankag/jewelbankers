@@ -27,6 +27,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     return UserDetailsImpl.build(user);
   }
 
+  @Transactional
+  public UserDetails loadUserByEmail(String username) throws UsernameNotFoundException {
+    User user = userRepository.findByEmail(username);
+
+    return UserDetailsImpl.build(user);
+  }
+
+  @Transactional
+  public void deleteUserById(Long id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + id));
+    userRepository.delete(user);
+  }
+
+
 
     public List<User> allUsers() {
         List<User> users = new ArrayList<>();
