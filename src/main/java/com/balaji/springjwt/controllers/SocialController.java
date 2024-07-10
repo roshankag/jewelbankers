@@ -94,6 +94,8 @@ public class SocialController {
 
     private Claims claims;
 
+    @Value("${mySecret.password}")
+    private String password;
     @Autowired
   JwtUtils jwtUtils;
 
