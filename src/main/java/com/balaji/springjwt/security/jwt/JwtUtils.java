@@ -6,9 +6,14 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.balaji.springjwt.dto.JwtLogin;
+import com.balaji.springjwt.dto.LoginResponse;
 import com.balaji.springjwt.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -16,6 +21,8 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtils {
+
+    private AuthenticationManager authenticationManager;
   private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
   @Value("${bezkoder.app.jwtSecret}")
@@ -61,4 +68,12 @@ public class JwtUtils {
 
     return false;
   }
+
+  public LoginResponse login(JwtLogin jwtLogin) throws Exception{
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(jwtLogin.getEmail(),
+                jwtLogin.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String token = generateJwtToken(authenticate);
+        return new LoginResponse(token);
+    }
 }
