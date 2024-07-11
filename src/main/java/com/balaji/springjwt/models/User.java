@@ -28,6 +28,9 @@ public class User {
   @Email
   private String email;
 
+  @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
   @NotBlank
   @Size(max = 120)
   private String password;
@@ -74,6 +77,14 @@ public class User {
   public String getPassword() {
     return password;
   }
+
+  public String getResetPasswordToken() {
+		return resetPasswordToken;
+	}
+
+	public void setResetPasswordToken(String resetPasswordToken) {
+		this.resetPasswordToken = resetPasswordToken;
+	}
 
   public void setPassword(String password) {
     this.password = password;
