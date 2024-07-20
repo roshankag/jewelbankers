@@ -28,6 +28,12 @@ public class BillController {
    
     @Autowired
     private BillService billService;
+    
+//    @GetMapping("/nextBillNumber/{nextBillNumber}")
+//    public ResponseEntity<Integer> getNextBillNumber(@PathVariable("nextBillNumber") Integer nextBillNumber) {
+//        int nextBillNumber1 = billService.getNextBillNumber();
+//        return new ResponseEntity<>(nextBillNumber1, HttpStatus.OK);
+//    }
 
     @GetMapping("/number")
     public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo",required  = false) Integer billNo,
@@ -65,12 +71,11 @@ public class BillController {
         return billService.saveBill(bill);
     }
     
-    @GetMapping("/search")
-    public List<Bill> getBillsByCustomerName(@RequestParam(value = "customerName", required = false) String customerName, 
-    		@RequestParam(value = "street", required = false)  String street , 
-    		@RequestParam(value = "billNo", required = false)  Integer billNo) {
-        return billService.findBillsByCustomerName(customerName,street,billNo);
-    }
+     @GetMapping("/search")
+     public List<Bill> getBillsBySearch(@RequestParam(value = "search", required = false) String search)
+  		    {
+      return billService.findBillsBySearch(search);
+      }
     
 	/*
 	 * @GetMapping("/search") public List<Bill>
@@ -111,6 +116,7 @@ public class BillController {
         Bill updatedBill = billService.saveBill(existingBill);
         return ResponseEntity.ok(updatedBill);
     }
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBill(@PathVariable("id") Long id) {
         Optional<Bill> billOptional = billService.findById(id);

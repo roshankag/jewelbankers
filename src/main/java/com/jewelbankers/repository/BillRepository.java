@@ -9,11 +9,14 @@ import com.jewelbankers.entity.Bill;
 
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long> {
+
 	List<Bill> findByBillSequence(Long billSequence);
 	//List<Bill> findByCustomer(Customer customer);
 	List<Bill> findByCustomerCustomerNameOrCustomerStreetOrBillNo(String customerName, String street, Integer billNo);
 	List<Bill> findByCustomerCustomerNameAndCustomerStreetAndBillNo(String customerName, String street, Integer billNo);
 	List<Bill> findByCustomerStreet(String street);
 	List<Bill> findByBillNo(Integer billNo);
+	List<Bill> findByCustomerCustomerName(String customerName);
 	List<Bill> findByBillSerialAndBillNo(Character billSerial,Integer billNo);
+	
 }

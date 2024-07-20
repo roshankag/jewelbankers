@@ -3,12 +3,16 @@ package com.jewelbankers.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.catalina.util.StringUtil;
+import org.apache.catalina.util.ToStringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import com.jewelbankers.Utility.BillUtility;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.repository.BillRepository;
 
@@ -16,10 +20,27 @@ import com.jewelbankers.repository.BillRepository;
 public class BillService {
 	@Autowired
 	private BillRepository billRepository;
+	
+//	public int getNextBillNumber() {
+//        Bill lastBill = billRepository.findTopByOrderByIdDesc();
+//        if (lastBill != null) {
+//            return lastBill.getBillNo() + 1;
+//        }
+//        return 1; // Start from 1 if no bills exist
+//    }
 
 	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
 		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);
 	}
+	public List<Bill> findBillsBySearch(String search) {
+		if (BillUtility.ValidateBillNo(search) ) {
+			System.out.println("Bill"+search.charAt(0)+":"+Integer.parseInt(search.substring(1, search.length())));
+			return billRepository.findByBillSerialAndBillNo(search.toUpperCase().charAt(0),Integer.parseInt(search.substring(1, search.length())));
+		}else {
+			return billRepository.findByCustomerCustomerName(search);
+		}	
+	}
+
 
 	public List<Bill> findBillsByCustomerStreet(String street) {
 		return billRepository.findByCustomerStreet(street);
@@ -46,9 +67,7 @@ public class BillService {
 		billRepository.deleteById(id);
 	}
 
-	public List<Bill> findBillsByBillNo(Integer billNo) {
-		return billRepository.findByBillNo(billNo);
-	}
+			
 	
 	/*
 	 * public List<Bill> findBillsByBillSequence(Long billSeq) { return
