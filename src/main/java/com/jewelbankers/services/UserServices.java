@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jewelbankers.entity.users;
-import com.jewelbankers.repository.UserRepository;
+import com.jewelbankers.repository.UserRepositoryAPI;
 
 import jakarta.transaction.Transactional;
 
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class UserServices {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryAPI userRepository;
 
     public List<users> getAllUsers() {
         return userRepository.findAll();
