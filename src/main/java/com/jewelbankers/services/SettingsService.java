@@ -24,7 +24,9 @@ public class SettingsService {
 	public Settings save(Settings parameterSelect) {
 		 return settingsRepository.save(parameterSelect);
 	}
-	
+	public List<Settings> searchSettings(String query) {
+        return settingsRepository.findByParamIdContainingOrParamValueContainingOrParamExampleContaining(query, query, query);
+    }
 	
 
 }

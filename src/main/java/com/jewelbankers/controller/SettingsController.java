@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jewelbankers.entity.Settings;
@@ -29,6 +30,11 @@ public class SettingsController {
 	public List<Settings> getSettings() {
 		return settingsService.getSettings();
 	}
+	
+	@GetMapping("/search")
+    public List<Settings> searchSettings(@RequestParam String query) {
+        return settingsService.searchSettings(query);
+    }
 	
 	@PutMapping("/{id}")
     public ResponseEntity<Settings> updateSettings(@PathVariable("id") Long paramSeq, @RequestBody Settings inputSettings) {

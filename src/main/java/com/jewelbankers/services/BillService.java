@@ -18,14 +18,6 @@ public class BillService {
 	@Autowired
 	private BillRepository billRepository;
 	
-//	public int getNextBillNumber() {
-//        Bill lastBill = billRepository.findTopByOrderByIdDesc();
-//        if (lastBill != null) {
-//            return lastBill.getBillNo() + 1;
-//        }
-//        return 1; // Start from 1 if no bills exist
-//    }
-
 	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
 		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);
 	}
@@ -43,9 +35,6 @@ public class BillService {
 		return billRepository.findByCustomerStreet(street);
 	}
 
-	/*
-	 * public List<Bill> getAllBills() { return billRepository.findAll(); }
-	 */
 
 	public Page<Bill> getAllBills(int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
@@ -63,15 +52,19 @@ public class BillService {
 	public void deleteBill(Long id) {
 		billRepository.deleteById(id);
 	}
-
-			
 	
-	/*
-	 * public List<Bill> findBillsByBillSequence(Long billSeq) { return
-	 * billRepository.findByBillSequence(billSeq); }
-	 */
-	  
-	  public List<Bill> findBillsByBillNo(Character billSerial,Integer billNo, Long billSequence ) 
+	public int getNextBillNo() {
+        // Logic to fetch the next available bill number
+        Integer currentBillNo = billRepository.findCurrentBillNo();
+        return (currentBillNo == null) ? 1 : currentBillNo + 1;
+    }
+	public int getNextBillRedemNo() {
+        // Logic to fetch the next available redeem number
+        Integer currentBillNo = billRepository. findCurrentBillRedemNo();
+        return (currentBillNo == null) ? 1 : currentBillNo + 1;
+    }
+	
+	public List<Bill> findBillsByBillNo(Character billSerial,Integer billNo, Long billSequence ) 
 	  { 
 		  if(billNo != null && billNo >0) return billRepository.findByBillSerialAndBillNo(billSerial,billNo);
 		  else return billRepository.findByBillSequence(billSequence);

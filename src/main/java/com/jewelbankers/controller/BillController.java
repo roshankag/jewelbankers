@@ -1,6 +1,8 @@
 package com.jewelbankers.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,23 @@ public class BillController {
     public Bill createBill(@RequestBody Bill bill) {
         return billService.saveBill(bill);
     }
+    
+    @GetMapping("/next-bill-number")
+    public ResponseEntity<Map<String, Integer>> getBillNumbers() {
+        int nextBillNo = billService.getNextBillNo();
+        Map<String, Integer> response = new HashMap<>();
+        response.put("nextBillNo", nextBillNo);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/next-redeem-number")
+    public ResponseEntity<Map<String, Integer>> getRedeemNumbers() {
+    	 int nextBillRedemNo = billService.getNextBillRedemNo();
+    	 Map<String, Integer> response = new HashMap<>();
+    	 response.put("nextBillRedemNo", nextBillRedemNo);
+    	 return ResponseEntity.ok(response);
+    }
+    
+    
     
      @GetMapping("/search")
      public List<Bill> getBillsBySearch(@RequestParam(value = "search", required = false) String search)

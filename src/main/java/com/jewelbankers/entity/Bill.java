@@ -37,6 +37,7 @@ public class Bill {
     private Character billSerial;
 
     @Column(name = "billNo")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billNo;
 
     @Column(name = "billDate")
@@ -159,9 +160,7 @@ public class Bill {
 		return billNo;
 	}
 
-	public void setBillNo(int billNo) {
-		this.billNo = billNo;
-	}
+	
 
 	public String getBillDate() {
 		return billDate;
@@ -279,10 +278,6 @@ public class Bill {
 		return billRedemNo;
 	}
 
-	public void setBillRedemNo(int billRedemNo) {
-		this.billRedemNo = billRedemNo;
-	}
-
 	public String getComments() {
 		return comments;
 	}
@@ -331,6 +326,7 @@ public class Bill {
     private Character billRedemSerial;
 
     @Column(name = "billRedemNo")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billRedemNo;
 
     @Column(name = "comments")
