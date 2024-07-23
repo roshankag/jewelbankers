@@ -21,6 +21,9 @@ import com.balaji.springjwt.security.jwt.AuthEntryPointJwt;
 import com.balaji.springjwt.security.jwt.AuthTokenFilter;
 import com.balaji.springjwt.security.services.UserDetailsServiceImpl;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+
 @Configuration
 @EnableMethodSecurity
 // (securedEnabled = true,
@@ -58,7 +61,13 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
 //  public AuthenticationManager authenticationManagerBean() throws Exception {
 //    return super.authenticationManagerBean();
 //  }
-  
+  @Bean
+    public OpenAPI registrationOpenAPI() {
+        return new OpenAPI()
+                .info(new Info().title("Your API Title")
+                        .description("Your API Description")
+                        .version("1.0"));
+    }
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
     return authConfig.getAuthenticationManager();
@@ -90,6 +99,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
           auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/social/**").permitAll()
               .requestMatchers("/api/test/**").permitAll()
               .requestMatchers("/api/users/**").permitAll()
+              .requestMatchers(AUTH_WHITELIST).permitAll()
               .requestMatchers("/forgot-password/**").permitAll()
               
               .anyRequest().authenticated()
@@ -101,4 +111,11 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
     
     return http.build();
   }
+  private static final String[] AUTH_WHITELIST = {
+    "/api/v1/auth/**",
+    "/v3/api-docs/**",
+    "/v3/api-docs.yaml",
+    "/swagger-ui/**",
+    "/swagger-ui.html"
+};
 }
