@@ -37,7 +37,6 @@ public class Bill {
     private Character billSerial;
 
     @Column(name = "billNo")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billNo;
 
     @Column(name = "billDate")
@@ -326,7 +325,7 @@ public class Bill {
     private Character billRedemSerial;
 
     @Column(name = "billRedemNo")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billRedemNo;
 
     @Column(name = "comments")

@@ -53,16 +53,16 @@ public class BillService {
 		billRepository.deleteById(id);
 	}
 	
-	public int getNextBillNo() {
-        // Logic to fetch the next available bill number
-        Integer currentBillNo = billRepository.findCurrentBillNo();
-        return (currentBillNo == null) ? 1 : currentBillNo + 1;
-    }
-	public int getNextBillRedemNo() {
-        // Logic to fetch the next available redeem number
-        Integer currentBillNo = billRepository. findCurrentBillRedemNo();
-        return (currentBillNo == null) ? 1 : currentBillNo + 1;
-    }
+//	public int getNextBillNo() {
+//        // Logic to fetch the next available bill number
+//        Integer currentBillNo = billRepository.findCurrentBillNo();
+//        return (currentBillNo == null) ? 1 : currentBillNo + 1;
+//    }
+//	public int getNextBillRedemNo() {
+//        // Logic to fetch the next available redeem number
+//        Integer currentBillNo = billRepository. findCurrentBillRedemNo();
+//        return (currentBillNo == null) ? 1 : currentBillNo + 1;
+//    }
 	
 	public List<Bill> findBillsByBillNo(Character billSerial,Integer billNo, Long billSequence ) 
 	  { 
