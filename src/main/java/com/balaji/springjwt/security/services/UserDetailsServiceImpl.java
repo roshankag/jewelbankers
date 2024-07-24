@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.social.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,31 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + id));
     userRepository.delete(user);
+  }
+  
+//  public User updateUser(Long id, User user) {
+//	    User existingUser = userRepository.findById(id)
+//	        .orElseThrow(() -> new ResourceNotFoundException("Message", "User not found"));
+//	    
+//	    existingUser.setEmail(user.getEmail());
+//	    existingUser.setUsername(user.getUsername());
+//	    existingUser.setRoles(user.getRoles());
+//	    
+//	    return userRepository.save(existingUser);
+//	}
+  
+  public User updateUser(Long id, User userData) {
+      // Find existing user
+      User existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+
+      // Update user fields
+      existingUser.setEmail(userData.getEmail());
+      existingUser.setPassword(userData.getPassword());
+      existingUser.setUsername(userData.getUsername());
+      existingUser.setRoles(userData.getRoles());
+
+      // Save updated user
+      return userRepository.save(existingUser);
   }
 
 

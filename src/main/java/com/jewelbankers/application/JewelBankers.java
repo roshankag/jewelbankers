@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @ComponentScan({ "com" })
 public class JewelBankers {
 
+	/**
+	 * @return
+	 */
 	@RequestMapping("/hell")	
 	String home() {
 		return "Hello World!";
