@@ -7,7 +7,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.itextpdf.text.DocumentException;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.services.BillService;
+import com.jewelbankers.services.PdfService;
 
 @RestController
 @RequestMapping("/bills")
@@ -30,6 +34,29 @@ public class BillController {
    
     @Autowired
     private BillService billService;
+    
+    @Autowired
+    private PdfService pdfService;
+
+    @GetMapping("/generatePledgeBillPdf")
+    public ResponseEntity<byte[]> generatePledgeBillPdf(
+    		@RequestParam(value = "billSequence",required  = false) Long billSequence)  throws DocumentException {
+    	Optional<Bill> bill = billService.findById(billSequence);
+        byte[] pdfBytes = pdfService.generatePledgeBillPdf(bill);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "pledgeBill.pdf");
+        return ResponseEntity.ok().headers(headers).body(pdfBytes);
+    }
+
+    @GetMapping("/generateRedeemBillPdf")
+    public ResponseEntity<byte[]> generateRedeemBillPdf(@RequestParam String customerName, @RequestParam String billDetails) throws DocumentException {
+        byte[] pdfBytes = pdfService.generateRedeemBillPdf(customerName, billDetails);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "redeemBill.pdf");
+        return ResponseEntity.ok().headers(headers).body(pdfBytes);
+    }
     
 
     @GetMapping("/number")
