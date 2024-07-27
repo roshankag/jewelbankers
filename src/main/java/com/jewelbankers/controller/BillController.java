@@ -31,11 +31,6 @@ public class BillController {
     @Autowired
     private BillService billService;
     
-//    @GetMapping("/nextBillNumber/{nextBillNumber}")
-//    public ResponseEntity<Integer> getNextBillNumber(@PathVariable("nextBillNumber") Integer nextBillNumber) {
-//        int nextBillNumber1 = billService.getNextBillNumber();
-//        return new ResponseEntity<>(nextBillNumber1, HttpStatus.OK);
-//    }
 
     @GetMapping("/number")
     public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo",required  = false) Integer billNo,
@@ -73,20 +68,20 @@ public class BillController {
         return billService.saveBill(bill);
     }
     
-//    @GetMapping("/next-bill-number")
-//    public ResponseEntity<Map<String, Integer>> getBillNumbers() {
-//        int nextBillNo = billService.getNextBillNo();
-//        Map<String, Integer> response = new HashMap<>();
-//        response.put("nextBillNo", nextBillNo);
-//        return ResponseEntity.ok(response);
-//    }
-//    @GetMapping("/next-redeem-number")
-//    public ResponseEntity<Map<String, Integer>> getRedeemNumbers() {
-//    	 int nextBillRedemNo = billService.getNextBillRedemNo();
-//    	 Map<String, Integer> response = new HashMap<>();
-//    	 response.put("nextBillRedemNo", nextBillRedemNo);
-//    	 return ResponseEntity.ok(response);
-//    }
+    @GetMapping("/next-bill-number")
+    public ResponseEntity<Map<String, Integer>> getBillNumbers() {
+        int nextBillNo = billService.getNextBillNo();
+        Map<String, Integer> response = new HashMap<>();
+        response.put("nextBillNo", nextBillNo);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/next-redeem-number")
+    public ResponseEntity<Map<String, Integer>> getRedeemNumbers() {
+    	 int nextBillRedemNo = billService.getNextBillRedemNo();
+    	 Map<String, Integer> response = new HashMap<>();
+    	 response.put("nextBillRedemNo", nextBillRedemNo);
+    	 return ResponseEntity.ok(response);
+    }
 //    
     
     

@@ -7,20 +7,25 @@ import lombok.Data;
 @AllArgsConstructor
 public class LoginResponse {
 
-	 public LoginResponse(String token) {
-	        this.setToken(token);
-	    }
-	
-	
+	// Constructor 1
+    public LoginResponse(String token) {
+        this.token = token;
+    }
+
+//    // Constructor 2 (this is likely causing the issue)
+//    public LoginResponse(String token) {
+//        this.token = token;
+//    }
+    
+
+
+	private String token;
+
 	public String getToken() {
 		return token;
 	}
 
-
 	public void setToken(String token) {
 		this.token = token;
 	}
-
-
-	private String token;
 }
