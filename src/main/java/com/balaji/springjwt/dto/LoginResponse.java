@@ -8,9 +8,9 @@ import lombok.Data;
 public class LoginResponse {
 
 	// Constructor 1
-    public LoginResponse(String token) {
-        this.token = token;
-    }
+	/*
+	 * public LoginResponse(String token) { this.token = token; }
+	 */
 
 //    // Constructor 2 (this is likely causing the issue)
 //    public LoginResponse(String token) {

@@ -70,7 +70,7 @@ import jakarta.servlet.http.HttpServletResponse;
 // http://localhost:8080
 @RestController
 @RequestMapping("/social")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost"})
 //http://localhost:8080/social
 public class SocialController {
 
