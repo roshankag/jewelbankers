@@ -42,7 +42,18 @@ public class Bill {
     @Column(name = "billDate")
     private String billDate;
     
-    public List<BillDetail> getBillDetails() {
+    @Column(name = "imagePath")  // Added column
+    private String imagePath;
+    
+    public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	public List<BillDetail> getBillDetails() {
 		return billDetails;
 	}
 

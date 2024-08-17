@@ -26,11 +26,11 @@ import com.balaji.springjwt.security.services.UserDetailsServiceImpl;
 
 @Configuration
 @EnableMethodSecurity
-// (securedEnabled = true,
-// jsr250Enabled = true,
-// prePostEnabled = true) // by default
+ (securedEnabled = true,
+ jsr250Enabled = true,
+ prePostEnabled = true) // by default
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
   @Autowired
   UserDetailsServiceImpl userDetailsService;
 
@@ -48,8 +48,9 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
           @Override
           public void addCorsMappings(CorsRegistry registry) {
               registry.addMapping("/**")
-              .allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
-              .allowedOrigins("*")
+              //.allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
+              //.allowedOrigins("*")
+              .allowedOrigins("http://localhost:4200")
               .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                       .allowedHeaders("*")
                       .allowCredentials(true);

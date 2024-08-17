@@ -53,6 +53,18 @@ public class Customer {
 	@Column(name = "Customername")
 	private String customerName;
 	
+	@Column(name = "imagePath")
+    private String imagePath;
+	
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+
 	@Column(name = "Street")
 	private String street;
     

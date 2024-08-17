@@ -1,5 +1,7 @@
 package com.jewelbankers.services;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,12 +13,22 @@ import org.springframework.stereotype.Service;
 
 import com.jewelbankers.Utility.BillUtility;
 import com.jewelbankers.entity.Bill;
+import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
 
 @Service
 public class BillService {
 	@Autowired
 	private BillRepository billRepository;
+	
+	public BillService(BillRepository billRepository) {
+        this.billRepository = billRepository;
+    }
+
+    public ByteArrayInputStream exportBillsToExcel() throws IOException {
+        List<Bill> bills = billRepository.findAll();
+        return ExcelGenerator.generateBillExcel(bills);
+    }
 	
 	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
 		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);

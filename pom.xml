@@ -167,6 +167,16 @@
   <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
   <version>2.4.12</version>
 </dependency>
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi</artifactId>
+    <version>5.2.3</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>5.2.3</version>
+</dependency>
 </dependencies>
 
 <!-- Mavem Jar Build-->

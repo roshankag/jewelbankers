@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@SpringBootApplication
+@SpringBootApplication	
 //@EnableJpaRepositories
 @EnableJpaRepositories(basePackages = {"com.balaji.springjwt.repository","com.jewelbankers.repository"}) 
 @EntityScan(basePackages = {"com.balaji.springjwt.models","com.jewelbankers.entity"})
@@ -31,6 +31,6 @@ public class JewelBankers {
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(JewelBankers.class, args);
-		//System.out.print(false);
+		//System.out.print();
 	}	
 }

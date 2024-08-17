@@ -1,11 +1,14 @@
 package com.jewelbankers.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,12 +23,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.itextpdf.text.DocumentException;
+import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
+import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.services.BillService;
-import com.jewelbankers.services.PdfService;
+import com.jewelbankers.services.FileStorageService;
 
 @RestController
 @RequestMapping("/bills")
@@ -36,28 +42,77 @@ public class BillController {
     private BillService billService;
     
     @Autowired
-    private PdfService pdfService;
+    private BillRepository billRepository;
+    
+    @Autowired
+    private FileStorageService fileStorageService;
+    
+    @PostMapping
+    public ResponseEntity<String> createBill(
+            @RequestPart("bill") Bill bill,
+            @RequestPart("file") MultipartFile file) {
 
-    @GetMapping("/generatePledgeBillPdf")
-    public ResponseEntity<byte[]> generatePledgeBillPdf(
-    		@RequestParam(value = "billSequence",required  = false) Long billSequence)  throws DocumentException {
-    	Optional<Bill> bill = billService.findById(billSequence);
-        byte[] pdfBytes = pdfService.generatePledgeBillPdf(bill);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("filename", "pledgeBill.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdfBytes);
-    }
+        try {
+            // Store the file and get its path
+            String imagePath = FileStorageService.storeFile(file);
 
-    @GetMapping("/generateRedeemBillPdf")
-    public ResponseEntity<byte[]> generateRedeemBillPdf(@RequestParam String customerName, @RequestParam String billDetails) throws DocumentException {
-        byte[] pdfBytes = pdfService.generateRedeemBillPdf(customerName, billDetails);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("filename", "redeemBill.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdfBytes);
+            // Set the image path in the Bill object
+            bill.setImagePath(imagePath);
+
+            
+            billRepository.save(bill);
+
+            return new ResponseEntity<>("Bill created successfully!", HttpStatus.CREATED);
+        } catch (IOException e) {
+            return new ResponseEntity<>("File upload failed!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
+    @GetMapping("/export/excel")
+    public ResponseEntity<?> exportBillsToExcel() throws IOException {
+    	try {
+    		ByteArrayInputStream in = billService.exportBillsToExcel();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
+
+            return ResponseEntity.ok().headers(headers).contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(new InputStreamResource(in));
+    	}catch (Exception e) {
+    		// Return an appropriate error response
+    		 ErrorResponse errorResponse = new ErrorResponse(
+    		            "Error occurred while exporting bills to Excel.",
+    		            e.getMessage()  // Include the exception message or other details as needed
+    		        );
+    		 e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error occurred while exporting bills to Excel. Please try again later.");
+		}
+        
+    }
+    
+//    @Autowired
+//    private PdfService pdfService;
+//
+//    @GetMapping("/generatePledgeBillPdf")
+//    public ResponseEntity<byte[]> generatePledgeBillPdf(
+//    		@RequestParam(value = "billSequence",required  = false) Long billSequence)  throws DocumentException {
+//    	Optional<Bill> bill = billService.findById(billSequence);
+//        byte[] pdfBytes = pdfService.generatePledgeBillPdf(bill);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_PDF);
+//        headers.setContentDispositionFormData("filename", "pledgeBill.pdf");
+//        return ResponseEntity.ok().headers(headers).body(pdfBytes);
+//    }
+//
+//    @GetMapping("/generateRedeemBillPdf")
+//    public ResponseEntity<byte[]> generateRedeemBillPdf(@RequestParam String customerName, @RequestParam String billDetails) throws DocumentException {
+//        byte[] pdfBytes = pdfService.generateRedeemBillPdf(customerName, billDetails);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_PDF);
+//        headers.setContentDispositionFormData("filename", "redeemBill.pdf");
+//        return ResponseEntity.ok().headers(headers).body(pdfBytes);
+//    }
+//    
 
     @GetMapping("/number")
     public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo",required  = false) Integer billNo,
@@ -87,12 +142,6 @@ public class BillController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Bill with id " + id + " not found");
         }
-    }
-
-
-    @PostMapping
-    public Bill createBill(@RequestBody Bill bill) {
-        return billService.saveBill(bill);
     }
     
     @GetMapping("/next-bill-number")
