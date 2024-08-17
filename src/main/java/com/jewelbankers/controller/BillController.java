@@ -41,31 +41,15 @@ public class BillController {
     @Autowired
     private BillService billService;
     
-    @Autowired
-    private BillRepository billRepository;
-    
-    @Autowired
-    private FileStorageService fileStorageService;
+//    @Autowired
+//    private BillRepository billRepository;
+//    
+//    @Autowired
+//    private FileStorageService fileStorageService;
     
     @PostMapping
-    public ResponseEntity<String> createBill(
-            @RequestPart("bill") Bill bill,
-            @RequestPart("file") MultipartFile file) {
-
-        try {
-            // Store the file and get its path
-            String imagePath = FileStorageService.storeFile(file);
-
-            // Set the image path in the Bill object
-            bill.setImagePath(imagePath);
-
-            
-            billRepository.save(bill);
-
-            return new ResponseEntity<>("Bill created successfully!", HttpStatus.CREATED);
-        } catch (IOException e) {
-            return new ResponseEntity<>("File upload failed!", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public Bill createBill(@RequestBody Bill bill) {
+        return billService.saveBill(bill);
     }
     
     @GetMapping("/export/excel")
