@@ -341,6 +341,14 @@ public class Bill {
 
     @Column(name = "comments")
     private String comments;
+    
+    private Long productSeq;
 
-	
+	public Long getProductSeq() {
+		return productSeq;
+	}
+
+	public void setProductSeq(Long productSeq) {
+		this.productSeq = productSeq;
+	}	
 }

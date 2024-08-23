@@ -46,6 +46,14 @@ public class BillController {
 //    
 //    @Autowired
 //    private FileStorageService fileStorageService;
+
+    
+//  http://localhost:8080/jewelbankers/bills/date?startDate=2024-01-01&endDate=2024-01-31    
+    @GetMapping("/date")
+    public ResponseEntity<List<Bill>> searchBills(@RequestParam String startDate, @RequestParam String endDate) {
+        List<Bill> bills = billService.searchBillsByDateRange(startDate, endDate);
+        return ResponseEntity.ok(bills);
+    }
     
     @PostMapping
     public Bill createBill(@RequestBody Bill bill) {

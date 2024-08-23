@@ -19,6 +19,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
 	List<Bill> findByBillNo(Integer billNo);
 	List<Bill> findByCustomerCustomerName(String customerName);
 	List<Bill> findByBillSerialAndBillNo(Character billSerial,Integer billNo);
+	List<Bill> findByBillDateBetween(String startDate, String endDate);
 	
 	 @Query("SELECT COALESCE(MAX(b.billNo), 0) FROM Bill b")
 	    Integer findCurrentBillNo();

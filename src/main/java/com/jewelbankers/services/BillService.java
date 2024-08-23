@@ -21,6 +21,10 @@ public class BillService {
 	@Autowired
 	private BillRepository billRepository;
 	
+	public List<Bill> searchBillsByDateRange(String startDate, String endDate) {
+        return billRepository.findByBillDateBetween(startDate, endDate);
+    }
+	
 	public BillService(BillRepository billRepository) {
         this.billRepository = billRepository;
     }
@@ -33,6 +37,7 @@ public class BillService {
 	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
 		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);
 	}
+	
 	public List<Bill> findBillsBySearch(String search) {
 		if (BillUtility.ValidateBillNo(search) ) {
 			System.out.println("Bill"+search.charAt(0)+":"+Integer.parseInt(search.substring(1, search.length())));
