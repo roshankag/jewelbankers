@@ -46,7 +46,20 @@ public class BillController {
 //    
 //    @Autowired
 //    private FileStorageService fileStorageService;
-
+    
+//  http://localhost:8080/jewelbankersapi/bills/searchByProductTypeNo?productTypeNo=5
+    @GetMapping("/searchByProductTypeNo")
+    public ResponseEntity<List<Bill>> getBillsByProductTypeNo(@RequestParam Long productTypeNo) {
+        List<Bill> bills = billService.findBillsByProductTypeNo(productTypeNo);
+        return ResponseEntity.ok(bills);
+    }
+    
+//  http://localhost:8080/jewelbankersapi/bills/searchByRedemptionStatus?redemptionStatus=R
+    @GetMapping("/searchByRedemptionStatus")
+    public ResponseEntity<List<Bill>> getBillsByRedemptionStatus(@RequestParam Character redemptionStatus) {
+        List<Bill> bills = billService.findBillsByRedemptionStatus(redemptionStatus);
+        return ResponseEntity.ok(bills);
+    }
     
 //  http://localhost:8080/jewelbankers/bills/date?startDate=2024-01-01&endDate=2024-01-31    
     @GetMapping("/date")

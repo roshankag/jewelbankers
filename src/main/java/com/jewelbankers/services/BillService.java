@@ -21,6 +21,14 @@ public class BillService {
 	@Autowired
 	private BillRepository billRepository;
 	
+	public List<Bill> findBillsByProductTypeNo(Long productTypeNo) {
+        return billRepository.findByProductTypeNo(productTypeNo);
+    }
+	
+	public List<Bill> findBillsByRedemptionStatus(Character redemptionStatus) {
+        return billRepository.findByRedemptionStatus(redemptionStatus);
+    }
+	
 	public List<Bill> searchBillsByDateRange(String startDate, String endDate) {
         return billRepository.findByBillDateBetween(startDate, endDate);
     }
