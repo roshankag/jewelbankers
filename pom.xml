@@ -109,6 +109,17 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		
+		<dependency>
+    <groupId>jakarta.persistence</groupId>
+    <artifactId>jakarta.persistence-api</artifactId>
+    <version>3.1.0</version> <!-- Ensure this version is compatible -->
+</dependency>
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>6.2.7.Final</version> <!-- Ensure this version is compatible -->
+</dependency>
+		
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
 <dependency>
     <groupId>com.itextpdf</groupId>
@@ -121,6 +132,8 @@
     <artifactId>twilio</artifactId>
     <version>8.25.0</version>
 </dependency>
+
+
 
     
 
