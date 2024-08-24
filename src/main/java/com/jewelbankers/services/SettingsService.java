@@ -17,6 +17,10 @@ public class SettingsService {
 		return settingsRepository.findAll();
 	}
 	
+	public List<Settings> updateAllSettings(List<Settings> settingsList) {
+        return settingsRepository.saveAll(settingsList);
+    }
+	
 	public Optional<Settings> findByParamSeq(Long paramSeq) {
 		return settingsRepository.findById(paramSeq);
 	}

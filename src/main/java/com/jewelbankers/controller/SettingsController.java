@@ -36,6 +36,12 @@ public class SettingsController {
         return settingsService.searchSettings(query);
     }
 	
+	@PutMapping
+    public ResponseEntity<List<Settings>> updateAllSettings(@RequestBody List<Settings> settingsList) {
+        List<Settings> updatedSettings = settingsService.updateAllSettings(settingsList);
+        return ResponseEntity.ok(updatedSettings);
+    }
+	
 	@PutMapping("/{id}")
     public ResponseEntity<Settings> updateSettings(@PathVariable("id") Long paramSeq, @RequestBody Settings inputSettings) {
 		Optional<Settings> existingSettings = settingsService.findByParamSeq(paramSeq);
