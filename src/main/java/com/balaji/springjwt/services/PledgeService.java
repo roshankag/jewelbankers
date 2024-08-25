@@ -5,12 +5,17 @@ import org.springframework.stereotype.Service;
 
 import com.balaji.springjwt.models.Pledge;
 import com.balaji.springjwt.repository.PledgeRepository;
+import com.itextpdf.text.DocumentException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PledgeService {
+
+    @Autowired
+    private PdfService pdfService;
 
     @Autowired
     private PledgeRepository pledgeRepository;
@@ -29,6 +34,18 @@ public class PledgeService {
 
     public Pledge savePledge(Pledge pledge) {
         return pledgeRepository.save(pledge);
+    }
+
+    public void generateAndSendBill(Long pledgeId){
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid pledge ID"));
+
+            try {
+                pdfService.generateAndSaveBillPdf(pledge);
+            } catch (IOException | DocumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
     }
 
     public Pledge updatePledge(Long id, Pledge pledgeDetails) {

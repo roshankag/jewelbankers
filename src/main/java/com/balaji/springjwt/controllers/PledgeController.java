@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.balaji.springjwt.models.Pledge;
 import com.balaji.springjwt.services.PledgeService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -51,5 +52,15 @@ public class PledgeController {
     public ResponseEntity<Void> deletePledge(@PathVariable Long id) {
         pledgeService.deletePledge(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/generate/{pledgeId}")
+    public ResponseEntity<String> generateAndSendBill(@PathVariable Long pledgeId) {
+        try {
+            this.pledgeService.generateAndSendBill(pledgeId);
+            return ResponseEntity.ok("Bill sent successfully and saved locally");
+        }   catch (Exception e) {
+            return ResponseEntity.status(500).body("Error sending bill to WhatsApp");
+        }
     }
 }

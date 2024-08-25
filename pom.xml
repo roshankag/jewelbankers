@@ -25,7 +25,29 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-
+  <!-- PDF generation library -->
+    <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>2.0.27</version>
+    </dependency>
+   <dependency> 
+     <groupId>com.itextpdf</groupId>
+     <artifactId>itextpdf</artifactId>
+     <version>5.5.13</version>
+</dependency>
+    <!-- Twilio SDK for sending WhatsApp messages -->
+    <dependency>
+        <groupId>com.twilio.sdk</groupId>
+        <artifactId>twilio</artifactId>
+        <version>8.31.1</version>
+    </dependency>
+    
+    <!-- Spring Web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
 	 <dependency>
             <groupId>org.springframework.social</groupId>
             <artifactId>spring-social-facebook</artifactId>
