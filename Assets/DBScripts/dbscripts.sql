@@ -3,3 +3,7 @@ ALTER TABLE customer MODIFY COLUMN CUSTOMERID INT AUTO_INCREMENT;
 ALTER TABLE product_type MODIFY COLUMN product_type_no BIGINT AUTO_INCREMENT;
 --ALTER TABLE bill_header MODIFY COLUMN billNo BIGINT NOT NULL UNIQUE AUTO_INCREMENT;
 --ALTER TABLE bill_header MODIFY COLUMN billRedemNo BIGINT NOT NULL UNIQUE AUTO_INCREMENT;
+alter table customer add proof varchar(200);
+alter table customer add proof_type char(1);
+ALTER TABLE deepak.customer AUTO_INCREMENT=5667;
+ALTER TABLE deepak.bill_header AUTO_INCREMENT=17118

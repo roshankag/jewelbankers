@@ -1,5 +1,9 @@
 package com.jewelbankers.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,13 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.entity.Settings;
+import com.jewelbankers.services.FileUploadService;
 import com.jewelbankers.services.SettingsService;
 import com.jewelbankers.Utility.ErrorResponse;
 
@@ -26,6 +33,9 @@ public class SettingsController {
 
     @Autowired
     private SettingsService settingsService;
+    
+    @Autowired
+    private FileUploadService fileUploadService;
 
     @GetMapping
     public ResponseEntity<?> getSettings() {
@@ -52,6 +62,42 @@ public class SettingsController {
                 e.getMessage()
             );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+//    @PostMapping("/upload-photo")
+//    public ResponseEntity<?> uploadPhoto(@RequestParam("file") MultipartFile file) {
+//        try {
+//            if (file.isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded");
+//            }
+//            
+//            String result = fileUploadService.uploadFile(file);
+//            return ResponseEntity.ok(result);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed: " + e.getMessage());
+//        }
+//    }
+    
+    @PostMapping("/upload-photo")
+    public ResponseEntity<?> uploadCustomerPhoto(@RequestParam("file") MultipartFile file) {
+        try {
+            // Get the directory path from the settings
+            String photoDir = settingsService.getCustomerPhotoDirectory();
+
+            // Ensure the directory exists
+            Path directoryPath = Paths.get(photoDir);
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath);
+            }
+
+            // Save the file to the specified directory
+            Path filePath = directoryPath.resolve(file.getOriginalFilename());
+            Files.write(filePath, file.getBytes());
+
+            return ResponseEntity.ok("Photo uploaded successfully: " + filePath.toString());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading photo: " + e.getMessage());
         }
     }
 

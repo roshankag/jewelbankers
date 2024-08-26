@@ -21,6 +21,29 @@ public class SettingsService {
         return settingsRepository.saveAll(settingsList);
     }
 	
+	public String getDriveLink() {
+	    Optional<Settings> driveLinkSetting = settingsRepository.findByParamId("DRIVE_LINK");
+	    return driveLinkSetting.map(Settings::getParamValue)
+	                           .orElse("Default Drive Link if not found");
+	}
+	
+	public String getCustomerPhotoDirectory() {
+        Long paramSeq = 42L; // Assuming 1L is the paramSeq for the photo directory
+        Optional<Settings> settingOpt = settingsRepository.findByParamSeq(paramSeq);
+        if (settingOpt.isPresent()) {
+            return settingOpt.get().getParamValue();
+        } else {
+            throw new RuntimeException("Photo directory setting not found");
+        }
+    }
+
+
+    public String getParamValueByParamId(String paramId) {
+        Optional<Settings> setting = settingsRepository.findByParamId(paramId);
+        return setting.map(Settings::getParamValue)
+                .orElseThrow(() -> new RuntimeException("Parameter not found in settings with paramId: " + paramId));
+    }
+	
 	public Optional<Settings> findByParamSeq(Long paramSeq) {
 		return settingsRepository.findById(paramSeq);
 	}

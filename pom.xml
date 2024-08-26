@@ -68,13 +68,29 @@
 	<dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
-            <version>1.30.5</version>
+            <version>1.34.0</version>
         </dependency>
+        
+         <dependency>
+        <groupId>com.google.http-client</groupId>
+        <artifactId>google-http-client-jackson2</artifactId>
+        <version>1.34.0</version> <!-- Use the same version as google-api-client -->
+    </dependency>
 		<dependency>
         <groupId>com.google.oauth-client</groupId>
         <artifactId>google-oauth-client</artifactId>
         <version>1.33.0</version>
     </dependency>
+    <dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client-jetty</artifactId>
+    <version>1.34.1</version>
+</dependency>
+<dependency>
+    <groupId>com.google.apis</groupId>
+    <artifactId>google-api-services-drive</artifactId>
+    <version>v3-rev136-1.25.0</version>
+</dependency>
     <dependency>
         <groupId>com.google.apis</groupId>
         <artifactId>google-api-services-oauth2</artifactId>
