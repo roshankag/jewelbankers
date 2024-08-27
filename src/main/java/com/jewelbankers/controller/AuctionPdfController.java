@@ -27,15 +27,23 @@ public class AuctionPdfController {
 
     @Autowired
     private BillService billService;
-    
+
     @Autowired
     private SettingsRepository settingsRepository;
-    
+
     @GetMapping("/generate-auction-pdf")
     public ResponseEntity<?> generatePdf(@RequestParam(value = "search", required = false) String search) throws IOException {
 
         Map<String, String> settingsMap = settingsRepository.findAll().stream()
                 .collect(HashMap::new, (m, v) -> m.put(v.getParamSeq().toString(), v.getParamValue()), HashMap::putAll);
+
+        // Fetching specific settings by paramSeq
+        String shopName = settingsMap.get("21");
+        String auctionDescription = settingsMap.get("38");
+
+        if (shopName == null || auctionDescription == null) {
+            throw new ResourceNotFoundException("Required settings not found.");
+        }
 
         List<Bill> bills = billService.findBillsBySearch(search);
 
@@ -52,7 +60,8 @@ public class AuctionPdfController {
         auctionDetails.put("customerName", bill.getCustomer().getCustomerName());
         auctionDetails.put("customerAddress", bill.getCustomer().getAddress());
 
-        ByteArrayInputStream pdfStream = auctionPdfService.generateAuctionPdf(bills, auctionDetails, settingsMap.get("shopDetails"), settingsMap.get("auctionDescription"));
+        ByteArrayInputStream pdfStream = auctionPdfService.generateAuctionPdf(
+                bills, auctionDetails, shopName, auctionDescription, shopName);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=auction.pdf");
