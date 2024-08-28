@@ -56,6 +56,29 @@ public class Customer {
 	@Column(name = "imagePath")
     private String imagePath;
 	
+	@Column(name = "proof_type")
+    private Character proofType;
+
+    public Character getProofType() {
+		return proofType;
+	}
+
+	public void setProofType(Character proofType) {
+		this.proofType = proofType;
+	}
+
+	public String getProofDetails() {
+		return proofDetails;
+	}
+
+	public void setProofDetails(String proofDetails) {
+		this.proofDetails = proofDetails;
+	}
+
+
+	@Column(name = "proof_details")
+    private String proofDetails;
+	
 	public String getImagePath() {
 		return imagePath;
 	}

@@ -48,7 +48,9 @@ public class CustomerService {
     }
 
 	
-	  public Optional<Customer> findById(Long id) { return this.customerRepository.findById(id); }
+	  public Optional<Customer> findById(Long id) { 
+		  return this.customerRepository.findById(id); 
+		 }
 
 	public Customer saveCustomer(Customer customer) {
 		// TODO Auto-generated method stub
@@ -83,6 +85,8 @@ public class CustomerService {
 	            existingCustomer.setPincode(customer.getPincode());
 	            existingCustomer.setRelationShip(customer.getRelationShip());
 	            existingCustomer.setRelationShipName(customer.getRelationShipName());
+	            existingCustomer.setProofType(customer.getProofType());
+	            existingCustomer.setProofDetails(customer.getProofDetails());
 	           // existingCustomer.setEmail(customer.getEmail());
 	            // Update other fields as needed
 	            return customerRepository.save(existingCustomer);

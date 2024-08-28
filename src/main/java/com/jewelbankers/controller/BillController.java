@@ -9,15 +9,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.exception.ResourceNotFoundException;
 import com.jewelbankers.services.BillService;
 //import com.jewelbankers.services.FileStorageService;
+import com.jewelbankers.services.SettingsService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +37,9 @@ public class BillController {
 
     @Autowired
     private BillService billService;
+    
+    @Autowired
+    private SettingsService settingsService; 
 
     @GetMapping("/searchByProductTypeNo")
     public ResponseEntity<List<Bill>> getBillsByProductTypeNo(@RequestParam Long productTypeNo) {
@@ -50,12 +59,39 @@ public class BillController {
 //        return ResponseEntity.ok(bills);
 //    }
 
-    @PostMapping
-    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
-        Bill createdBill = billService.saveBill(bill);
+//    @PostMapping
+//    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
+//        Bill createdBill = billService.saveBill(bill);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+//    }
+    
+    @PostMapping("/create")
+    public ResponseEntity<Bill> createBillWithPhoto(
+            @RequestParam("bill") String billJson,
+            @RequestParam("photo") MultipartFile photo) {
+        
+        // Convert JSON string to Bill object
+        ObjectMapper objectMapper = new ObjectMapper();
+        Bill bill;
+        try {
+            bill = objectMapper.readValue(billJson, Bill.class);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        
+        // Save the bill with the photo
+        Bill createdBill;
+        try {
+            createdBill = billService.saveBill(bill, photo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(null);
+        }
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
     }
 
+    
     @GetMapping("/export/excel")
     public ResponseEntity<?> exportBillsToExcel() throws IOException {
         ByteArrayInputStream in = billService.exportBillsToExcel();
