@@ -77,58 +77,57 @@ public class BillService {
 		}	
 	}
 	
-	public List<Bill> findBillsBySearch(String search, String fromDate, String toDate, Integer amount, Character status, Integer productTypeNo) {
-        return billRepository.findAll(new Specification<Bill>() {
-        	
-        	
-            @Override
-            public Predicate toPredicate(Root<Bill> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                List<Predicate> predicates = new ArrayList<>();                
-            	 Predicate searchPredicate;
-                if (search != null && !search.isEmpty() && BillUtility.ValidateBillNo(search) ) {
-                	Character billSerial = null;
-                	Integer billNo=null;
-                	System.out.println("Bill"+search.charAt(0)+":"+Integer.parseInt(search.substring(1, search.length())));
-        			billSerial = search.toUpperCase().charAt(0);
-        			billNo =Integer.parseInt(search.substring(1, search.length()));
-                    searchPredicate = cb.or(
-                    		cb.like(root.get("billSerial"), "%" + billSerial + "%"),
-                            cb.like(root.get("billNo"), "%" + billNo + "%")
-                    );
-                }else if(search != null && !search.isEmpty() ){
-                	
-                    searchPredicate = cb.or(
-                            cb.like(root.get("customer").get("customerName"), "%" + search + "%")
-                    );
-                    predicates.add(searchPredicate);
-                }
-
-				/*
-				 * if (fromDate != null && toDate != null) {
-				 * predicates.add(cb.between(root.get("billDate"), fromDate, toDate)); } else
-				 */
-                if (fromDate != null) {
-                    predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
-                } else if (toDate != null) {
-                    predicates.add(cb.lessThanOrEqualTo(root.get("billDate"), toDate));
-                }
-
-                if (amount != null) {
-                    predicates.add(cb.equal(root.get("amount"), amount));
-                }
-
-                if (status != null) {
-                    predicates.add(cb.equal(root.get("redemptionStatus"), status));
-                }
-
-                if (productTypeNo != null) {
-                    predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
-                }
-
-                return cb.and(predicates.toArray(new Predicate[0]));
-            }
-        });
-    }
+	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo) {
+	    return billRepository.findAll(new Specification<Bill>() {
+	        
+	        @Override
+	        public Predicate toPredicate(Root<Bill> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+	            List<Predicate> predicates = new ArrayList<>();                
+	            Predicate searchPredicate;
+	            
+	            // Handle search by Bill No or Customer Name
+	            if (search != null && !search.isEmpty() && BillUtility.ValidateBillNo(search)) {
+	                Character billSerial = search.toUpperCase().charAt(0);
+	                Integer billNo = Integer.parseInt(search.substring(1));
+	                
+	                searchPredicate = cb.and(
+	                    cb.equal(root.get("billSerial"), billSerial),
+	                    cb.equal(root.get("billNo"), billNo)
+	                );
+	                predicates.add(searchPredicate);
+	            } else if (search != null && !search.isEmpty()) {
+	                searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
+	                predicates.add(searchPredicate);
+	            }
+	            
+	            // Handle date filtering
+	            if (fromDate != null && toDate != null) {
+	                predicates.add(cb.between(root.get("billDate"), fromDate, toDate));
+	            } else if (fromDate != null) {
+	                predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
+	            } else if (toDate != null) {
+	                predicates.add(cb.lessThanOrEqualTo(root.get("billDate"), toDate));
+	            }
+	            
+	            // Handle amount filtering
+	            if (amount != null) {
+	                predicates.add(cb.equal(root.get("amount"), amount));
+	            }
+	            
+	            // Handle status filtering
+	            if (status != null) {
+	                predicates.add(cb.equal(root.get("redemptionStatus"), status));
+	            }
+	            
+	            // Handle product type filtering
+	            if (productTypeNo != null) {
+	                predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
+	            }
+	            
+	            return cb.and(predicates.toArray(new Predicate[0]));
+	        }
+	    });
+	}
 
 
 	public List<Bill> findBillsByCustomerStreet(String street) {

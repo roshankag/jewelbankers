@@ -161,8 +161,8 @@ public class BillController {
     @GetMapping("/fullsearch")
     public ResponseEntity<List<Bill>> searchBills(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") String fromDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") String toDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate toDate,
             @RequestParam(required = false) Integer amount,
             @RequestParam(required = false) Character status,
             @RequestParam(required = false) Integer productTypeNo) {
@@ -173,6 +173,7 @@ public class BillController {
         }
         return ResponseEntity.ok(bills);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBillByBillNo(@PathVariable("id") Long id, @RequestBody Bill billDetails) {

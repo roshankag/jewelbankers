@@ -1,6 +1,7 @@
 package com.jewelbankers.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -40,7 +41,7 @@ public class Bill {
     private Integer billNo;
 
     @Column(name = "billDate")
-    private String billDate;
+    private LocalDate billDate;
     
 	public List<BillDetail> getBillDetails() {
 		return billDetails;
@@ -159,13 +160,11 @@ public class Bill {
 		return billNo;
 	}
 
-	
-
-	public String getBillDate() {
+	public LocalDate getBillDate() {
 		return billDate;
 	}
 
-	public void setBillDate(String billDate) {
+	public void setBillDate(LocalDate billDate) {
 		this.billDate = billDate;
 	}
 

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EntityScan(basePackages = {"com.balaji.springjwt.models","com.jewelbankers.entity"})
 @ComponentScan({ "com" })
 public class JewelBankers {
-
+	
 	/**
 	 * @return
 	 */
