@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,19 @@ public class AuctionPdfController {
     private SettingsRepository settingsRepository;
 
     @GetMapping("/generate-auction-pdf")
-    public ResponseEntity<?> generatePdf(@RequestParam(value = "search", required = false) String search) throws IOException {
-
+    public ResponseEntity<?> generatePdf(
+    		@RequestParam(value = "search", required = false) String search,
+    		@RequestParam(value = "fromDate", required = false) String fromDateStr,
+            @RequestParam(value = "toDate", required = false) String toDateStr,
+            @RequestParam(value = "amount", required = false) Integer amount,
+            @RequestParam(value = "status", required = false) Character status,
+            @RequestParam(value = "productTypeNo", required = false) Integer productTypeNo) throws IOException {
+     try {
+    	 
+    	// Parse date parameters
+         LocalDate fromDate = fromDateStr != null ? LocalDate.parse(fromDateStr) : null;
+         LocalDate toDate = toDateStr != null ? LocalDate.parse(toDateStr) : null;
+         
         Map<String, String> settingsMap = settingsRepository.findAll().stream()
                 .collect(HashMap::new, (m, v) -> m.put(v.getParamSeq().toString(), v.getParamValue()), HashMap::putAll);
 
@@ -45,7 +57,7 @@ public class AuctionPdfController {
             throw new ResourceNotFoundException("Required settings not found.");
         }
 
-        List<Bill> bills = billService.findBillsBySearch(search);
+        List<Bill> bills =billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo);
 
         if (bills == null || bills.isEmpty()) {
             throw new ResourceNotFoundException("No bill found for the provided search criteria.");
@@ -63,14 +75,26 @@ public class AuctionPdfController {
         ByteArrayInputStream pdfStream = auctionPdfService.generateAuctionPdf(
                 bills, auctionDetails, shopName, auctionDescription, shopName);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=auction.pdf");
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Content-Disposition", "inline; filename=auction.pdf");
 
         byte[] pdfBytes = pdfStream.readAllBytes();
+        
+     // Set response headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=auction.pdf");
 
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
     }
+    catch (ResourceNotFoundException e) {
+    	// Handle specific application exceptions
+        return ResponseEntity.status(500).body("Error generating PDF: " + e.getMessage());
+    } catch (Exception e) {
+        // Log and handle other exceptions
+        return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+    }
+}
 }

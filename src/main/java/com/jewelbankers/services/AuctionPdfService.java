@@ -51,14 +51,16 @@ public class AuctionPdfService {
         document.add(Chunk.NEWLINE);
 
         // Shop Name
-        Paragraph shopDetailsParagraph = new Paragraph(shopName,
+        String shopNameText = shopName != null ? shopName : ""; // Handle null
+        Paragraph shopDetailsParagraph = new Paragraph(shopNameText,
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.NORMAL, BaseColor.BLACK));
         shopDetailsParagraph.setAlignment(Element.ALIGN_CENTER);
         document.add(shopDetailsParagraph);
         document.add(Chunk.NEWLINE);
 
         // Auction Description
-        Paragraph notice = new Paragraph(auctionDescription,
+        String auctionDescriptionText = auctionDescription != null ? auctionDescription : ""; // Handle null
+        Paragraph notice = new Paragraph(auctionDescriptionText,
                 FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK));
         notice.setAlignment(Element.ALIGN_JUSTIFIED);
         document.add(notice);
@@ -110,6 +112,7 @@ public class AuctionPdfService {
     }
 
     private PdfPCell createTableCell(String content, Font font) {
+    	if (content == null) content = ""; // Handle null
         PdfPCell cell = new PdfPCell(new Phrase(content, font));
         cell.setPadding(5);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -117,8 +120,11 @@ public class AuctionPdfService {
     }
 
     private void addFooter(Document document, Map<String, String> auctionDetails, String shopName) throws DocumentException {
+    	 String shopNameText = shopName != null ? shopName : ""; // Handle null
+    	
+    	
         // From Address
-        Paragraph fromAddress = new Paragraph("From:\n" + shopName,
+        Paragraph fromAddress = new Paragraph("From:\n" + shopNameText,
                 FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK));
         fromAddress.setAlignment(Element.ALIGN_LEFT);
         document.add(fromAddress);
