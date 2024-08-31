@@ -2,6 +2,8 @@ package com.jewelbankers.services;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +27,7 @@ import com.jewelbankers.entity.Customer;
 import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
+import com.jewelbankers.repository.SettingsRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -45,6 +48,9 @@ public class BillService {
 	
 	@Autowired
     private SettingsService settingsService;
+	
+	@Autowired
+    private SettingsRepository settingsRepository;
 	
 	 @Autowired
 	 private CustomerRepository customerRepository;
@@ -238,76 +244,291 @@ public class BillService {
 	  
 	  }
 	
+//	public Bill updateBill(Long id, Bill billDetails) {
+//        Optional<Bill> billOptional = findById(id);
+//        if (!billOptional.isPresent()) {
+//            throw new EntityNotFoundException("Bill with id " + id + " not found");
+//        }
+//
+//        Bill existingBill = billOptional.get();
+//        
+//        if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
+//        if (billDetails.getBillNo() != null) existingBill.setBillNo(billDetails.getBillNo());
+//        if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
+//        if (billDetails.getCustomer() != null) existingBill.setCustomer(billDetails.getCustomer());
+//        if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
+//        if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
+//        if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
+//        if (billDetails.getAmount() != null) existingBill.setAmount(billDetails.getAmount());
+//        if (billDetails.getAmountInWords() != null) existingBill.setAmountInWords(billDetails.getAmountInWords());
+//        if (billDetails.getPresentValue() != null) existingBill.setPresentValue(billDetails.getPresentValue());
+//        if (billDetails.getGrams() != null) existingBill.setGrams(billDetails.getGrams());
+//        if (billDetails.getMonthlyIncome() != null) existingBill.setMonthlyIncome(billDetails.getMonthlyIncome());
+//        if (billDetails.getRedemptionDate() != null) existingBill.setRedemptionDate(billDetails.getRedemptionDate());
+//        if (billDetails.getRedemptionInterest() != null) existingBill.setRedemptionInterest(billDetails.getRedemptionInterest());
+//        if (billDetails.getRedemptionTotal() != null) existingBill.setRedemptionTotal(billDetails.getRedemptionTotal());
+//        if (billDetails.getRedemptionStatus() != null) existingBill.setRedemptionStatus(billDetails.getRedemptionStatus());
+//        if (billDetails.getBillRedemSerial() != null) existingBill.setBillRedemSerial(billDetails.getBillRedemSerial());
+//        if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
+//        if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
+//
+//        // Calculate redemption interest and total
+//        double interestRate = getRateOfInterest(existingBill.getProductTypeNo(), existingBill.getAmount());
+//        long daysBetween = ChronoUnit.DAYS.between(existingBill.getBillDate(), 
+//                           existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now());
+//
+//        double redemptionInterest = (existingBill.getAmount() * interestRate * daysBetween) / 36500;
+//        double redemptionTotal = existingBill.getAmount() + redemptionInterest;
+//
+//        existingBill.setRedemptionInterest(redemptionInterest);
+//        existingBill.setRedemptionTotal(redemptionTotal);
+//
+//        return saveBill(existingBill);
+//    }
+//
+//	private double getRateOfInterest(Integer productTypeNo, double amount) {
+//	    // Convert productTypeNo to string and compare with the expected product types
+//	    if ("GOLD".equalsIgnoreCase(productTypeNo.toString())) {
+//	        // Determine the interest rate based on the amount for GOLD
+//	        if (amount < 5000) return getSettingValue(44L); // GOLD_INTREST_LESS_THAN_5000
+//	        if (amount < 10000) return getSettingValue(45L); // GOLD_INTREST_LESS_THAN_10000
+//	        if (amount < 20000) return getSettingValue(46L); // GOLD_INTREST_LESS_THAN_20000
+//	        if (amount < 50000) return getSettingValue(47L); // GOLD_INTREST_LESS_THAN_50000
+//	        if (amount < 100000) return getSettingValue(48L); // GOLD_INTREST_LESS_THAN_100000
+//	        return getSettingValue(49L); // GOLD_INTREST_MORE_THAN_100000
+//	    } else if ("SILVER".equalsIgnoreCase(productTypeNo.toString())) {
+//	        // Default interest rate for SILVER
+//	        return getSettingValue(50L); // SILVER_INTREST
+//	    }
+//	    
+//	    // Throw an exception if the product type is invalid
+//	    throw new IllegalArgumentException("Invalid product type: " + productTypeNo);
+//	}
+//
+//    private double getSettingValue(Long paramSeq) {
+//        // Retrieve the Optional<Settings> from the service
+//        Optional<Settings> optionalSetting = settingsService.findByParamSeq(paramSeq);
+//        
+//        // Extract the Settings object if present, or return a default value
+//        Settings setting = optionalSetting.orElse(null);
+//        
+//        // If setting is not null, parse the paramValue; otherwise, return 0.0
+//        return setting != null ? Double.parseDouble(setting.getParamValue()) : 0.0;
+//    }
+//	
+//	public Bill updateBill(Long id, Bill billDetails) {
+//        Optional<Bill> billOptional = billRepository.findById(id);
+//        if (!billOptional.isPresent()) {
+//            throw new EntityNotFoundException("Bill with id " + id + " not found");
+//        }
+//
+//        Bill existingBill = billOptional.get();
+//
+//        // Update fields with provided billDetails
+//        if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
+//        if (billDetails.getBillNo() != null) existingBill.setBillNo(billDetails.getBillNo());
+//        if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
+//        
+//     // Handle the customer entity
+//        if (billDetails.getCustomer() != null) {
+//            Customer customer = billDetails.getCustomer();
+//            if (customer.getCustomerid() != null) {
+//                // Retrieve the existing customer from the database
+//                Optional<Customer> customerOptional = customerRepository.findById(customer.getCustomerid());
+//                if (customerOptional.isPresent()) {
+//                    existingBill.setCustomer(customerOptional.get());
+//                } else {
+//                    throw new EntityNotFoundException("Customer with id " + customer.getCustomerid() + " not found");
+//                }
+//            } else {
+//                // Optionally handle the case where no ID is provided
+//                throw new IllegalArgumentException("Customer ID cannot be null");
+//            }
+//        }
+//        
+//        
+//        if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
+//        if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
+//        if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
+//        if (billDetails.getAmount() != null) existingBill.setAmount(billDetails.getAmount());
+//        if (billDetails.getAmountInWords() != null) existingBill.setAmountInWords(billDetails.getAmountInWords());
+//        if (billDetails.getPresentValue() != null) existingBill.setPresentValue(billDetails.getPresentValue());
+//        if (billDetails.getGrams() != null) existingBill.setGrams(billDetails.getGrams());
+//        if (billDetails.getMonthlyIncome() != null) existingBill.setMonthlyIncome(billDetails.getMonthlyIncome());
+//        if (billDetails.getRedemptionDate() != null) existingBill.setRedemptionDate(billDetails.getRedemptionDate());
+//        if (billDetails.getRedemptionInterest() != null) existingBill.setRedemptionInterest(billDetails.getRedemptionInterest());
+//        if (billDetails.getRedemptionTotal() != null) existingBill.setRedemptionTotal(billDetails.getRedemptionTotal());
+//        if (billDetails.getRedemptionStatus() != null) existingBill.setRedemptionStatus(billDetails.getRedemptionStatus());
+//        if (billDetails.getBillRedemSerial() != null) existingBill.setBillRedemSerial(billDetails.getBillRedemSerial());
+//        if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
+//        if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
+//        
+//        
+//
+//        // New Calculation for Redemption Interest and Total
+//        BigDecimal interestRateBD = existingBill.getRateOfInterest() != null ? 
+//            existingBill.getRateOfInterest() : 
+//            BigDecimal.valueOf(getRateOfInterest(existingBill.getProductTypeNo(), existingBill.getAmount()));
+//
+//        long daysBetween = ChronoUnit.DAYS.between(
+//            existingBill.getBillDate(),
+//            existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now()
+//        );
+//
+//        BigDecimal amountBD = BigDecimal.valueOf(existingBill.getAmount());
+//        BigDecimal daysBetweenBD = BigDecimal.valueOf(daysBetween);
+//
+//        BigDecimal redemptionInterest = (amountBD.multiply(interestRateBD).multiply(daysBetweenBD))
+//            .divide(BigDecimal.valueOf(36500), BigDecimal.ROUND_HALF_UP);
+//        BigDecimal redemptionTotal = amountBD.add(redemptionInterest);
+//
+//        existingBill.setRedemptionInterest(redemptionInterest.doubleValue());
+//        existingBill.setRedemptionTotal(redemptionTotal.doubleValue());
+//
+//        return billRepository.save(existingBill);
+//    }
+//
+//    private double getRateOfInterest(Integer productTypeNo, Integer amount) {
+//        if (productTypeNo == null) {
+//            throw new IllegalArgumentException("Product type number cannot be null");
+//        }
+//
+//        String productType = productTypeNo.toString();
+//
+//        if ("GOLD".equalsIgnoreCase(productType)) {
+//            // Determine the interest rate based on the amount for GOLD
+//            if (amount < 5000) return getSettingValue(44L); // GOLD_INTREST_LESS_THAN_5000
+//            if (amount < 10000) return getSettingValue(45L); // GOLD_INTREST_LESS_THAN_10000
+//            if (amount < 20000) return getSettingValue(46L); // GOLD_INTREST_LESS_THAN_20000
+//            if (amount < 50000) return getSettingValue(47L); // GOLD_INTREST_LESS_THAN_50000
+//            if (amount < 100000) return getSettingValue(48L); // GOLD_INTREST_LESS_THAN_100000
+//            return getSettingValue(49L); // GOLD_INTREST_MORE_THAN_100000
+//        } else if ("SILVER".equalsIgnoreCase(productType)) {
+//            // Default interest rate for SILVER
+//            return getSettingValue(50L); // SILVER_INTREST
+//        }
+//
+//        // Throw an exception if the product type is invalid
+//        throw new IllegalArgumentException("Invalid product type: " + productTypeNo);
+//    }
+//
+//    private double getSettingValue(Long settingId) {
+//        // Assume SettingsRepository has a method to find by id
+//        Optional<Settings> settingOptional = settingsRepository.findById(settingId);
+//        if (!settingOptional.isPresent()) {
+//            throw new IllegalArgumentException("Setting with id " + settingId + " not found");
+//        }
+//        Settings setting = settingOptional.get();
+//        try {
+//            return Double.parseDouble(setting.getParamValue()); // Convert the string to double
+//        } catch (NumberFormatException e) {
+//            throw new IllegalArgumentException("Invalid number format for setting with id " + settingId, e);
+//        }
+//    }
+	
 	public Bill updateBill(Long id, Bill billDetails) {
-        Optional<Bill> billOptional = findById(id);
-        if (!billOptional.isPresent()) {
-            throw new EntityNotFoundException("Bill with id " + id + " not found");
-        }
-
-        Bill existingBill = billOptional.get();
-        
-        if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
-        if (billDetails.getBillNo() != null) existingBill.setBillNo(billDetails.getBillNo());
-        if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
-        if (billDetails.getCustomer() != null) existingBill.setCustomer(billDetails.getCustomer());
-        if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
-        if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
-        if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
-        if (billDetails.getAmount() != null) existingBill.setAmount(billDetails.getAmount());
-        if (billDetails.getAmountInWords() != null) existingBill.setAmountInWords(billDetails.getAmountInWords());
-        if (billDetails.getPresentValue() != null) existingBill.setPresentValue(billDetails.getPresentValue());
-        if (billDetails.getGrams() != null) existingBill.setGrams(billDetails.getGrams());
-        if (billDetails.getMonthlyIncome() != null) existingBill.setMonthlyIncome(billDetails.getMonthlyIncome());
-        if (billDetails.getRedemptionDate() != null) existingBill.setRedemptionDate(billDetails.getRedemptionDate());
-        if (billDetails.getRedemptionInterest() != null) existingBill.setRedemptionInterest(billDetails.getRedemptionInterest());
-        if (billDetails.getRedemptionTotal() != null) existingBill.setRedemptionTotal(billDetails.getRedemptionTotal());
-        if (billDetails.getRedemptionStatus() != null) existingBill.setRedemptionStatus(billDetails.getRedemptionStatus());
-        if (billDetails.getBillRedemSerial() != null) existingBill.setBillRedemSerial(billDetails.getBillRedemSerial());
-        if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
-        if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
-
-        // Calculate redemption interest and total
-        double interestRate = getRateOfInterest(existingBill.getProductTypeNo(), existingBill.getAmount());
-        long daysBetween = ChronoUnit.DAYS.between(existingBill.getBillDate(), 
-                           existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now());
-
-        double redemptionInterest = (existingBill.getAmount() * interestRate * daysBetween) / 36500;
-        double redemptionTotal = existingBill.getAmount() + redemptionInterest;
-
-        existingBill.setRedemptionInterest(redemptionInterest);
-        existingBill.setRedemptionTotal(redemptionTotal);
-
-        return saveBill(existingBill);
-    }
-
-	private double getRateOfInterest(Integer productTypeNo, double amount) {
-	    // Convert productTypeNo to string and compare with the expected product types
-	    if ("GOLD".equalsIgnoreCase(productTypeNo.toString())) {
-	        // Determine the interest rate based on the amount for GOLD
-	        if (amount < 5000) return getSettingValue(44L); // GOLD_INTREST_LESS_THAN_5000
-	        if (amount < 10000) return getSettingValue(45L); // GOLD_INTREST_LESS_THAN_10000
-	        if (amount < 20000) return getSettingValue(46L); // GOLD_INTREST_LESS_THAN_20000
-	        if (amount < 50000) return getSettingValue(47L); // GOLD_INTREST_LESS_THAN_50000
-	        if (amount < 100000) return getSettingValue(48L); // GOLD_INTREST_LESS_THAN_100000
-	        return getSettingValue(49L); // GOLD_INTREST_MORE_THAN_100000
-	    } else if ("SILVER".equalsIgnoreCase(productTypeNo.toString())) {
-	        // Default interest rate for SILVER
-	        return getSettingValue(50L); // SILVER_INTREST
+	    Optional<Bill> billOptional = billRepository.findById(id);
+	    if (!billOptional.isPresent()) {
+	        throw new EntityNotFoundException("Bill with id " + id + " not found");
 	    }
+
+	    Bill existingBill = billOptional.get();
+
+	    // Update fields with provided billDetails
+	    if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
+	    if (billDetails.getBillNo() != null) existingBill.setBillNo(billDetails.getBillNo());
+	    if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
 	    
-	    // Throw an exception if the product type is invalid
-	    throw new IllegalArgumentException("Invalid product type: " + productTypeNo);
+	    // Handle the customer entity
+	    if (billDetails.getCustomer() != null) {
+	        Customer customer = billDetails.getCustomer();
+	        if (customer.getCustomerid() != null) {
+	            Optional<Customer> customerOptional = customerRepository.findById(customer.getCustomerid());
+	            if (customerOptional.isPresent()) {
+	                existingBill.setCustomer(customerOptional.get());
+	            } else {
+	                throw new EntityNotFoundException("Customer with id " + customer.getCustomerid() + " not found");
+	            }
+	        } else {
+	            throw new IllegalArgumentException("Customer ID cannot be null");
+	        }
+	    }
+
+	    if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
+	    if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
+	    if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
+	    if (billDetails.getAmount() != null) existingBill.setAmount(billDetails.getAmount());
+	    if (billDetails.getAmountInWords() != null) existingBill.setAmountInWords(billDetails.getAmountInWords());
+	    if (billDetails.getPresentValue() != null) existingBill.setPresentValue(billDetails.getPresentValue());
+	    if (billDetails.getGrams() != null) existingBill.setGrams(billDetails.getGrams());
+	    if (billDetails.getMonthlyIncome() != null) existingBill.setMonthlyIncome(billDetails.getMonthlyIncome());
+	    if (billDetails.getRedemptionDate() != null) existingBill.setRedemptionDate(billDetails.getRedemptionDate());
+	    if (billDetails.getRedemptionInterest() != null) existingBill.setRedemptionInterest(billDetails.getRedemptionInterest());
+	    if (billDetails.getRedemptionTotal() != null) existingBill.setRedemptionTotal(billDetails.getRedemptionTotal());
+	    if (billDetails.getRedemptionStatus() != null) existingBill.setRedemptionStatus(billDetails.getRedemptionStatus());
+	    if (billDetails.getBillRedemSerial() != null) existingBill.setBillRedemSerial(billDetails.getBillRedemSerial());
+	    if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
+	    if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
+
+	    // New Calculation for Redemption Interest and Total
+	    BigDecimal interestRateBD = existingBill.getRateOfInterest() != null 
+	        ? existingBill.getRateOfInterest() 
+	        : getRateOfInterest(existingBill.getProductTypeNo(), existingBill.getAmount());
+
+	    LocalDate billDate = existingBill.getBillDate();
+	    LocalDate redemptionDate = existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now();
+	    
+	    // Calculate months between the two dates
+	    int monthsBetween = (int) ChronoUnit.MONTHS.between(billDate.withDayOfMonth(1), redemptionDate.withDayOfMonth(1));
+
+	    BigDecimal amountBD = BigDecimal.valueOf(existingBill.getAmount());
+	    BigDecimal redemptionInterest = amountBD.multiply(interestRateBD)
+	        .multiply(BigDecimal.valueOf(monthsBetween))
+	        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+	    BigDecimal redemptionTotal = amountBD.add(redemptionInterest);
+
+	    existingBill.setRedemptionInterest(redemptionInterest.doubleValue());
+	    existingBill.setRedemptionTotal(redemptionTotal.doubleValue());
+
+	    return billRepository.save(existingBill);
 	}
 
-    private double getSettingValue(Long paramSeq) {
-        // Retrieve the Optional<Settings> from the service
-        Optional<Settings> optionalSetting = settingsService.findByParamSeq(paramSeq);
-        
-        // Extract the Settings object if present, or return a default value
-        Settings setting = optionalSetting.orElse(null);
-        
-        // If setting is not null, parse the paramValue; otherwise, return 0.0
-        return setting != null ? Double.parseDouble(setting.getParamValue()) : 0.0;
-    }
-	
+	private BigDecimal getRateOfInterest(Integer productTypeNo, Integer amount) {
+	    if (productTypeNo == null) {
+	        throw new IllegalArgumentException("Product type number cannot be null");
+	    }
+
+	    String productType = productTypeNo.toString();
+
+	    Long paramSeq = null;
+
+	    if ("1".equals(productType)) { // Assuming "1" is for GOLD
+	        if (amount < 5000) paramSeq = 44L; // GOLD_INTREST_LESS_THAN_5000
+	        else if (amount < 10000) paramSeq = 45L; // GOLD_INTREST_LESS_THAN_10000
+	        else if (amount < 20000) paramSeq = 46L; // GOLD_INTREST_LESS_THAN_20000
+	        else if (amount < 50000) paramSeq = 47L; // GOLD_INTREST_LESS_THAN_50000
+	        else if (amount < 100000) paramSeq = 48L; // GOLD_INTREST_LESS_THAN_100000
+	        else paramSeq = 49L; // GOLD_INTREST_MORE_THAN_100000
+	    } else if ("2".equals(productType)) { // Assuming "2" is for SILVER
+	        paramSeq = 50L; // SILVER_INTREST
+	    } else {
+	        throw new IllegalArgumentException("Invalid product type: " + productTypeNo);
+	    }
+
+	    return getSettingValue(paramSeq);
+	}
+
+	private BigDecimal getSettingValue(Long settingId) {
+	    Optional<Settings> settingOptional = settingsRepository.findById(settingId);
+	    if (!settingOptional.isPresent()) {
+	        throw new IllegalArgumentException("Setting with id " + settingId + " not found");
+	    }
+	    Settings setting = settingOptional.get();
+	    try {
+	        return new BigDecimal(setting.getParamValue()); // Convert the string to BigDecimal
+	    } catch (NumberFormatException e) {
+	        throw new IllegalArgumentException("Invalid number format for setting with id " + settingId, e);
+	    }
+	}
+
 }
