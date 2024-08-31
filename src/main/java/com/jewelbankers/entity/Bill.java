@@ -232,27 +232,27 @@ public class Bill {
 		this.monthlyIncome = monthlyIncome;
 	}
 
-	public String getRedemptionDate() {
+	public LocalDate getRedemptionDate() {
 		return redemptionDate;
 	}
 
-	public void setRedemptionDate(String redemptionDate) {
+	public void setRedemptionDate(LocalDate redemptionDate) {
 		this.redemptionDate = redemptionDate;
 	}
 
-	public BigDecimal getRedemptionInterest() {
+	public Double getRedemptionInterest() {
 		return redemptionInterest;
 	}
 
-	public void setRedemptionInterest(BigDecimal redemptionInterest) {
+	public void setRedemptionInterest(Double redemptionInterest) {
 		this.redemptionInterest = redemptionInterest;
 	}
 
-	public BigDecimal getRedemptionTotal() {
+	public Double getRedemptionTotal() {
 		return redemptionTotal;
 	}
 
-	public void setRedemptionTotal(BigDecimal redemptionTotal) {
+	public void setRedemptionTotal(Double redemptionTotal) {
 		this.redemptionTotal = redemptionTotal;
 	}
 
@@ -309,13 +309,13 @@ public class Bill {
     private Integer monthlyIncome;
 
     @Column(name = "redemptionDate")
-    private String redemptionDate;
+    private LocalDate redemptionDate;
 
     @Column(name = "redemptionInterest")
-    private BigDecimal redemptionInterest;
+    private Double redemptionInterest;
 
     @Column(name = "redemptionTotal")
-    private BigDecimal redemptionTotal;
+    private Double redemptionTotal;
 
     @Column(name = "redemptionStatus")
     private Character redemptionStatus;

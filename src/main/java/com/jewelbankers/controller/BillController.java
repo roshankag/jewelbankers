@@ -11,13 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.exception.ResourceNotFoundException;
 import com.jewelbankers.services.BillService;
 //import com.jewelbankers.services.FileStorageService;
 import com.jewelbankers.services.SettingsService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -53,43 +58,69 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
-//    @GetMapping("/date")
-//    public ResponseEntity<List<Bill>> searchBills(@RequestParam String startDate, @RequestParam String endDate) {
-//        List<Bill> bills = billService.searchBillsByDateRange(startDate, endDate);
-//        return ResponseEntity.ok(bills);
-//    }
-
 //    @PostMapping
 //    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
 //        Bill createdBill = billService.saveBill(bill);
 //        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
 //    }
     
+//    @PostMapping("/create")
+//    public ResponseEntity<Bill> createBillWithPhoto(
+//            @RequestParam("bill") String billJson,
+//            @RequestParam("photo") MultipartFile photo) {
+//        
+//        // Convert JSON string to Bill object
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        Bill bill;
+//        try {
+//            bill = objectMapper.readValue(billJson, Bill.class);
+//        } catch (IOException e) {
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//        
+//        // Save the bill with the photo
+//        Bill createdBill;
+//        try {
+//            createdBill = billService.saveBill(bill, photo);
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                                 .body(null);
+//        }
+//        
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+//    }
+    
     @PostMapping("/create")
-    public ResponseEntity<Bill> createBillWithPhoto(
+    public ResponseEntity<?> createBillWithPhoto(
             @RequestParam("bill") String billJson,
             @RequestParam("photo") MultipartFile photo) {
-        
+
         // Convert JSON string to Bill object
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         Bill bill;
         try {
+        	
             bill = objectMapper.readValue(billJson, Bill.class);
         } catch (IOException e) {
-            return ResponseEntity.badRequest().body(null);
+            String errorMessage = "Failed to parse the bill JSON: " + e.getMessage();
+            return ResponseEntity.badRequest().body(errorMessage);
         }
-        
+
         // Save the bill with the photo
         Bill createdBill;
         try {
             createdBill = billService.saveBill(bill, photo);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(null);
+                                 .body("Error saving bill: " + e.getMessage());
         }
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
     }
+
 
     
     @GetMapping("/export/excel")
@@ -173,40 +204,55 @@ public class BillController {
         }
         return ResponseEntity.ok(bills);
     }
-
-
+    
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBillByBillNo(@PathVariable("id") Long id, @RequestBody Bill billDetails) {
-        Optional<Bill> billOptional = billService.findById(id);
-        if (!billOptional.isPresent()) {
+        try {
+            Bill updatedBill = billService.updateBill(id, billDetails);
+            return ResponseEntity.ok(updatedBill);
+        } catch (EntityNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Bill not found", "Bill with id " + id + " not found"));
+                    .body(new ErrorResponse("Bill not found", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Error updating bill", ex.getMessage()));
         }
-
-        Bill existingBill = billOptional.get();
-        if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
-      if (billDetails.getBillNo() != null) existingBill.setBillNo(billDetails.getBillNo());
-      if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
-      if (billDetails.getCustomer() != null) existingBill.setCustomer(billDetails.getCustomer());
-      if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
-      if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
-      if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
-      if (billDetails.getAmount() != null) existingBill.setAmount(billDetails.getAmount());
-      if (billDetails.getAmountInWords() != null) existingBill.setAmountInWords(billDetails.getAmountInWords());
-      if (billDetails.getPresentValue() != null) existingBill.setPresentValue(billDetails.getPresentValue());
-      if (billDetails.getGrams() != null) existingBill.setGrams(billDetails.getGrams());
-      if (billDetails.getMonthlyIncome() != null) existingBill.setMonthlyIncome(billDetails.getMonthlyIncome());
-      if (billDetails.getRedemptionDate() != null) existingBill.setRedemptionDate(billDetails.getRedemptionDate());
-      if (billDetails.getRedemptionInterest() != null) existingBill.setRedemptionInterest(billDetails.getRedemptionInterest());
-      if (billDetails.getRedemptionTotal() != null) existingBill.setRedemptionTotal(billDetails.getRedemptionTotal());
-      if (billDetails.getRedemptionStatus() != null) existingBill.setRedemptionStatus(billDetails.getRedemptionStatus());
-      if (billDetails.getBillRedemSerial() != null) existingBill.setBillRedemSerial(billDetails.getBillRedemSerial());
-      if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
-      if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
-
-        Bill updatedBill = billService.saveBill(existingBill);
-        return ResponseEntity.ok(updatedBill);
     }
+
+
+//    @PutMapping("/{id}")
+//    public ResponseEntity<?> updateBillByBillNo(@PathVariable("id") Long id, @RequestBody Bill billDetails) {
+//        Optional<Bill> billOptional = billService.findById(id);
+//        if (!billOptional.isPresent()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(new ErrorResponse("Bill not found", "Bill with id " + id + " not found"));
+//        }
+//
+//        Bill existingBill = billOptional.get();
+//        
+//        if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
+//      if (billDetails.getBillNo() != null) existingBill.setBillNo(billDetails.getBillNo());
+//      if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
+//      if (billDetails.getCustomer() != null) existingBill.setCustomer(billDetails.getCustomer());
+//      if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
+//      if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
+//      if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
+//      if (billDetails.getAmount() != null) existingBill.setAmount(billDetails.getAmount());
+//      if (billDetails.getAmountInWords() != null) existingBill.setAmountInWords(billDetails.getAmountInWords());
+//      if (billDetails.getPresentValue() != null) existingBill.setPresentValue(billDetails.getPresentValue());
+//      if (billDetails.getGrams() != null) existingBill.setGrams(billDetails.getGrams());
+//      if (billDetails.getMonthlyIncome() != null) existingBill.setMonthlyIncome(billDetails.getMonthlyIncome());
+//      if (billDetails.getRedemptionDate() != null) existingBill.setRedemptionDate(billDetails.getRedemptionDate());
+//      if (billDetails.getRedemptionInterest() != null) existingBill.setRedemptionInterest(billDetails.getRedemptionInterest());
+//      if (billDetails.getRedemptionTotal() != null) existingBill.setRedemptionTotal(billDetails.getRedemptionTotal());
+//      if (billDetails.getRedemptionStatus() != null) existingBill.setRedemptionStatus(billDetails.getRedemptionStatus());
+//      if (billDetails.getBillRedemSerial() != null) existingBill.setBillRedemSerial(billDetails.getBillRedemSerial());
+//      if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
+//      if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
+//
+//        Bill updatedBill = billService.saveBill(existingBill);
+//        return ResponseEntity.ok(updatedBill);
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBill(@PathVariable("id") Long id) {
