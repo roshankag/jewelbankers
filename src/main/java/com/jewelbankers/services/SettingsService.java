@@ -1,5 +1,6 @@
 package com.jewelbankers.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import com.jewelbankers.entity.Settings;
 import com.jewelbankers.repository.SettingsRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class SettingsService {
 	@Autowired
@@ -17,8 +20,16 @@ public class SettingsService {
 		return settingsRepository.findAll();
 	}
 	
-	public List<Settings> updateAllSettings(List<Settings> settingsList) {
-        return settingsRepository.saveAll(settingsList);
+	
+	
+	@Transactional
+    public List<Settings> updateAllSettings(List<Settings> settingsList) {
+        List<Settings> updatedSettings = new ArrayList<>();
+        for (Settings settings : settingsList) {
+            // Perform any necessary updates
+            updatedSettings.add(settingsRepository.save(settings));
+        }
+        return updatedSettings;
     }
 	
 	public String getDriveLink() {

@@ -158,6 +158,7 @@ public class BillController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getBillById(@PathVariable("id") Long id) {
         Optional<Bill> billOptional = billService.findById(id);
+        
         if (billOptional.isPresent()) {
             return ResponseEntity.ok(billOptional.get());
         } else {

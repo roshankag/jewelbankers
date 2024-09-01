@@ -115,12 +115,56 @@ public class SettingsController {
         }
     }
 
+//    @PutMapping("/{id}")
+//    public ResponseEntity<?> updateSettings(@PathVariable("id") Long paramSeq, @RequestBody Settings inputSettings) {
+//        try {
+//            Optional<Settings> existingSettings = settingsService.findByParamSeq(paramSeq);
+//            
+//            if (!existingSettings.isPresent()) {
+//                ErrorResponse errorResponse = new ErrorResponse(
+//                    "Settings not found",
+//                    "Settings with paramSeq " + paramSeq + " not found"
+//                );
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+//            }
+//
+//            Settings settingsSelect = existingSettings.get();
+//            
+//            if (inputSettings.getParamSeq() != null) settingsSelect.setParamSeq(inputSettings.getParamSeq());
+//            if (inputSettings.getParamId() != null) settingsSelect.setParamId(inputSettings.getParamId());
+//            if (inputSettings.getParamValue() != null) settingsSelect.setParamValue(inputSettings.getParamValue());
+//            if (inputSettings.getParamExample() != null) settingsSelect.setParamExample(inputSettings.getParamExample());
+//            
+//            Settings updatedSettings = settingsService.save(settingsSelect);
+//            return ResponseEntity.ok(updatedSettings);
+//        } catch (Exception e) {
+//            ErrorResponse errorResponse = new ErrorResponse(
+//                "Error updating settings",
+//                e.getMessage()
+//            );
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+//        }
+//    }
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSettings(@PathVariable("id") Long paramSeq, @RequestBody Settings inputSettings) {
         try {
+            // Retrieve existing settings by paramSeq
             Optional<Settings> existingSettings = settingsService.findByParamSeq(paramSeq);
-            
-            if (!existingSettings.isPresent()) {
+
+            if (existingSettings.isPresent()) {
+                Settings settingsSelect = existingSettings.get();
+                
+                // Update settings with new values if present
+                if (inputSettings.getParamSeq() != null) settingsSelect.setParamSeq(inputSettings.getParamSeq());
+                if (inputSettings.getParamId() != null) settingsSelect.setParamId(inputSettings.getParamId());
+                if (inputSettings.getParamValue() != null) settingsSelect.setParamValue(inputSettings.getParamValue());
+                if (inputSettings.getParamExample() != null) settingsSelect.setParamExample(inputSettings.getParamExample());
+                
+                // Save updated settings
+                Settings updatedSettings = settingsService.save(settingsSelect);
+                return ResponseEntity.ok(updatedSettings);
+            } else {
+                // Handle case where settings are not found
                 ErrorResponse errorResponse = new ErrorResponse(
                     "Settings not found",
                     "Settings with paramSeq " + paramSeq + " not found"
@@ -128,16 +172,8 @@ public class SettingsController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
 
-            Settings settingsSelect = existingSettings.get();
-            
-            if (inputSettings.getParamSeq() != null) settingsSelect.setParamSeq(inputSettings.getParamSeq());
-            if (inputSettings.getParamId() != null) settingsSelect.setParamId(inputSettings.getParamId());
-            if (inputSettings.getParamValue() != null) settingsSelect.setParamValue(inputSettings.getParamValue());
-            if (inputSettings.getParamExample() != null) settingsSelect.setParamExample(inputSettings.getParamExample());
-            
-            Settings updatedSettings = settingsService.save(settingsSelect);
-            return ResponseEntity.ok(updatedSettings);
         } catch (Exception e) {
+            // Handle any exceptions
             ErrorResponse errorResponse = new ErrorResponse(
                 "Error updating settings",
                 e.getMessage()
@@ -145,4 +181,5 @@ public class SettingsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
 }

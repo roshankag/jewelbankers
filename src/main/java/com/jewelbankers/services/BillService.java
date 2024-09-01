@@ -148,9 +148,12 @@ public class BillService {
 		Pageable pageable = PageRequest.of(page, size);
 		return billRepository.findAll(pageable);
 	}
-
+	
+    //GET METHOD 
 	public Optional<Bill> findById(Long billSequence) {
-		return billRepository.findById(billSequence);
+	    Optional<Bill> optionalBill = billRepository.findById(billSequence);
+	    // If the Bill is present, calculateRedemption is called; otherwise, the Optional remains empty.
+	    return optionalBill.map(this::calculateRedemption);
 	}
 
 	// Method to save or update a bill without an image
@@ -470,7 +473,13 @@ public class BillService {
 	    if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
 	    if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
 
-	    // New Calculation for Redemption Interest and Total
+	   
+        //calculateRedemption(existingBill);
+	    return billRepository.save(existingBill);
+	}
+	
+	private Bill calculateRedemption(Bill existingBill) {
+		 // New Calculation for Redemption Interest and Total
 	    BigDecimal interestRateBD = existingBill.getRateOfInterest() != null 
 	        ? existingBill.getRateOfInterest() 
 	        : getRateOfInterest(existingBill.getProductTypeNo(), existingBill.getAmount());
@@ -489,8 +498,7 @@ public class BillService {
 
 	    existingBill.setRedemptionInterest(redemptionInterest.doubleValue());
 	    existingBill.setRedemptionTotal(redemptionTotal.doubleValue());
-
-	    return billRepository.save(existingBill);
+	    return existingBill;
 	}
 
 	private BigDecimal getRateOfInterest(Integer productTypeNo, Integer amount) {

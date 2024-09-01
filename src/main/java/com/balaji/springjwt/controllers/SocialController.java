@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +14,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,46 +21,30 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.social.facebook.api.Facebook;
-import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.balaji.springjwt.dto.JwtLogin;
-import com.balaji.springjwt.dto.LoginResponse;
-import com.balaji.springjwt.dto.TokenDto;
 import com.balaji.springjwt.models.Role;
 import com.balaji.springjwt.models.User;
 import com.balaji.springjwt.repository.UserRepository;
 import com.balaji.springjwt.security.jwt.JwtUtils;
-import com.balaji.springjwt.security.services.UserDetailsImpl;
 import com.balaji.springjwt.services.RoleService;
 import com.balaji.springjwt.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.jewelbankers.configuration.DataSourceService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -74,6 +55,16 @@ import jakarta.servlet.http.HttpServletResponse;
 //http://localhost:8080/social
 public class SocialController {
 
+	 @Value("${datasource.secondary.url}")
+	    private String secondaryDataSourceUrl;
+
+	    @Value("${datasource.secondary.username}")
+	    private String secondaryDataSourceUsername;
+
+	    @Value("${datasource.secondary.password}")
+	    private String secondaryDataSourcePassword;
+
+	    
     @Autowired
     AuthenticationManager authenticationManager;
     
@@ -93,12 +84,22 @@ public class SocialController {
     private UserRepository userRepository;
 
     private Claims claims;
+    
+    @Autowired
+    DataSourceService dataSourceService;
 
     @Value("${mySecret.password}")
     private String password;
     @Autowired
   JwtUtils jwtUtils;
 
+	/*
+	 * @Autowired
+	 * 
+	 * @Qualifier("secondaryDataSource") private DataSource secondaryDataSource;
+	 */
+   
+    
     @Autowired
     public SocialController(UserService userService,RoleService roleService,JwtUtils tokenService,PasswordEncoder passwordEncoder) {
         this.userService = userService;
@@ -115,6 +116,7 @@ try {
     requestBody = new BufferedReader(new InputStreamReader(httpServletRequest.getInputStream()))
       .lines()
       .collect(Collectors.joining(System.lineSeparator()));
+    
 } catch (IOException e) {
     // TODO Auto-generated catch block
     e.printStackTrace();
@@ -135,6 +137,8 @@ System.out.println("g_csrf_token: " + gCsrfToken);
 boolean isValid = validateGoogleIdToken(credential);
 if (isValid) {
     String userEmail = claims.get("email", String.class);
+    System.out.println(userEmail);
+    
     User userDetails =  userRepository.findByEmail(userEmail);    
     List<String> roles = userDetails.getRoles().stream()
     .map(role -> role.getName().name()) // Extract role name from Enum
@@ -142,7 +146,52 @@ if (isValid) {
 
     System.out.println("Valid token");
     String token = jwtUtils.generateJwtToken(userEmail);
-
+    // Split the email to get the domain name
+    String[] emailParts = userEmail.split("@");
+    String emailName = emailParts.length > 1 ? emailParts[0] : "";
+    System.out.println("emailName"+emailName);
+    String updatedJdbcUrl = secondaryDataSourceUrl.replace("krishnag",emailName);
+    System.out.println(updatedJdbcUrl);
+    dataSourceService.clearDataSource();
+    dataSourceService.updateSecondaryDataSource(updatedJdbcUrl, secondaryDataSourceUsername, secondaryDataSourcePassword);
+    dataSourceService.switchSecondaryDataSource();
+    
+    /*
+	 * if (secondaryDataSource instanceof HikariDataSource) { // Close the existing
+	 * data source HikariDataSource hikariDataSource = (HikariDataSource)
+	 * secondaryDataSource; hikariDataSource.close(); // Close the existing
+	 * connection pool // Create a new HikariDataSource with the updated JDBC URL //
+	 * HikariDataSource newHikariDataSource = new HikariDataSource(); String
+	 * updatedJdbcUrl = hikariDataSource.getJdbcUrl().replace("krishnag",
+	 * emailName); switchSecondaryDataSource(); //dataSourceConfig.
+	 * //reloadSecondaryDataSource(updatedJdbcUrl, "admin", "root"); //
+	 * newHikariDataSource.setJdbcUrl(updatedJdbcUrl);
+	 * //newHikariDataSource.setUsername(hikariDataSource.getUsername());
+	 * //newHikariDataSource.setPassword(hikariDataSource.getPassword());
+	 * //newHikariDataSource.setDriverClassName(hikariDataSource.getDriverClassName(
+	 * ));
+	 * 
+	 * // Apply the same configuration settings to the new DataSource
+	 * //newHikariDataSource.setMaximumPoolSize(hikariDataSource.getMaximumPoolSize(
+	 * )); //newHikariDataSource.setMinimumIdle(hikariDataSource.getMinimumIdle());
+	 * // ... (other configuration settings as needed)
+	 * 
+	 * // Update the reference to point to the new data source
+	 * //this.secondaryDataSource = newHikariDataSource;
+	 * 
+	 * // Set the current data source context to use the updated data source
+	 * //DataSourceContextHolder.setCurrentDataSource("secondary");
+	 * 
+	 * // Output the new URL to confirm //
+	 * System.out.println("Updated DataSource URL: " +
+	 * newHikariDataSource.getJdbcUrl()); } else { // Handle the case where the
+	 * DataSource is not an instance of DriverManagerDataSource
+	 * System.err.println("Cannot update URL on DataSource of type " +
+	 * secondaryDataSource.getClass().getName()); }
+	 */
+    
+    
+ 
 // Handle the authentication response here
 // You can extract user details from the token if needed
 Map<String, Object> responseBody = new HashMap<>();
@@ -151,6 +200,9 @@ Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("userId", userDetails.getId());
             responseBody.put("username", userDetails.getUsername());
             responseBody.put("email", userEmail);
+            
+          
+            
             responseBody.put("roles", roles);
             // Convert the response body to JSON
             ObjectMapper objectMapper = new ObjectMapper();
@@ -178,6 +230,7 @@ Map<String, Object> responseBody = new HashMap<>();
 httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 status code
 }
     }
+    
 
     private User createUser(String email) {
         User user = new User();

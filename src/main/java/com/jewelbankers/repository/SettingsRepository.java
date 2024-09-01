@@ -13,5 +13,6 @@ public interface SettingsRepository extends JpaRepository<Settings, Long>{
 //	Optional<Settings> findByParamName(String paramName);
     Optional<Settings> findByParamSeq(Long paramSeq);
 	Optional<Settings> findByParamId(String paramId);
+	
 	List<Settings> findByParamIdContainingOrParamValueContainingOrParamExampleContaining(String paramId, String paramValue, String paramExample);
 }
