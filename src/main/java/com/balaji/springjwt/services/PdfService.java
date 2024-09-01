@@ -23,7 +23,7 @@ public class PdfService {
     private static final String TEMPLATE_PATH = "template/bill.pdf";
     private static final String OUTPUT_PATH = "bills";
 
-   public void generateAndSaveBillPdf(Pledge pledge) throws IOException, DocumentException {
+   public String generateAndSaveBillPdf(Pledge pledge) throws IOException, DocumentException {
        // Ensure the output directory exists
         File outputDir = new File(OUTPUT_PATH);
         if (!outputDir.exists()) {
@@ -84,6 +84,8 @@ public class PdfService {
 
             // Log the successful creation of the PDF
             System.out.println("PDF generated and saved at: " + outputFilePath);
+
+            return outputFilePath;
 
         } catch (DocumentException | IOException e) {
             System.err.println("Error generating PDF: " + e.getMessage());

@@ -60,7 +60,7 @@ public class PledgeController {
             this.pledgeService.generateAndSendBill(pledgeId);
             return ResponseEntity.ok("Bill sent successfully and saved locally");
         }   catch (Exception e) {
-            return ResponseEntity.status(500).body("Error sending bill to WhatsApp");
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }

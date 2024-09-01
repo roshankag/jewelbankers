@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Random;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "pledge")
 public class Pledge {
@@ -18,7 +21,8 @@ public class Pledge {
 
     @Column(name = "bill_no", nullable = false)
     private int billNo;
-
+    
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
@@ -56,7 +60,19 @@ public class Pledge {
 
     @Column(name = "total_amount", nullable = false)
     private double totalAmount;
-    
+
+    @JsonManagedReference
+    @OneToOne(mappedBy = "pledge", cascade = CascadeType.ALL)
+    private BillUpload billUpload;
+
+    public BillUpload getBillUpload() {
+        return billUpload;
+    }
+
+    public void setBillUpload(BillUpload billUpload) {
+        this.billUpload = billUpload;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.billNo = generateUniqueBillNo();
@@ -199,5 +215,6 @@ public class Pledge {
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
     }
+    
     
 }

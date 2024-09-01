@@ -3,7 +3,10 @@ package com.balaji.springjwt.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.balaji.springjwt.models.BillUpload;
+import com.balaji.springjwt.models.FileUploadResponse;
 import com.balaji.springjwt.models.Pledge;
+import com.balaji.springjwt.repository.BillUploadRepository;
 import com.balaji.springjwt.repository.PledgeRepository;
 import com.itextpdf.text.DocumentException;
 
@@ -18,7 +21,13 @@ public class PledgeService {
     private PdfService pdfService;
 
     @Autowired
+    private FileUploadService fileUploadService;
+
+    @Autowired
     private PledgeRepository pledgeRepository;
+
+    @Autowired
+    private BillUploadRepository billUploadRepository;
 
     public List<Pledge> getAllPledges() {
         return pledgeRepository.findAll();
@@ -36,16 +45,53 @@ public class PledgeService {
         return pledgeRepository.save(pledge);
     }
 
-    public void generateAndSendBill(Long pledgeId){
+    public void generateAndSendBill(Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid pledge ID"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid pledge ID"));
 
-            try {
-                pdfService.generateAndSaveBillPdf(pledge);
-            } catch (IOException | DocumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        // Check if bill is already uploaded
+        if (pledge.getBillUpload() != null) {
+            // Bill already uploaded, send link to WhatsApp
+            sendWhatsAppMessage(pledge.getBillUpload().getLink(), pledge.getCustomer().getPhone());
+            return;
+        }
+
+        try {
+            // Generate the PDF
+            
+
+            // Upload the PDF file
+            String filePath = pdfService.generateAndSaveBillPdf(pledge); // Retrieve the actual path
+            FileUploadResponse response = fileUploadService.uploadFile(filePath);
+            System.out.println("File uploaded");
+            // Save the response to the database
+            BillUpload billUpload = new BillUpload();
+            billUpload.setUploadId(response.getFileId());
+            billUpload.setPledge(pledge);
+            billUpload.setLink(response.getLink());
+            billUpload.setExpires(response.getExpires());
+            billUpload.setAutoDelete(response.isAutoDelete());
+            // billUpload.setPledge(pledge);
+
+            billUploadRepository.save(billUpload);
+
+            // Associate bill upload with the pledge
+            pledge.setBillUpload(billUpload);
+            pledgeRepository.save(pledge);
+
+            // Send WhatsApp message with the link
+            sendWhatsAppMessage(response.getLink(), pledge.getCustomer().getPhone());
+
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void sendWhatsAppMessage(String link, String phone) {
+        // TODO Auto-generated method stub
+        System.out.println(link+" "+phone);
+        // throw new UnsupportedOperationException("Unimplemented method 'sendWhatsAppMessage'");
     }
 
     public Pledge updatePledge(Long id, Pledge pledgeDetails) {
