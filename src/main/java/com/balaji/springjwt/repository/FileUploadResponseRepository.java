@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.balaji.springjwt.models.FileUploadResponse;
 
 @Repository
-public interface FileUploadResponseRepository extends JpaRepository<FileUploadResponse, Long> {
+public interface FileUploadResponseRepository extends JpaRepository<FileUploadResponse, String> {
     FileUploadResponse findByFileId(String fileId);
 }

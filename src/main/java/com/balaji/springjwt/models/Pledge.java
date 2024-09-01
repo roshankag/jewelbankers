@@ -22,7 +22,7 @@ public class Pledge {
     @Column(name = "bill_no", nullable = false)
     private int billNo;
     
-    @JsonBackReference
+    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
