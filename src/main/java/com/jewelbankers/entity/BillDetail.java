@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -15,11 +17,11 @@ import jakarta.persistence.Table;
 @Table(name = "bill_detail")
 public class BillDetail {
 
-    //@Id
-   // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence",insertable = true, updatable = true)
-    //@Column(name = "BILL_SEQUENCE") 
-    //private int billSequence;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence",insertable = true, updatable = true)
+    @Column(name = "BILL_SEQUENCE") 
+    private int billSequence;
     
     @Id
     @Column(name = "PRODUCT_NO")

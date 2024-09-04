@@ -266,6 +266,17 @@ public class BillController {
                     .body(new ErrorResponse("Bill not found", "Bill with id " + id + " not found"));
         }
     }
+    
+    @DeleteMapping("/redeem")
+    public ResponseEntity<String> deleteRedeemBill(@RequestParam Character billSerial, @RequestParam Integer billNo) {
+        boolean isDeleted = billService.deleteRedeemBill(billSerial, billNo);
+        
+        if (isDeleted) {
+            return ResponseEntity.ok("Redeem bill deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Redeem bill not found");
+        }
+    }
 }
 
 

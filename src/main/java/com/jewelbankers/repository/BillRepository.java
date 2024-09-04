@@ -2,6 +2,7 @@ package com.jewelbankers.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -25,6 +26,7 @@ public interface BillRepository extends JpaRepository<Bill, Long>,  JpaSpecifica
 //	List<Bill> findByBillDateBetween(LocalDate start, LocalDate end);
 	List<Bill> findByRedemptionStatus(Character redemptionStatus);
 	List<Bill> findByProductTypeNo(Long productTypeNo);
+//	List<Bill> findByRedeemBillSerialAndBillNo(Character billSerial, Integer billNo);
 	
 	 @Query("SELECT COALESCE(MAX(b.billNo), 0) FROM Bill b")
 	    Integer findCurrentBillNo();

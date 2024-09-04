@@ -538,5 +538,15 @@ public class BillService {
 	        throw new IllegalArgumentException("Invalid number format for setting with id " + settingId, e);
 	    }
 	}
+	
+	 public boolean deleteRedeemBill(Character billSerial, Integer billNo) {
+	        List<Bill> bill = billRepository.findByBillSerialAndBillNo(billSerial, billNo);
+	        if (!bill.isEmpty()) {
+	            billRepository.deleteAll(bill);
+	            return true;
+	        } else {
+	            return false;
+	        }
+	    }
 
 }
