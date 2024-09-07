@@ -165,12 +165,12 @@ public class Bill {
 		this.billDate = billDate;
 	}
 
-	public String getCareOf() {
-		return careOf;
+	public String getCareof() {
+		return careof;
 	}
 
-	public void setCareOf(String careOf) {
-		this.careOf = careOf;
+	public void setCareof(String careof) {
+		this.careof = careof;
 	}
 
 	public Integer getProductTypeNo() {
@@ -281,8 +281,8 @@ public class Bill {
 		this.comments = comments;
 	}
 
-	@Column(name = "careOf")
-    private String careOf;
+	@Column(name = "careof")
+    private String careof;
     
     @Column(name = "productTypeNo")
     private Integer productTypeNo;
@@ -327,13 +327,4 @@ public class Bill {
     @Column(name = "comments")
     private String comments;
     
-    private Long productSeq;
-
-	public Long getProductSeq() {
-		return productSeq;
-	}
-
-	public void setProductSeq(Long productSeq) {
-		this.productSeq = productSeq;
-	}	
 }

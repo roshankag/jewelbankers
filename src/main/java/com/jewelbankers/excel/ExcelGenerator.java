@@ -47,7 +47,7 @@ public class ExcelGenerator {
             	address.append(bill.getCustomer().getState());
             	address.append(bill.getCustomer().getCountry());
             	address.append(bill.getCustomer().getPincode());
-            	address.append(bill.getCustomer().getMobileNo());
+            	address.append(bill.getCustomer().getMobileno());
             }
             row.createCell(3).setCellValue(address.toString());
             row.createCell(4).setCellValue(bill.getGrams()!= null ? bill.getGrams().toString():"");

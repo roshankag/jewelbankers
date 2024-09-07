@@ -161,6 +161,7 @@ public class BillService {
 	}
 
 	// Method to save or update a bill without an image
+	@Transactional
 	public Bill saveBill(Bill bill) {
 		if(bill.getCustomer().getCustomerid() != null) {
 			Optional<Customer> optionalCustomer =  customerRepository.findById(bill.getCustomer().getCustomerid());
@@ -467,7 +468,7 @@ public class BillService {
 	        }
 	    }
 
-	    if (billDetails.getCareOf() != null) existingBill.setCareOf(billDetails.getCareOf());
+	    if (billDetails.getCareof() != null) existingBill.setCareof(billDetails.getCareof());
 	    if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());
 	    if (billDetails.getRateOfInterest() != null) existingBill.setRateOfInterest(billDetails.getRateOfInterest());
 	    if (billDetails.getAmount() != null) existingBill.setAmount(billDetails.getAmount());

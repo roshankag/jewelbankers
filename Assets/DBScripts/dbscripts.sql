@@ -7,3 +7,10 @@ alter table customer add proof varchar(200);
 alter table customer add proof_type char(1);
 ALTER TABLE deepak.customer AUTO_INCREMENT=5667;
 ALTER TABLE deepak.bill_header AUTO_INCREMENT=17118
+
+ALTER TABLE customer MODIFY COLUMN phone_no BIGINT;
+ALTER TABLE customer MODIFY COLUMN mobile_no BIGINT;
+
+ALTER TABLE Customer
+DROP COLUMN PhoneNo,
+DROP COLUMN MobileNo;

@@ -37,7 +37,7 @@ public class Customer {
 	@Column(name = "area")
 	private String area;
 	
-	@Column(name = "Email")
+	@Column(name = "MailID")
 	private String email;
     
 	@Column(name = "Address")
@@ -53,7 +53,7 @@ public class Customer {
 	@Column(name = "Customername")
 	private String customerName;
 	
-	@Column(name = "imagePath")
+	@Column(name = "Photo")
     private String imagePath;
 	
 	@Column(name = "proof_type")
@@ -109,36 +109,55 @@ public class Customer {
 	@Column(name = "Country")
 	private String country;
  
-	@Column(name = "RelationShip ")
-	private String relationShip ;
+	public String getRelationship() {
+		return relationship;
+	}
+
+	public void setRelationship(String relationship) {
+		this.relationship = relationship;
+	}
+
+	public String getRelationshipname() {
+		return relationshipname;
+	}
+
+	public void setRelationshipname(String relationshipname) {
+		this.relationshipname = relationshipname;
+	}
+
+	public Long getPhoneno() {
+		return phoneno;
+	}
+
+	public void setPhoneno(Long phoneno) {
+		this.phoneno = phoneno;
+	}
+
+	public Long getMobileno() {
+		return mobileno;
+	}
+
+	public void setMobileno(Long mobileno) {
+		this.mobileno = mobileno;
+	}
+
+
+	@Column(name = "relationship ")
+	private String relationship ;
 	
-	@Column(name = "RelationShipName ")
-	private String relationShipName ;
+	@Column(name = "relationname ")
+	private String relationshipname ;
 	
 
-	@Column(name = "PhoneNo")
-	private Integer phone;
+	@Column(name = "phoneno")
+	private Long phoneno;
 	
-	@Column(name = "MobileNo")
-	private Integer MobileNo;
+	@Column(name = "mobileno")
+	private Long mobileno;
 //	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Bill> bills;
 	
-	public Integer getPhone() {
-		return phone;
-	}
 
-	public void setPhone(Integer phone) {
-		this.phone = phone;
-	}
-
-	public Integer getMobileNo() {
-		return MobileNo;
-	}
-
-	public void setMobileNo(Integer mobileNo) {
-		MobileNo = mobileNo;
-	}
 
 	public int getPincode() {
 		return pincode;
@@ -170,22 +189,6 @@ public class Customer {
 
 	public void setCountry(String country) {
 		this.country = country;
-	}
-
-	public String getRelationShip() {
-		return relationShip;
-	}
-
-	public void setRelationShip(String relationShip) {
-		this.relationShip = relationShip;
-	}
-
-	public String getRelationShipName() {
-		return relationShipName;
-	}
-
-	public void setRelationShipName(String relationShipName) {
-		this.relationShipName = relationShipName;
 	}
 
 	public String getArea() {

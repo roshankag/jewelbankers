@@ -80,11 +80,11 @@ public class CustomerService {
 	            existingCustomer.setCountry(customer.getCountry());
 	            existingCustomer.setDistrict(customer.getDistrict());
 	            existingCustomer.setEmail(customer.getEmail());
-	            existingCustomer.setMobileNo(customer.getMobileNo());
-	            existingCustomer.setPhone(customer.getPhone());
+	            existingCustomer.setMobileno(customer.getMobileno());
+	            existingCustomer.setPhoneno(customer.getPhoneno());
 	            existingCustomer.setPincode(customer.getPincode());
-	            existingCustomer.setRelationShip(customer.getRelationShip());
-	            existingCustomer.setRelationShipName(customer.getRelationShipName());
+	            existingCustomer.setRelationship(customer.getRelationship());
+	            existingCustomer.setRelationshipname(customer.getRelationshipname());
 	            existingCustomer.setProofType(customer.getProofType());
 	            existingCustomer.setProofDetails(customer.getProofDetails());
 	           // existingCustomer.setEmail(customer.getEmail());
