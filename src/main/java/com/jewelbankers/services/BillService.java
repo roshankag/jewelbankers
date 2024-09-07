@@ -29,6 +29,7 @@ import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
 import com.jewelbankers.repository.SettingsRepository;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -54,6 +55,9 @@ public class BillService {
 	
 	 @Autowired
 	 private CustomerRepository customerRepository;
+	 
+	 @Autowired
+	 private EntityManager entityManager;
 	
 	public List<Bill> findBillsByProductTypeNo(Long productTypeNo) {
         return billRepository.findByProductTypeNo(productTypeNo);
@@ -157,73 +161,79 @@ public class BillService {
 	}
 
 	// Method to save or update a bill without an image
-    public Bill saveBill(Bill bill) {
-        return billRepository.save(bill);
-    }
+	public Bill saveBill(Bill bill) {
+		if(bill.getCustomer().getCustomerid() != null) {
+			Optional<Customer> optionalCustomer =  customerRepository.findById(bill.getCustomer().getCustomerid());
+		    optionalCustomer.ifPresent(customer -> bill.setCustomer(customer));
+		   // optionalCustomer.ifPresentOrElse(customer -> bill.setCustomer(customer), null);
+		}
+	    // If the customer is detached, merge it to make it managed
+		/*
+		 * if (bill.getCustomer() != null && entityManager.contains(bill.getCustomer())
+		 * == false) { Customer managedCustomer =
+		 * entityManager.merge(bill.getCustomer()); bill.setCustomer(managedCustomer); }
+		 */
+		
+	    return billRepository.save(bill);
+	}
     
-    @Transactional
-    public Bill saveBill(Bill bill, MultipartFile photo) {
-        if (photo != null && !photo.isEmpty()) {
-            try {
-                // Convert MultipartFile to Base64
-                String base64Image = convertToBase64(photo);
-                
-                // Save the customer photo and get the path
-                String savedImagePath = saveCustomerPhoto(base64Image, bill.getCustomer().getCustomerid());
-                
-                bill.getCustomer().setImagePath(savedImagePath); // Update the image path in the customer entity
-                
-             // Fetch the existing customer and update its image path
-                Customer customer = customerRepository.findById(bill.getCustomer().getCustomerid())
-                        .orElseThrow(() -> new RuntimeException("Customer not found"));
-                customer.setImagePath(savedImagePath); // Update the image path
-                customerRepository.save(customer); // Save the updated customer
+	/*
+	 * @Transactional public Bill saveBill(Bill bill, MultipartFile photo) { if
+	 * (photo != null && !photo.isEmpty()) { try { // Convert MultipartFile to
+	 * Base64 String base64Image = convertToBase64(photo);
+	 * 
+	 * // Save the customer photo and get the path String savedImagePath =
+	 * saveCustomerPhoto(base64Image, bill.getCustomer().getCustomerid());
+	 * 
+	 * bill.getCustomer().setImagePath(savedImagePath); // Update the image path in
+	 * the customer entity
+	 * 
+	 * // Fetch the existing customer and update its image path Customer customer =
+	 * customerRepository.findById(bill.getCustomer().getCustomerid())
+	 * .orElseThrow(() -> new RuntimeException("Customer not found"));
+	 * customer.setImagePath(savedImagePath); // Update the image path
+	 * customerRepository.save(customer); // Save the updated customer
+	 * 
+	 * // Attach the updated customer to the bill bill.setCustomer(customer);
+	 * 
+	 * } catch (IOException e) { e.printStackTrace(); throw new
+	 * RuntimeException("Error processing photo: " + e.getMessage(), e); } }
+	 * 
+	 * // Save the bill to the database return billRepository.save(bill); }
+	 * 
+	 * private String convertToBase64(MultipartFile file) throws IOException {
+	 * byte[] fileBytes = file.getBytes(); return
+	 * Base64.getEncoder().encodeToString(fileBytes); }
+	 */
 
-                // Attach the updated customer to the bill
-                bill.setCustomer(customer);
-                
-            } catch (IOException e) {
-                throw new RuntimeException("Error processing photo: " + e.getMessage(), e);
-            }
-        }
-
-        // Save the bill to the database
-        return billRepository.save(bill);
-    }
-
-    private String convertToBase64(MultipartFile file) throws IOException {
-        byte[] fileBytes = file.getBytes();
-        return Base64.getEncoder().encodeToString(fileBytes);
-    }
-
-    private String saveCustomerPhoto(String base64Image, Long customerId) {
-        try {
-            // Get the directory path from the settings
-            String photoDir = settingsService.getCustomerPhotoDirectory();
-            
-            // Ensure the directory exists
-            Path directoryPath = Paths.get(photoDir);
-            if (!Files.exists(directoryPath)) {
-                Files.createDirectories(directoryPath);
-            }
-
-            // Generate a unique filename based on customer name
-            String safeCustomerId = customerId.toString().replaceAll("[^a-zA-Z0-9]", "_"); // Sanitize the customer name
-            String uniqueFileName = "CustomerPhoto_" + safeCustomerId + "_" + System.currentTimeMillis() + ".jpg"; // Unique file name
-            Path filePath = directoryPath.resolve(uniqueFileName);
-
-            // Decode the base64 image and save it to the file
-            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-            Files.write(filePath, imageBytes);
-
-            return filePath.toString(); // Return the path where the image is saved
-        } catch (IOException e) {
-            String errorMessage = "Error saving customer photo: " + e.getMessage();
-            System.err.println(errorMessage);
-            e.printStackTrace();
-            throw new RuntimeException(errorMessage, e);
-        }
-    }
+//    private String saveCustomerPhoto(String base64Image, Long customerId) {
+//        try {
+//            // Get the directory path from the settings
+//            String photoDir = settingsService.getCustomerPhotoDirectory();
+//            
+//            // Ensure the directory exists
+//            Path directoryPath = Paths.get(photoDir);
+//            if (!Files.exists(directoryPath)) {
+//                Files.createDirectories(directoryPath);
+//            }
+//
+//            // Generate a unique filename based on customer name
+//            String safeCustomerId = customerId.toString().replaceAll("[^a-zA-Z0-9]", "_"); // Sanitize the customer name
+//            String uniqueFileName = "CustomerPhoto_" + safeCustomerId + "_" + System.currentTimeMillis() + ".jpg"; // Unique file name
+//            Path filePath = directoryPath.resolve(uniqueFileName);
+//
+//            // Decode the base64 image and save it to the file
+//            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+//            Files.write(filePath, imageBytes);
+//
+//            return filePath.toString(); // Return the path where the image is saved
+//        } catch (IOException e) {
+//            String errorMessage = "Error saving customer photo: " + e.getMessage();
+//            System.err.println(errorMessage);
+//            e.printStackTrace();
+//            throw new RuntimeException(errorMessage, e);
+//        }
+//    }
 	
 	public void deleteBill(Long id) {
 		billRepository.deleteById(id);

@@ -34,7 +34,15 @@ public class Bill {
 	 * @Column(name = "productQuantity") private Integer productQuantity;
 	 */
 
-    @Column(name = "billSerial")
+    public Integer getBillSequence() {
+		return billSequence;
+	}
+
+	public void setBillSequence(Integer billSequence) {
+		this.billSequence = billSequence;
+	}
+
+	@Column(name = "billSerial")
     private Character billSerial;
 
     @Column(name = "billNo")
@@ -67,10 +75,6 @@ public class Bill {
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-	}
-
-	public void setBillSequence(Integer billSequence) {
-		this.billSequence = billSequence;
 	}
 
 	public void setBillSerial(Character billSerial) {
@@ -113,15 +117,8 @@ public class Bill {
 	 * public String getCustomerId() { return CustomerId; }
 	 * 
 	 * public void setCustomerId(String customerId) { CustomerId = customerId; }
-	 */
-	public Integer getBillSequence() {
-		return billSequence;
-	}
-
-	public void setBillSequence(int billSequence) {
-		this.billSequence = billSequence;
-	}
-
+	
+	
 	/*
 	 * public Integer getProductNo() { return productNo; }
 	 * 

@@ -58,11 +58,12 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
-//    @PostMapping
-//    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
-//        Bill createdBill = billService.saveBill(bill);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
-//    }
+    @PostMapping("/create")
+    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
+    	System.out.println();
+        Bill createdBill = billService.saveBill(bill);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+    }
     
 //    @PostMapping("/create")
 //    public ResponseEntity<Bill> createBillWithPhoto(
@@ -90,37 +91,31 @@ public class BillController {
 //        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
 //    }
     
-    @PostMapping("/create")
-    public ResponseEntity<?> createBillWithPhoto(
-            @RequestParam("bill") String billJson,
-            @RequestParam("photo") MultipartFile photo) {
-
-        // Convert JSON string to Bill object
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        Bill bill;
-        try {
-        	
-            bill = objectMapper.readValue(billJson, Bill.class);
-        } catch (IOException e) {
-            String errorMessage = "Failed to parse the bill JSON: " + e.getMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
-
-        // Save the bill with the photo
-        Bill createdBill;
-        try {
-            createdBill = billService.saveBill(bill, photo);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Error saving bill: " + e.getMessage());
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
-    }
-
+	/*
+	 * @PostMapping("/create") public ResponseEntity<?> createBillWithPhoto(
+	 * 
+	 * @RequestParam("bill") String billJson,
+	 * 
+	 * @RequestParam("photo") MultipartFile photo) {
+	 * 
+	 * // Convert JSON string to Bill object ObjectMapper objectMapper = new
+	 * ObjectMapper(); objectMapper.registerModule(new JavaTimeModule());
+	 * objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	 * 
+	 * Bill bill; try {
+	 * 
+	 * bill = objectMapper.readValue(billJson, Bill.class); } catch (IOException e)
+	 * { String errorMessage = "Failed to parse the bill JSON: " + e.getMessage();
+	 * return ResponseEntity.badRequest().body(errorMessage); }
+	 * 
+	 * // Save the bill with the photo Bill createdBill; try { createdBill =
+	 * billService.saveBill(bill, photo); } catch (RuntimeException e) {
+	 * e.printStackTrace(); return
+	 * ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	 * .body("Error saving bill: " + e.getMessage()); }
+	 * 
+	 * return ResponseEntity.status(HttpStatus.CREATED).body(createdBill); }
+	 */
 
     
     @GetMapping("/export/excel")

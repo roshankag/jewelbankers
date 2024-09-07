@@ -17,11 +17,11 @@ import jakarta.persistence.Table;
 @Table(name = "bill_detail")
 public class BillDetail {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence",insertable = true, updatable = true)
-    @Column(name = "BILL_SEQUENCE") 
-    private int billSequence;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence",insertable = true, updatable = true)
+//    @Column(name = "BILL_SEQUENCE") 
+//    private Integer billSequence;
     
     @Id
     @Column(name = "PRODUCT_NO")
