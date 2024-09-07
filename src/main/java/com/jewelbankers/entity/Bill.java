@@ -165,14 +165,6 @@ public class Bill {
 		this.billDate = billDate;
 	}
 
-	public String getCareof() {
-		return careof;
-	}
-
-	public void setCareof(String careof) {
-		this.careof = careof;
-	}
-
 	public Integer getProductTypeNo() {
 		return productTypeNo;
 	}
@@ -279,6 +271,14 @@ public class Bill {
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	public String getCareof() {
+		return careof;
+	}
+
+	public void setCareof(String careof) {
+		this.careof = careof;
 	}
 
 	@Column(name = "careof")
