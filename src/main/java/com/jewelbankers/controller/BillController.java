@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.jewelbankers.Utility.BillPdfGenerator;
 import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.exception.ResourceNotFoundException;
@@ -58,13 +59,34 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
-    	System.out.println();
-        Bill createdBill = billService.saveBill(bill);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
-    }
+//    @PostMapping("/create")
+//    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
+//    	System.out.println();
+//        Bill createdBill = billService.saveBill(bill);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+//    }
     
+    @PostMapping("/create")
+    public ResponseEntity<?> createBill(@RequestBody Bill bill) {
+        // Save the bill
+        Bill createdBill = billService.saveBill(bill);
+
+        // Fetch shop details from settings
+        Map<String, String> shopDetails = billService.getShopDetailsForBill();
+
+        // Generate PDF for the pledge bill (pass the entire shopDetails map)
+        ByteArrayInputStream bis = BillPdfGenerator.generatePledgeBill(createdBill, shopDetails);
+
+        // Set headers for PDF response
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=pledge_bill.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
+    }
+
 //    @PostMapping("/create")
 //    public ResponseEntity<Bill> createBillWithPhoto(
 //            @RequestParam("bill") String billJson,

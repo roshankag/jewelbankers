@@ -1,7 +1,9 @@
 package com.jewelbankers.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +60,21 @@ public class SettingsService {
 	public Optional<Settings> findByParamSeq(Long paramSeq) {
 		return settingsRepository.findById(paramSeq);
 	}
+	
+	 // Fetch shop details using paramSeq
+    public Map<String, String> getShopDetails() {
+        Map<String, String> shopDetails = new HashMap<>();
+
+        shopDetails.put("SHOP_NAME", findByParamSeq(21L).map(Settings::getParamValue).orElse(""));
+        shopDetails.put("SHOP_NO", findByParamSeq(22L).map(Settings::getParamValue).orElse(""));
+        shopDetails.put("SHOP_STREET", findByParamSeq(23L).map(Settings::getParamValue).orElse(""));
+        shopDetails.put("SHOP_AREA", findByParamSeq(24L).map(Settings::getParamValue).orElse(""));
+        shopDetails.put("SHOP_CITY", findByParamSeq(25L).map(Settings::getParamValue).orElse(""));
+        shopDetails.put("SHOP_PINCODE", findByParamSeq(26L).map(Settings::getParamValue).orElse(""));
+        shopDetails.put("SHOP_STATE", findByParamSeq(27L).map(Settings::getParamValue).orElse(""));
+
+        return shopDetails;
+    }
 
 	public Settings save(Settings parameterSelect) {
 		 return settingsRepository.save(parameterSelect);

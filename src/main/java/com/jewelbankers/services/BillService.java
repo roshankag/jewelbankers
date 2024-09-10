@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.time.temporal.ChronoUnit;
 import com.jewelbankers.entity.Settings; // Adjust the package name based on your project structure
 
@@ -177,7 +179,11 @@ public class BillService {
 		
 	    return billRepository.save(bill);
 	}
-    
+	
+	// Example method to get shop details and include in the bill
+    public Map<String, String> getShopDetailsForBill() {
+        return settingsService.getShopDetails();
+    }
 	/*
 	 * @Transactional public Bill saveBill(Bill bill, MultipartFile photo) { if
 	 * (photo != null && !photo.isEmpty()) { try { // Convert MultipartFile to
