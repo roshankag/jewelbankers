@@ -68,23 +68,29 @@ public class BillController {
     
     @PostMapping("/create")
     public ResponseEntity<?> createBill(@RequestBody Bill bill) {
-        // Save the bill
-        Bill createdBill = billService.saveBill(bill);
+        try {
+            // Save the bill
+            Bill createdBill = billService.saveBill(bill);
 
-        // Fetch shop details from settings
-        Map<String, String> shopDetails = billService.getShopDetailsForBill();
+            // Fetch shop details from settings
+            Map<String, String> shopDetails = billService.getShopDetailsForBill();
 
-        // Generate PDF for the pledge bill (pass the entire shopDetails map)
-        ByteArrayInputStream bis = BillPdfGenerator.generatePledgeBill(createdBill, shopDetails);
+            // Generate PDF for the pledge bill (pass the entire shopDetails map)
+            ByteArrayInputStream bis = BillPdfGenerator.generatePledgeBill(createdBill, shopDetails);
 
-        // Set headers for PDF response
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=pledge_bill.pdf");
+            // Set headers for PDF response
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "inline; filename=pledge_bill.pdf");
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(new InputStreamResource(bis));
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(new InputStreamResource(bis));
+        } catch (Exception e) {
+            // Handle any exceptions (logging, custom error response, etc.)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while generating the bill.");
+        }
     }
 
 //    @PostMapping("/create")
