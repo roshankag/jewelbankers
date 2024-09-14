@@ -142,7 +142,6 @@ if (isValid) {
 
     System.out.println("Valid token");
     String token = jwtUtils.generateJwtToken(userEmail);
-
 // Handle the authentication response here
 // You can extract user details from the token if needed
 Map<String, Object> responseBody = new HashMap<>();

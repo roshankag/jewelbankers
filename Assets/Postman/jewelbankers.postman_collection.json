@@ -1,0 +1,582 @@
+{
+	"info": {
+		"_postman_id": "e156ca82-0650-47fa-ac83-7c92ab5c8eaa",
+		"name": "jewelbankers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26194680"
+	},
+	"item": [
+		{
+			"name": "GET -> Customers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"area\": \"Vysarpadi\",\r\n        \"email\": \"mahesh4kc@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 600039,\r\n        \"customerName\": \"maheshkumar\",\r\n        \"street\": \"Thoripakkam\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,10th Central Cross Street.\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Customer name by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/customers/3914",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers",
+						"3914"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create Customers",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"area\": \"kelambakkam\",\r\n        \"email\": \"dkag709@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 603103,\r\n        \"customerName\": \"DEEPAK S/O OMPRAKASH\",\r\n        \"street\": \"Masjid nagar\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,10th Central Cross Street.\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> Update Customers",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"area\": \"OMR\",\r\n        \"email\": \"mahesh4kc@gmail.com\",\r\n        \"phone\": \"TAMIL NADU\",\r\n        \"pincode\": 600099,\r\n        \"customerName\": \"maheshkumar\",\r\n        \"street\": \"Thoripakkam\",\r\n        \"district\": \"Chennai\",\r\n        \"country\": \"India\",\r\n        \"relationShip\": \"Married\",\r\n        \"relationShipName\": null,\r\n        \"address\": \"No.875 ,3th Street.\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/customers/3914",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers",
+						"3914"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE -> Delete Customer",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/customers/3914",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers",
+						"3914"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> search by customer name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/customers/search?customerName=murgan",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"customers",
+						"search"
+					],
+					"query": [
+						{
+							"key": "customerName",
+							"value": "murgan"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Bills",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills?page=0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create bill ",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "        {\r\n        \r\n            \"billSerial\": \"A\",\r\n            \"billNo\": 9816,\r\n            \"billDate\": \"30/06/2024\",\r\n            \"billDetails\": [\r\n                {\r\n                    \"productNo\": 1,\r\n                    \"productDescription\": \"ONE PAIR SILVER GULLASH, \",\r\n                    \"productQuantity\": 1\r\n                },\r\n                 {\r\n                    \"productNo\": 3,\r\n                    \"productDescription\": \"ONE PAIR SILVER chain gulluse, \",\r\n                    \"productQuantity\": 2\r\n                }\r\n            ],\r\n            \"customer\": {\r\n                \"id\": null,\r\n                \"area\": \"\",\r\n                \"email\": null,\r\n                \"phone\": \"TAMIL NADU\",\r\n                \"pincode\": 603103,\r\n                \"customerName\": \"maheshkumar D/O SEHKAR\",\r\n                \"street\": \"THAIYUR\",\r\n                \"district\": \"KANCHEEPURAM\",\r\n                \"country\": \"INDIA\",\r\n                \"relationShip\": null,\r\n                \"relationShipName\": null,\r\n                \"address\": \"ESWARAN KOIL ST. CHENGALMAL\"\r\n            },\r\n            \"careOf\": null,\r\n            \"productTypeNo\": 3,\r\n            \"rateOfInterest\": 2,\r\n            \"amount\": 4500,\r\n            \"amountInWords\": \" FOUR THOUSAND FIVE HUNDRED RUPEES ONLY\",\r\n            \"presentValue\": 4600,\r\n            \"grams\": 0.00,\r\n            \"monthlyIncome\": 8600,\r\n            \"redemptionDate\": \"05/12/2018\",\r\n            \"redemptionInterest\": 3890.25,\r\n            \"redemptionTotal\": 8390.25,\r\n            \"redemptionStatus\": \"R\",\r\n            \"billRedemSerial\": \"C\",\r\n            \"billRedemNo\": 630,\r\n            \"comments\": \"\"\r\n        }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/bills",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE -> Delete bill ",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills/161",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"161"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> Update BILL",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"billSequence\": 161,\r\n    \"productNo\": null,\r\n    \"productDescription\": null,\r\n    \"productQuantity\": null,\r\n    \"billSerial\": \"B\",\r\n    \"billNo\": 1591,\r\n    \"billDate1\": \"26/06/2024\",\r\n    \"customer\": {\r\n        \"id\": 135,\r\n        \"area\": \"MKB Nagar\",\r\n        \"email\": \"roshankag2003@gmail.com\",\r\n        \"phone\": \"9444338872\",\r\n        \"pincode\": 600039,\r\n        \"customerName\": \"ROSHAN B T\",\r\n        \"street\": \"10TH CENTRAL CROSS STREET\",\r\n        \"district\": \"CHENNAI\",\r\n        \"country\": \"INDIA\",\r\n        \"relationShip\": null,\r\n        \"relationShipName\": null,\r\n        \"address\": \"NO.870\"\r\n    },\r\n    \"careOf\": null,\r\n    \"productTypeNo\": 5,\r\n    \"rateOfInterest\": 2,\r\n    \"amount\": 10000,\r\n    \"amountInWords\": \" TEN THOUSAND RUPEES ONLY\",\r\n    \"presentValue\": 11000,\r\n    \"grams\": 7.00,\r\n    \"monthlyIncome\": 8600,\r\n    \"redemptionDate\": \"26/06/2024\",\r\n    \"redemptionInterest\": 5413.10,\r\n    \"redemptionTotal\": 16413.10,\r\n    \"redemptionStatus\": \"R\",\r\n    \"billRedemSerial\": \"C\",\r\n    \"billRedemNo\": 1842,\r\n    \"comments\": \"\",\r\n    \"billDate\": \"26/06/2024\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/bills/17125",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"17125"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": " GET -> Settings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/settings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"settings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> ID",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"paramSeq\": 2,\r\n\"paramValue\": \"MKB NAGAR\",\r\n\"paramExample\": \"DEEPAK\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/settings/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"settings",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Bill No and Bill Serial",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills/number?billNo=9816&billSerial=A",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"number"
+					],
+					"query": [
+						{
+							"key": "billNo",
+							"value": "9816"
+						},
+						{
+							"key": "billSerial",
+							"value": "A"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Bill Sequence",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/bills/number?billSequence=17126",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"bills",
+						"number"
+					],
+					"query": [
+						{
+							"key": "billSequence",
+							"value": "17126"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> product_types",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/product_types",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create product_type",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"productTypeCode\": \"PLATINUM\",\r\n        \"productTypeDescription\": \"PLATINUM\",\r\n        \"rateOfInterest\": 15.0\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/product_types",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> Update ProductType",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"productTypeCode\": \"BRONZE\",\r\n        \"productTypeDescription\": \"BRONZE\",\r\n        \"rateOfInterest\": 12.0\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/product_types/6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE -> Delete ProductType",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/product_types/8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"product_types",
+						"8"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> USERS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET -> Get users by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST -> Create Users ",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"user11\",\r\n    \"password\": \"password11\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT -> Update users",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"12\",\r\n    \"password\": \"password12\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/users/12",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users",
+						"12"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE -> Delete Users",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users/12",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users",
+						"12"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
