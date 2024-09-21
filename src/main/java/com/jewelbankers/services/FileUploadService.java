@@ -1,73 +1,66 @@
 package com.jewelbankers.services;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.InputStreamContent;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.File;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
+import com.jewelbankers.entity.FileUploadResponse;
+
+import java.io.File;
 
 @Service
 public class FileUploadService {
 
-    @Autowired
-    private SettingsService settingsService;
+    @Value("${file.io.upload.url}")
+    private String fileIoUploadUrl;
 
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-
-    // Method to create a Google Drive service instance
-    private Drive getDriveService() throws GeneralSecurityException, IOException {
-        InputStream in = this.getClass().getResourceAsStream("/credentials.json");
-        if (in == null) {
-            throw new IOException("Credentials file not found");
+    @Value("${file.io.auth.token}")
+    private String authorizationHeader;
+    public FileUploadResponse uploadFile(String filePath) {
+        RestTemplate restTemplate = new RestTemplate();
+        
+        // Prepare file to be uploaded
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new IllegalArgumentException("File not found: " + filePath);
         }
+        System.out.println("File to be upload");
+        // Prepare request headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set("Authorization", authorizationHeader);
 
-        GoogleCredential credential = GoogleCredential.fromStream(in)
-                .createScoped(Collections.singleton(DriveScopes.DRIVE));
+        // Prepare request body
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new FileSystemResource(file));
+        
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(),
-                JSON_FACTORY, credential)
-                .setApplicationName("JewelBankers")
-                .build();
-    }
+        System.out.println(fileIoUploadUrl+" "+file.toString());
 
-    // Method to upload a file to Google Drive
-    public String uploadFile(MultipartFile file) throws IOException, GeneralSecurityException {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("File is empty");
+        // Make the request
+        ResponseEntity<FileUploadResponse> responseEntity = restTemplate.exchange(
+                fileIoUploadUrl,
+                HttpMethod.POST,
+                requestEntity,
+                FileUploadResponse.class
+        );
+        System.out.println("File upload called");
+
+        System.out.println(responseEntity.getStatusCode());
+        System.out.println(responseEntity.getBody().toString());
+
+        // Check if the request was successful
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            return responseEntity.getBody();
+        } else {
+            throw new RuntimeException("File upload failed with status code: " + responseEntity.getStatusCode());
         }
-
-        // Retrieve the Google Drive folder ID from settings
-        String driveFolderId = settingsService.getDriveLink();  // Assuming getDriveLink returns the folder ID
-
-        if (driveFolderId == null || driveFolderId.isEmpty()) {
-            throw new IllegalArgumentException("Drive folder ID is not set in settings");
-        }
-
-        Drive driveService = getDriveService();
-
-        // Create file metadata
-        File fileMetadata = new File();
-        fileMetadata.setName(file.getOriginalFilename());
-        fileMetadata.setParents(Collections.singletonList(driveFolderId));  // Set parent folder ID
-
-        // Create the file on Google Drive
-        File googleFile = driveService.files().create(fileMetadata,
-                new InputStreamContent(file.getContentType(), file.getInputStream()))
-                .setFields("id, parents")
-                .execute();
-
-        // Return the file ID or a success message
-        return "File uploaded successfully to Google Drive with ID: " + googleFile.getId();
     }
 }
+

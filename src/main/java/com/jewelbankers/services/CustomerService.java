@@ -25,6 +25,11 @@ public class CustomerService {
         
     }
 	
+	 public Customer addCustomer(Customer customer) {
+	        System.out.println(customer.toString());
+	        return customerRepository.save(customer);
+	    }
+	
 
     public CustomerService() {
         //this.customers = buildFakeCustomers();
@@ -79,7 +84,7 @@ public class CustomerService {
 	            existingCustomer.setArea(customer.getArea());
 	            existingCustomer.setCountry(customer.getCountry());
 	            existingCustomer.setDistrict(customer.getDistrict());
-	            existingCustomer.setEmail(customer.getEmail());
+	            existingCustomer.setMailid(customer.getMailid());
 	            existingCustomer.setMobileno(customer.getMobileno());
 	            existingCustomer.setPhoneno(customer.getPhoneno());
 	            existingCustomer.setPincode(customer.getPincode());

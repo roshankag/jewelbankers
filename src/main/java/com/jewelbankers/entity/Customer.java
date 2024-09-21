@@ -37,8 +37,8 @@ public class Customer {
 	@Column(name = "area")
 	private String area;
 	
-	@Column(name = "MailID")
-	private String email;
+	@Column(name = "mailid")
+	private String mailid;
     
 	@Column(name = "Address")
     private String Address;
@@ -54,7 +54,7 @@ public class Customer {
 	private String customerName;
 	
 	@Column(name = "Photo")
-    private String imagePath;
+    private String photo;
 	
 	@Column(name = "proof_type")
     private Character proofType;
@@ -78,13 +78,13 @@ public class Customer {
 
 	@Column(name = "proof_details")
     private String proofDetails;
-	
-	public String getImagePath() {
-		return imagePath;
+
+	public String getPhoto() {
+		return photo;
 	}
 
-	public void setImagePath(String imagePath) {
-		this.imagePath = imagePath;
+	public void setPhoto(String photo) {
+		this.photo = photo;
 	}
 
 
@@ -217,13 +217,13 @@ public class Customer {
 
 	
 
-	
-	  public String getEmail() { return email; }
-	  
-	  public void setEmail(String email) { this.email = email; }
-	 
+	public String getMailid() {
+		return mailid;
+	}
 
-	
+	public void setMailid(String mailid) {
+		this.mailid = mailid;
+	}
 
 	public String getState() {
 		return state;

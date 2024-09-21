@@ -1,5 +1,13 @@
 package com.jewelbankers.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -8,13 +16,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.jewelbankers.Utility.BillPdfGenerator;
 import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.exception.ResourceNotFoundException;
@@ -23,17 +36,6 @@ import com.jewelbankers.services.BillService;
 import com.jewelbankers.services.SettingsService;
 
 import jakarta.persistence.EntityNotFoundException;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/bills")
@@ -58,13 +60,40 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
-    	System.out.println();
-        Bill createdBill = billService.saveBill(bill);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
-    }
+//    @PostMapping("/create")
+//    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
+//    	System.out.println();
+//        Bill createdBill = billService.saveBill(bill);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+//    }
     
+    @PostMapping("/create")
+    public ResponseEntity<?> createBill(@RequestBody Bill bill) {
+        try {
+            // Save the bill
+            Bill createdBill = billService.saveBill(bill);
+
+            // Fetch shop details from settings
+            Map<String, String> shopDetails = billService.getShopDetailsForBill();
+
+            // Generate PDF for the pledge bill (pass the entire shopDetails map)
+            ByteArrayInputStream bis = BillPdfGenerator.generatePledgeBill(createdBill, shopDetails);
+
+            // Set headers for PDF response
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "inline; filename=pledge_bill.pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(new InputStreamResource(bis));
+        } catch (Exception e) {
+            // Handle any exceptions (logging, custom error response, etc.)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while generating the bill.");
+        }
+    }
+
 //    @PostMapping("/create")
 //    public ResponseEntity<Bill> createBillWithPhoto(
 //            @RequestParam("bill") String billJson,

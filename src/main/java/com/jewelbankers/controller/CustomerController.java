@@ -32,10 +32,17 @@ public class CustomerController {
         return customerService.findAll();
     }
     
-    @PostMapping
-    @ResponseBody
-    public Customer saveCustomer(@RequestBody Customer customer) {
-        return customerService.saveCustomer(customer);
+    @PostMapping("/add")
+    public Customer addCustomer(@RequestBody Customer customerRequest) {
+        System.out.println(customerRequest.toString());
+
+        // Convert CustomerRequest to Customer entity
+        Customer customer = new Customer();
+        customer.setCustomerName(customerRequest.getCustomerName());
+        customer.setAddress(customerRequest.getAddress());
+        customer.setPhoneno(customerRequest.getPhoneno());
+
+        return customerService.addCustomer(customer);
     }
     
     @DeleteMapping("/{id}")

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.entity.Settings;
-import com.jewelbankers.services.FileUploadService;
+import com.jewelbankers.services.FileUploadServiceDummy;
 import com.jewelbankers.services.SettingsService;
 import com.jewelbankers.Utility.ErrorResponse;
 
@@ -35,7 +35,7 @@ public class SettingsController {
     private SettingsService settingsService;
     
     @Autowired
-    private FileUploadService fileUploadService;
+    private FileUploadServiceDummy fileUploadService;
 
     @GetMapping
     public ResponseEntity<?> getSettings() {

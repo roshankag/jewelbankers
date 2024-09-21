@@ -8,12 +8,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+//import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+//import io.swagger.v3.oas.annotations.info.Info;
+
 @RestController
 @SpringBootApplication	
 //@EnableJpaRepositories
-@EnableJpaRepositories(basePackages = {"com.balaji.springjwt.repository","com.jewelbankers.repository"}) 
-@EntityScan(basePackages = {"com.balaji.springjwt.models","com.jewelbankers.entity"})
+@EnableJpaRepositories(basePackages = {"com.jewelbankers.repository"}) 
+@EntityScan(basePackages = {"com.jewelbankers.entity"})
 @ComponentScan({ "com" })
+//@OpenAPIDefinition(info = @Info(title = "Jewel Bankers Apis",version = "V.1.0",description = "Documentation for Jewel Bankers APIs"))
+
 public class JewelBankers {
 	
 	/**
