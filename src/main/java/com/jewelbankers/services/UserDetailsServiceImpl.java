@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jewelbankers.entity.User;
+import com.jewelbankers.entity.users;
 import com.jewelbankers.repository.UserRepository;
 
 @Service
@@ -74,5 +75,20 @@ public void updateResetPasswordToken(String token, String email) throws Username
 
         return users;
     }
+    public User updateUser(Long id, User user) {
+    	System.out.println("update user id"+id);
+    	try {
+    		User updateUser = userRepository.findById(id).orElse(null);
+            if (user != null) {
+            	updateUser.setUsername(user.getUsername());
+            	updateUser.setPassword(user.getPassword());
+                return userRepository.save(updateUser);
+            }}catch(Exception e) {
+            	e.printStackTrace();
+            }
+    	
+        return null;
+    }
+    
 
 }

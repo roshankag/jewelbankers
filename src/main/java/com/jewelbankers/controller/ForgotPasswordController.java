@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -39,7 +40,10 @@ public class ForgotPasswordController {
     @Autowired
     private UserDetailsServiceImpl userService;
      
- 
+
+    @Value("${spring.mail.username}")
+    private String springSmtpMailUserName;
+
    @PostMapping("/send-mail")
     public ResponseEntity<Map<String, String>> processForgotPassword(@RequestBody ForgotPasswordRequest request) {
         String email = request.getEmail();
@@ -72,7 +76,7 @@ public class ForgotPasswordController {
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
 		
-		helper.setFrom("viblecreators@gmail.com", "Jewel Bankers");
+		helper.setFrom(springSmtpMailUserName, "Jewel Bankers");
 		helper.setTo(recipientEmail);
 
 		String subject = "Here's the link to reset your password";
