@@ -110,16 +110,15 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors().and().csrf().disable()
-    
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-    
         .authorizeHttpRequests(auth -> 
           auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/social/**").permitAll()
               .requestMatchers("/api/test/**").permitAll()
+              .requestMatchers("/api/pledge/**").permitAll()
               .requestMatchers("/api/users/**").permitAll()
-              .requestMatchers("/api/users/delete/**").hasRole("ADMIN")
-              .requestMatchers("/api/users/edit/**").hasRole("ADMIN")
+              .requestMatchers("/api/customer/**").permitAll()
+              .requestMatchers(AUTH_WHITELIST).permitAll()
               .requestMatchers("/forgot-password/**").permitAll()
               
               .anyRequest().authenticated()
@@ -131,4 +130,11 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
     
     return http.build();
   }
+  private static final String[] AUTH_WHITELIST = {
+		    "/api/v1/auth/**",
+		    "/v3/api-docs/**",
+		    "/v3/api-docs.yaml",
+		    "/swagger-ui/**",
+		    "/swagger-ui.html"
+		};
 }
