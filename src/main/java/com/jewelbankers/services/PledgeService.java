@@ -39,7 +39,7 @@ public class PledgeService {
     }
 
     public List<Pledge> getPledgesByCustomerId(Long customerid) {
-        return pledgeRepository.findByCustomerCustomerId(customerid);
+        return pledgeRepository.findByCustomerCustomerid(customerid);
     }
 
     public Pledge savePledge(Pledge pledge) {

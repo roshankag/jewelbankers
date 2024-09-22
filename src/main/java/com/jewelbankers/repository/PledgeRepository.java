@@ -13,6 +13,6 @@ import com.jewelbankers.entity.Pledge;
 public interface PledgeRepository extends JpaRepository<Pledge, Long> {
     // You can add custom query methods if needed
      // Custom query method to find pledges by customer ID
-     List<Pledge> findByCustomerCustomerId(Long customerid);
+     List<Pledge> findByCustomerCustomerid(Long customerid);
      boolean existsByBillNo(int billNo);
 }
