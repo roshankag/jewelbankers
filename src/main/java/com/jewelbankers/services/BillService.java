@@ -4,12 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,11 +17,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.itextpdf.text.DocumentException;
 import com.jewelbankers.Utility.BillUtility;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.Customer;
+import com.jewelbankers.entity.Settings; // Adjust the package name based on your project structure
 import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
@@ -37,11 +35,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-
-import java.util.Base64;
-import java.util.HashMap;
-import java.time.temporal.ChronoUnit;
-import com.jewelbankers.entity.Settings; // Adjust the package name based on your project structure
 
 
 @Service
@@ -60,6 +53,9 @@ public class BillService {
 	 
 	 @Autowired
 	 private EntityManager entityManager;
+	 
+	 @Autowired
+	 private PdfService pdfService;
 	
 	public List<Bill> findBillsByProductTypeNo(Long productTypeNo) {
         return billRepository.findByProductTypeNo(productTypeNo);
@@ -565,5 +561,62 @@ public class BillService {
 	            return false;
 	        }
 	    }
+	 
+//	 public ByteArrayInputStream generateAndSendBill(Long billSequence) {
+//	        Bill bill = billRepository.findById(billSequence)
+//	                .orElseThrow(() -> new IllegalArgumentException("Invalid billSeq"));
+//	        ByteArrayInputStream in=null;
+////	        // Check if bill is already uploaded
+////	        if (bill.getBillUpload() != null) {
+////	            // Bill already uploaded, send link to WhatsApp
+////	            sendWhatsAppMessage(pledge.getBillUpload().getLink(), pledge.getCustomer().getPhoneno());
+////	            return;
+////	        }
+//
+//	        try {
+//	            // Generate the PDF
+//	            
+//
+//	            // Upload the PDF file
+//	        	in = pdfService.generateAndSaveBillPdf(bill); // Retrieve the actual path
+////	            FileUploadResponse response = fileUploadService.uploadFile(filePath);
+////	            System.out.println("File uploaded");
+////	            // Save the response to the database
+////	            BillUpload billUpload = new BillUpload();
+////	            billUpload.setUploadId(response.getFileId());
+////	            billUpload.setPledge(pledge);
+////	            billUpload.setLink(response.getLink());
+////	            billUpload.setExpires(response.getExpires());
+////	            billUpload.setAutoDelete(response.isAutoDelete());
+////	            // billUpload.setPledge(pledge);
+////
+////	            billUploadRepository.save(billUpload);
+////
+////	            // Associate bill upload with the pledge
+////	            pledge.setBillUpload(billUpload);
+////	            pledgeRepository.save(pledge);
+////
+////	            // Send WhatsApp message with the link
+////	            sendWhatsAppMessage(response.getLink(), pledge.getCustomer().getPhoneno());
+//
+//	        } catch (IOException | DocumentException e) {
+//	            e.printStackTrace();
+//	        }
+//	        return in;
+//	    }
+	 
+	 public ByteArrayInputStream generateAndSendBill(Bill bill) {
+	        ByteArrayInputStream in = null;
+
+	        try {
+	            // Generate the PDF
+	            in = pdfService.generateAndSaveBillPdf(bill); // Retrieve the PDF as a ByteArrayInputStream
+	        } catch (IOException | DocumentException e) {
+	            e.printStackTrace();
+	            throw new RuntimeException("Error generating PDF: " + e.getMessage());
+	        }
+	        return in;
+	    }
+
 
 }

@@ -36,6 +36,11 @@
      <artifactId>itextpdf</artifactId>
      <version>5.5.13</version>
 </dependency>
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>5.2.3</version> <!-- Check for the latest version -->
+</dependency>
     <!-- Twilio SDK for sending WhatsApp messages -->
     <dependency>
         <groupId>com.twilio.sdk</groupId>
@@ -161,6 +166,7 @@
 	</dependencies>
 
 	<build>
+	
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
