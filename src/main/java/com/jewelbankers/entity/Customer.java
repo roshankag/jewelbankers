@@ -40,7 +40,7 @@ public class Customer {
 	@Column(name = "mailid")
 	private String mailid;
     
-	@Column(name = "Address")
+	@Column(name = "address")
     private String Address;
 	
 	@Column(name = "State")

@@ -1,13 +1,10 @@
 package com.jewelbankers.repository;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.jewelbankers.entity.Bill;
@@ -26,12 +23,19 @@ public interface BillRepository extends JpaRepository<Bill, Long>,  JpaSpecifica
 //	List<Bill> findByBillDateBetween(LocalDate start, LocalDate end);
 	List<Bill> findByRedemptionStatus(Character redemptionStatus);
 	List<Bill> findByProductTypeNo(Long productTypeNo);
+	
+	// Find bills by Bill Serial and Bill No, sorted by 'billSeq' in descending order
+    List<Bill> findByBillSerialAndBillNoOrderByBillSequenceDesc(Character billSerial, Integer billNo);
+    
+    // Find bills by Customer Name, sorted by 'billSeq' in descending order
+    List<Bill> findByCustomerCustomerNameOrderByBillSequenceDesc(String customerName);
+	
 //	List<Bill> findByRedeemBillSerialAndBillNo(Character billSerial, Integer billNo);
 	
-	 @Query("SELECT COALESCE(MAX(b.billNo), 0) FROM Bill b")
+	 @Query(value="SELECT COALESCE(MAX(bill_No), 0) FROM bill_header WHERE BILL_SERIAL =  (SELECT PARAM_VALUE FROM parameters WHERE param_id='CURRENT_SERIAL')",nativeQuery = true)
 	    Integer findCurrentBillNo();
 
-	    @Query("SELECT COALESCE(MAX(b.billRedemNo), 0) FROM Bill b")
+	 @Query(value="SELECT COALESCE(MAX(BILL_REDEM_NO), 0) FROM bill_header WHERE BILL_REDEM_SERIAL =  (SELECT PARAM_VALUE FROM parameters WHERE param_id='REDEM_CURRENT_SERIAL')",nativeQuery = true)
 	    Integer findCurrentBillRedemNo();
 	    
 	   

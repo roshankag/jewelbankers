@@ -28,8 +28,13 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping
-    public List<Customer> getAllCustomers() {
-        return customerService.findAll();
+    public List<Customer> getAllCustomers(@RequestParam(required = false) String customerName) {
+        // If name is provided, return filtered list; otherwise, return all customers
+        if (customerName != null && !customerName.isEmpty()) {
+            return customerService.findByNameStartingWith(customerName);
+        } else {
+            return customerService.findAll();
+        }
     }
     
     @PostMapping("/add")
@@ -72,4 +77,5 @@ public class CustomerController {
         /*return customer.map(ResponseEntity::ok)
                        .orElseGet(() -> ResponseEntity.notFound().build());*/
     }
+    
 }

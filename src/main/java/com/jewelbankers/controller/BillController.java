@@ -292,6 +292,8 @@ public class BillController {
             return ResponseEntity.status(500).body("Error generating PDF: " + e.getMessage());
         }
     }
+    
+    
 }
 
 

@@ -27,6 +27,7 @@ import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
 import com.jewelbankers.repository.SettingsRepository;
+import org.springframework.data.domain.Sort;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -78,14 +79,28 @@ public class BillService {
 		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);
 	}
 	
+//	public List<Bill> findBillsBySearch(String search) {
+//		
+//		if (BillUtility.ValidateBillNo(search) ) {
+//			System.out.println("Bill"+search.charAt(0)+":"+Integer.parseInt(search.substring(1, search.length())));
+//			return billRepository.findByBillSerialAndBillNo(search.toUpperCase().charAt(0),Integer.parseInt(search.substring(1, search.length())));
+//		}else {
+//			return billRepository.findByCustomerCustomerName(search);
+//		}	
+//	}
+	
 	public List<Bill> findBillsBySearch(String search) {
-		
-		if (BillUtility.ValidateBillNo(search) ) {
-			System.out.println("Bill"+search.charAt(0)+":"+Integer.parseInt(search.substring(1, search.length())));
-			return billRepository.findByBillSerialAndBillNo(search.toUpperCase().charAt(0),Integer.parseInt(search.substring(1, search.length())));
-		}else {
-			return billRepository.findByCustomerCustomerName(search);
-		}	
+	    if (BillUtility.ValidateBillNo(search)) {
+	        System.out.println("Bill" + search.charAt(0) + ":" + Integer.parseInt(search.substring(1)));
+	        // Returning bills sorted by 'billSeq' in descending order
+	        return billRepository.findByBillSerialAndBillNoOrderByBillSequenceDesc(
+	            search.toUpperCase().charAt(0), 
+	            Integer.parseInt(search.substring(1))
+	        );
+	    } else {
+	        // Returning bills sorted by 'billSeq' in descending order
+	        return billRepository.findByCustomerCustomerNameOrderByBillSequenceDesc(search);
+	    }	
 	}
 	
 	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo) {
@@ -135,6 +150,9 @@ public class BillService {
 	                predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
 	            }
 	            
+	         // Apply the sorting by billSeq in descending order
+	            query.orderBy(cb.desc(root.get("billSequence")));
+	            
 	            return cb.and(predicates.toArray(new Predicate[0]));
 	        }
 	    });
@@ -147,7 +165,7 @@ public class BillService {
 
 
 	public Page<Bill> getAllBills(int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "billSequence"));
 		return billRepository.findAll(pageable);
 	}
 	
@@ -162,20 +180,43 @@ public class BillService {
 	@Transactional
 	public Bill saveBill(Bill bill) {
 		if(bill.getCustomer().getCustomerid() != null) {
-			Optional<Customer> optionalCustomer =  customerRepository.findById(bill.getCustomer().getCustomerid());
-		    optionalCustomer.ifPresent(customer -> bill.setCustomer(customer));
+			
+	            // Set the updated customer back to the bill
+	            bill.setCustomer(getCustomer(bill));
+	        }
+		    
 		   // optionalCustomer.ifPresentOrElse(customer -> bill.setCustomer(customer), null);
-		}
 	    // If the customer is detached, merge it to make it managed
 		/*
 		 * if (bill.getCustomer() != null && entityManager.contains(bill.getCustomer())
 		 * == false) { Customer managedCustomer =
 		 * entityManager.merge(bill.getCustomer()); bill.setCustomer(managedCustomer); }
 		 */
-		
+	
 	    return billRepository.save(bill);
 	}
-	
+    public Customer getCustomer(Bill bill) 
+    {
+    	Optional<Customer> optionalCustomer =  customerRepository.findById(bill.getCustomer().getCustomerid());
+	    //optionalCustomer.ifPresent(customer -> bill.setCustomer(customer));
+	    
+	    if (optionalCustomer.isPresent()) {
+            Customer existingCustomer = optionalCustomer.get();
+            
+            // Update the existing customer's details from the incoming bill's customer
+            Customer incomingCustomer = bill.getCustomer();
+            existingCustomer.setAddress(incomingCustomer.getAddress());
+            existingCustomer.setPhoneno(incomingCustomer.getPhoneno());
+            existingCustomer.setMailid(incomingCustomer.getMailid());
+            existingCustomer.setProofType(incomingCustomer.getProofType());
+            existingCustomer.setProofDetails(incomingCustomer.getProofDetails());
+
+            // Save the updated customer
+            return customerRepository.save(existingCustomer);
+         //   return existingCustomer;
+	    }
+	    return null;
+    }
 	// Example method to get shop details and include in the bill
     public Map<String, String> getShopDetailsForBill() {
         return settingsService.getShopDetails();
@@ -457,17 +498,19 @@ public class BillService {
 	    
 	    // Handle the customer entity
 	    if (billDetails.getCustomer() != null) {
-	        Customer customer = billDetails.getCustomer();
-	        if (customer.getCustomerid() != null) {
-	            Optional<Customer> customerOptional = customerRepository.findById(customer.getCustomerid());
-	            if (customerOptional.isPresent()) {
-	                existingBill.setCustomer(customerOptional.get());
-	            } else {
-	                throw new EntityNotFoundException("Customer with id " + customer.getCustomerid() + " not found");
-	            }
-	        } else {
-	            throw new IllegalArgumentException("Customer ID cannot be null");
-	        }
+            existingBill.setCustomer(getCustomer(existingBill));
+
+//	        Customer customer = billDetails.getCustomer();
+//	        if (customer.getCustomerid() != null) {
+//	            Optional<Customer> customerOptional = customerRepository.findById(customer.getCustomerid());
+//	            if (customerOptional.isPresent()) {
+//	                existingBill.setCustomer(customerOptional.get());
+//	            } else {
+//	                throw new EntityNotFoundException("Customer with id " + customer.getCustomerid() + " not found");
+//	            }
+//	        } else {
+//	            throw new IllegalArgumentException("Customer ID cannot be null");
+//	        }
 	    }
 
 	    if (billDetails.getCareof() != null) existingBill.setCareof(billDetails.getCareof());
