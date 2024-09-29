@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableJpaRepositories(basePackages = {"com.jewelbankers.repository"}) 
 @EntityScan(basePackages = {"com.jewelbankers.entity"})
 @ComponentScan({ "com" })
-//@OpenAPIDefinition(info = @Info(title = "Jewel Bankers Apis",version = "V.1.0",description = "Documentation for Jewel Bankers APIs"))
+//@OpenAPIDefinition(info = @Info(title = "Jewel Bankers Api",version = "V.1.0",description = "Documentation for Jewel Bankers APIs"))
 
 public class JewelBankers {
 	

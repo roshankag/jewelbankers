@@ -269,7 +269,7 @@ public class BillController {
         }
     }
     
-    @PostMapping("pdf/{billSequence}")
+    @GetMapping("pdf/{billSequence}")
     public ResponseEntity<?> generateAndSendBill(@PathVariable Long billSequence) {
         try {
         	

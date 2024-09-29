@@ -20,12 +20,15 @@ import org.springframework.stereotype.Service;
 
 import com.itextpdf.text.DocumentException;
 import com.jewelbankers.Utility.BillUtility;
+import com.jewelbankers.Utility.ProductTypeUtility;
+import com.jewelbankers.Utility.SettingsUtillity;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.Customer;
 import com.jewelbankers.entity.Settings; // Adjust the package name based on your project structure
 import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
+import com.jewelbankers.repository.ProductTypeRepository;
 import com.jewelbankers.repository.SettingsRepository;
 import org.springframework.data.domain.Sort;
 
@@ -58,6 +61,13 @@ public class BillService {
 	 @Autowired
 	 private PdfService pdfService;
 	
+	 @Autowired
+	 SettingsUtillity settingsUtillity; 
+	 
+	 @Autowired
+	 ProductTypeUtility productTypeUtility;
+	 
+	 
 	public List<Bill> findBillsByProductTypeNo(Long productTypeNo) {
         return billRepository.findByProductTypeNo(productTypeNo);
     }
@@ -566,38 +576,41 @@ public class BillService {
 	    if (productTypeNo == null) {
 	        throw new IllegalArgumentException("Product type number cannot be null");
 	    }
-
+	    Map<String, String> settingsMap = getSettingMap();
+	    
 	    String productType = productTypeNo.toString();
 
-	    Long paramSeq = null;
+	    double roi = 0;
+	    
 
-	    if ("1".equals(productType)) { // Assuming "1" is for GOLD
-	        if (amount < 5000) paramSeq = 44L; // GOLD_INTREST_LESS_THAN_5000
-	        else if (amount < 10000) paramSeq = 45L; // GOLD_INTREST_LESS_THAN_10000
-	        else if (amount < 20000) paramSeq = 46L; // GOLD_INTREST_LESS_THAN_20000
-	        else if (amount < 50000) paramSeq = 47L; // GOLD_INTREST_LESS_THAN_50000
-	        else if (amount < 100000) paramSeq = 48L; // GOLD_INTREST_LESS_THAN_100000
-	        else paramSeq = 49L; // GOLD_INTREST_MORE_THAN_100000
-	    } else if ("2".equals(productType)) { // Assuming "2" is for SILVER
-	        paramSeq = 50L; // SILVER_INTREST
-	    } else {
+	    if (productTypeUtility.getmap().get("GOLD").getProductTypeNo() == productTypeNo) { // Assuming "1" is for GOLD
+	       
+	    	if (amount < 5000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_5000")); // paramSeq = 44L; // GOLD_INTREST_LESS_THAN_5000
+	        
+	    	else if (amount < 10000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_10000")); // GOLD_INTREST_LESS_THAN_10000
+	        
+	    	else if (amount < 20000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_20000")); // GOLD_INTREST_LESS_THAN_20000
+	        
+	    	else if (amount < 50000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_50000")); // GOLD_INTREST_LESS_THAN_50000
+	        
+	    	else if (amount < 100000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_100000")); // GOLD_INTREST_LESS_THAN_100000
+	        
+	    	else roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_MORE_THAN_100000")); // GOLD_INTREST_MORE_THAN_100000
+	    }
+	    
+	    else if (productTypeUtility.getmap().get("SILVER").getProductTypeNo() == productTypeNo) { // Assuming "2" is for SILVER
+	    	roi = Integer.parseInt(settingsMap.get("SILVER_INTREST")); // SILVER_INTREST
+	    }
+	    
+	    else {
 	        throw new IllegalArgumentException("Invalid product type: " + productTypeNo);
 	    }
 
-	    return getSettingValue(paramSeq);
+	    return new BigDecimal(roi);
 	}
 
-	private BigDecimal getSettingValue(Long settingId) {
-	    Optional<Settings> settingOptional = settingsRepository.findById(settingId);
-	    if (!settingOptional.isPresent()) {
-	        throw new IllegalArgumentException("Setting with id " + settingId + " not found");
-	    }
-	    Settings setting = settingOptional.get();
-	    try {
-	        return new BigDecimal(setting.getParamValue()); // Convert the string to BigDecimal
-	    } catch (NumberFormatException e) {
-	        throw new IllegalArgumentException("Invalid number format for setting with id " + settingId, e);
-	    }
+	private Map<String, String> getSettingMap() {
+		return settingsUtillity.convertListToMap(settingsRepository.findAll());
 	}
 	
 	 public boolean deleteRedeemBill(Character billSerial, Integer billNo) {
