@@ -118,6 +118,7 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
               .requestMatchers("/api/pledge/**").permitAll()
               .requestMatchers("/api/users/**").permitAll()
               .requestMatchers("/api/customer/**").permitAll()
+              .requestMatchers("/export/excel/**").permitAll()
               .requestMatchers(AUTH_WHITELIST).permitAll()
               .requestMatchers("/forgot-password/**").permitAll()
               
