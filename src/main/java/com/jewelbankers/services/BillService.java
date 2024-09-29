@@ -103,7 +103,7 @@ public class BillService {
 	    }	
 	}
 	
-	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo) {
+	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) {
 	    return billRepository.findAll(new Specification<Bill>() {
 	        
 	        @Override
@@ -151,8 +151,13 @@ public class BillService {
 	            }
 	            
 	         // Apply the sorting by billSeq in descending order
+	            if(sortOrder!=null && sortOrder.equalsIgnoreCase("customername")) {
+	              query.orderBy(cb.desc(root.get("customer").get("customerName")));
+	            }
+	            else
+	            {
 	            query.orderBy(cb.desc(root.get("billSequence")));
-	            
+	            }
 	            return cb.and(predicates.toArray(new Predicate[0]));
 	        }
 	    });

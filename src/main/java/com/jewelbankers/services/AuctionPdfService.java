@@ -4,6 +4,7 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.BillDetail;
+import com.jewelbankers.entity.Customer;
 
 import org.springframework.stereotype.Service;
 
@@ -11,27 +12,37 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 public class AuctionPdfService {
 
-    public ByteArrayInputStream generateAuctionPdf(List<Bill> bills, Map<String, String> auctionDetails, String shopDetails, String auctionDescription, String shopName) {
+	public Map<String, List<Bill>> groupBillsByCustomerName(List<Bill> bills) {
+	    return bills.stream()
+	            .collect(Collectors.groupingBy(bill -> bill.getCustomer().getCustomerName()));
+	}
+	
+    public ByteArrayInputStream generateAuctionPdf(List<Bill> bills, Map<String, String> auctionDetails, String fromAddressText, String auctionDescription, String shopName) {
         Document document = new Document(PageSize.A4, 50, 50, 50, 50); // A4 size with custom margins
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
             PdfWriter.getInstance(document, out);
-            document.open();
+            document.open();            
+            
+            for (Map.Entry<String, List<Bill>> entry : groupBillsByCustomerName(bills).entrySet()) {
+            	// Add the header
+                addHeader(document, auctionDescription, shopName);
+                
+                // Add the auction details
+                addAuctionDetails(entry.getValue(), document);
+                
+                // Add the footer (from address and to address)
+                addFooter(document, entry.getValue().get(0).getCustomer(), fromAddressText);
 
-            // Add the header
-            addHeader(document, shopDetails, auctionDescription, shopName);
-
-            // Add the auction details
-            addAuctionDetails(bills, document);
-
-            // Add the footer (from address and to address)
-            addFooter(document, auctionDetails, shopName);
+                document.newPage();
+            }
 
             document.close();
 
@@ -42,7 +53,7 @@ public class AuctionPdfService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
-    private void addHeader(Document document, String shopDetails, String auctionDescription, String shopName) throws DocumentException {
+    private void addHeader(Document document, String auctionDescription, String shopName) throws DocumentException {
         // Header Title
         Paragraph header = new Paragraph("AUCTION NOTICE",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, Font.BOLD, BaseColor.BLACK));
@@ -119,22 +130,47 @@ public class AuctionPdfService {
         return cell;
     }
 
-    private void addFooter(Document document, Map<String, String> auctionDetails, String shopName) throws DocumentException {
-    	 String shopNameText = shopName != null ? shopName : ""; // Handle null
-    	
-    	
-        // From Address
-        Paragraph fromAddress = new Paragraph("From:\n" + shopNameText,
-                FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK));
-        fromAddress.setAlignment(Element.ALIGN_LEFT);
-        document.add(fromAddress);
+    private void addFooter(Document document, Customer customer, String fromAddressText) throws DocumentException {
+    	 //String shopNameText = shopName != null ? shopName : ""; // Handle null
+    	 
+    	// Create a table with two columns
+    	PdfPTable addressTable = new PdfPTable(2); 
+    	addressTable.setWidthPercentage(100); // Set table width to 100% of the page
 
-        // To Address
-        Paragraph toAddress = new Paragraph("To:\n" +
-                auctionDetails.get("customerName") + "\n" +
-                auctionDetails.get("customerAddress"),
-                FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK));
-        toAddress.setAlignment(Element.ALIGN_RIGHT);
-        document.add(toAddress);
+    	// Define column widths for both "From" and "To" sections
+    	float[] columnWidths = {50f, 50f}; 
+    	addressTable.setWidths(columnWidths);
+
+    	// Create "From" address cell
+    	PdfPCell fromCell = new PdfPCell();
+    	fromCell.setBorder(PdfPCell.NO_BORDER); // No border for a clean look
+    	
+    	fromCell.addElement(new Paragraph(fromAddressText, FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+
+    	
+    	// Create "To" address cell
+    	PdfPCell toCell = new PdfPCell();
+    	
+    	toCell.setBorder(PdfPCell.NO_BORDER); // No border for a clean look
+    	toCell.addElement(new Paragraph("To:", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+    	toCell.addElement(new Paragraph(customer.getCustomerName(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+    	
+    	if(!customer.isFullAddress()) {
+        	toCell.addElement(new Paragraph(customer.getAddress(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+
+    	}else
+    	{
+    		toCell.addElement(new Paragraph(customer.getAddressArea(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+        	toCell.addElement(new Paragraph(customer.getStreetDistrict(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+        	toCell.addElement(new Paragraph(customer.getStatePincode(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+        	
+    	} 
+    	
+    	// Add both cells to the table
+    	addressTable.addCell(fromCell);
+    	addressTable.addCell(toCell);
+
+    	// Add the table to the document
+    	document.add(addressTable);
     }
-}
+}    

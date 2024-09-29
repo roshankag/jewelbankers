@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Service
+//@Service
 public class AuctionPdfGenerator {
 
     public byte[] generateAuctionPdf(List<Bill> bills, String auctionDetails, String sirMadamText) throws DocumentException, IOException {

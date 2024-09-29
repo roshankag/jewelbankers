@@ -222,7 +222,7 @@ public class BillController {
             @RequestParam(required = false) Character status,
             @RequestParam(required = false) Integer productTypeNo) {
         
-        List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo);
+        List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, null);
         if (bills.isEmpty()) {
             throw new ResourceNotFoundException("No bills found with the provided search criteria.");
         }

@@ -244,4 +244,24 @@ public class Customer {
 	 * = name; this.email = email; this.phone = phone; this.id = id; }
 	 */
 
+//	public String getFullAddress() {
+//		if(this.pincode>0)
+//			return this.Address + "  " + this.area + ":" + this.street +"  " + this.district + ":" + this.state + "  " + this.pincode;
+//		else
+//			return this.Address;
+//	}
+	
+	public String getAddressArea() {
+		return this.Address + "  " + this.area;
+	}
+	public String getStreetDistrict() {
+		return this.street +"  " + this.district;
+	}
+	public String getStatePincode() {
+		return this.state + "  " + this.pincode;
+	}
+	public boolean isFullAddress() {
+		return this.pincode>0?true:false;
+	}
+	
 }

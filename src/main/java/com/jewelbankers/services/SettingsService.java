@@ -83,5 +83,6 @@ public class SettingsService {
         return settingsRepository.findByParamIdContainingOrParamValueContainingOrParamExampleContaining(query, query, query);
     }
 	
+	
 
 }

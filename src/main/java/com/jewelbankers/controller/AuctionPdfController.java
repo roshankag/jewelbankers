@@ -47,17 +47,19 @@ public class AuctionPdfController {
          LocalDate toDate = toDateStr != null ? LocalDate.parse(toDateStr) : null;
          
         Map<String, String> settingsMap = settingsRepository.findAll().stream()
-                .collect(HashMap::new, (m, v) -> m.put(v.getParamSeq().toString(), v.getParamValue()), HashMap::putAll);
+                .collect(HashMap::new, (m, v) -> m.put(v.getParamId(), v.getParamValue()), HashMap::putAll);
 
-        // Fetching specific settings by paramSeq
-        String shopName = settingsMap.get("21");
-        String auctionDescription = settingsMap.get("38");
+        // Fetching specific settings by paramId
+       // String shopName = ;
+        String auctionDescription = settingsMap.get("AUCTION_DETAILS");
+        
+        
 
-        if (shopName == null || auctionDescription == null) {
-            throw new ResourceNotFoundException("Required settings not found.");
-        }
+//        if (shopName == null || auctionDescription == null) {
+//            throw new ResourceNotFoundException("Required settings not found.");
+//        }
 
-        List<Bill> bills =billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo);
+        List<Bill> bills =billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, "customername");
 
         if (bills == null || bills.isEmpty()) {
             throw new ResourceNotFoundException("No bill found for the provided search criteria.");
@@ -71,9 +73,14 @@ public class AuctionPdfController {
         auctionDetails.put("weight", String.valueOf(bill.getGrams()));
         auctionDetails.put("customerName", bill.getCustomer().getCustomerName());
         auctionDetails.put("customerAddress", bill.getCustomer().getAddress());
+        
+        String fromAddressText = String.format("From:\n%s\n%s\n%s\n%s\n%s", 
+        		settingsMap.get("SHOP_NAME"), settingsMap.get("SHOP_STREET"), settingsMap.get("SHOP_AREA"), settingsMap.get("SHOP_CITY")+settingsMap.get("SHOP_PINCODE"), settingsMap.get("SHOP_STATE"));
+        
+        
 
         ByteArrayInputStream pdfStream = auctionPdfService.generateAuctionPdf(
-                bills, auctionDetails, shopName, auctionDescription, shopName);
+                bills, auctionDetails, fromAddressText, auctionDescription, settingsMap.get("SHOP_NAME"));
 
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.add("Content-Disposition", "inline; filename=auction.pdf");
