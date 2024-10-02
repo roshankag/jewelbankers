@@ -23,15 +23,15 @@ import com.jewelbankers.Utility.SettingsUtillity;
 import com.jewelbankers.entity.Bill;
 
 @Service
-public class PdfService {
+public class PdfRedeemService {
 	
 	@Autowired
 	SettingsUtillity settingsUtillity;
 
-    private static final String TEMPLATE_PATH = "template/bill1.pdf";
+    private static final String TEMPLATE_PATH = "template/bill_redeem.pdf";
     private static final String OUTPUT_PATH = "bills";
 
-   public ByteArrayInputStream generateAndSaveBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {
+   public ByteArrayInputStream generateAndSaveRedeemBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {
        // Ensure the output directory exists
         File dir = new File(OUTPUT_PATH);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -41,7 +41,7 @@ public class PdfService {
         }
 
         // Set output file path
-        String outputFileName = "bill_" + bill.getBillSerial() + "_" + bill.getBillNo() + ".pdf";
+        String outputFileName = "bill_" + bill.getBillRedemSerial() + "_" + bill.getBillRedemNo() + ".pdf";
         String outputFilePath = OUTPUT_PATH + File.separator + outputFileName;
         
         System.out.println(outputFilePath);
@@ -94,10 +94,10 @@ public class PdfService {
             content.setFontAndSize(boldFont.getBaseFont(), 12);
 
             // Example: Placing billNo at coordinates (x, y)
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillSerial()+" "+bill.getBillNo().toString(), 90, 665, 0); // Adjust x, y coordinates as needed
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillRedemSerial()+" "+bill.getBillRedemNo().toString(), 145, 665, 0); // Adjust x, y coordinates as needed
             content.endText();
             
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillDate().toString(), 440, 665, 0); // Adjust x, y coordinates as needed
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getRedemptionDate().toString(), 440, 665, 0); // Adjust x, y coordinates as needed
             
          // Customer Name in bold
             content.beginText();
@@ -105,45 +105,30 @@ public class PdfService {
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getCustomer().getCustomerName(), 60, 600, 0); // x=250, y=635 for name
             content.endText();
             
-            
-         // Address split into three lines (adjust the y-coordinates as needed)
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 12); // Regular font size for the address
-            String[] addressLines = bill.getCustomer().getAddress().split(","); // Assuming address is comma-separated
-
-            if (addressLines.length > 0) {
-                content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines[0], 60, 580, 0); // First line of address
-            }
-            if (addressLines.length > 1) {
-                content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines[1], 60, 560, 0); // Second line of address
-            }
-            if (addressLines.length > 2) {
-                content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines[2], 60, 540, 0); // Third line of address
-            }
+            content.setFontAndSize(boldFont.getBaseFont(), 12); // Bold and larger font size for the name
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillDate().toString(), 60, 580, 0); // x=250, y=635 for name
             content.endText();
             
-
-            // content.showTextAligned(PdfContentByte.ALIGN_LEFT, pledge.getCustomer().getFullAddress(), 250, 625, 0); 
-            // Add more fields as needed, adjusting x and y coordinates accordingly
-            // content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Amount: ₹" + pledge.getAmount(), 100, 690, 0);
-            
-//            ColumnText ct = new ColumnText(content);
-//            ct.setSimpleColumn( 50,620 ,260, 530); // Define the area: (left x, bottom y, right x, top y)
-//
-//            // Set the alignment of the text, add the text, and make sure it wraps within the box
-//            ct.addText(new Phrase("Address: " + bill.getCustomer().getAddress()));
-//            ct.setAlignment(Element.ALIGN_LEFT);
-//            ct.go();
+            content.beginText();
+            content.setFontAndSize(boldFont.getBaseFont(), 12); // Bold and larger font size for the name
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillNo().toString(), 60, 560, 0); // x=250, y=635 for name
+            content.endText();
+            	
             
             content.showTextAligned(PdfContentByte.ALIGN_LEFT,  bill.getBillDetails().get(0).getProductDescription(), 50, 475, 0); // Adjust x, y coordinates as needed
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 370, 475, 0); // Adjust x, y coordinates as needed
            
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getGrams()), 475, 490, 0); // Adjust x, y coordinates as needed
+            
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getInterestinmonths()), 475, 385, 0); // Adjust x, y coordinates as needed
+            
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getReceivedinterest()), 475, 330, 0); // Adjust x, y coordinates as needed
+            
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getRedemptionTotal()) , 470, 265, 0); // Adjust x, y coordinates as needed
 
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getPresentValue()) , 470, 255, 0); // Adjust x, y coordinates as needed
-
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getAmount()) , 310, 205, 0); // Adjust x, y coordinates as needed
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getAmount()) , 310, 210, 0); // Adjust x, y coordinates as needed
 
 
             content.endText();

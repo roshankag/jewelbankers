@@ -327,4 +327,40 @@ public class Bill {
     @Column(name = "comments")
     private String comments;
     
+    @Column(name = "receivedinterest")
+    private Double receivedinterest;
+    
+    @Column(name = "oldbillserialno")
+    private String oldbillserialno;
+    
+    @Column(name = "interestinmonths")
+    private Integer interestinmonths;
+
+	public Double getReceivedinterest() {
+		return receivedinterest;
+	}
+
+	public void setReceivedinterest(Double receivedinterest) {
+		this.receivedinterest = receivedinterest;
+	}
+
+	public String getOldbillserialno() {
+		return oldbillserialno;
+	}
+
+	public void setOldbillserialno(String oldbillserialno) {
+		this.oldbillserialno = oldbillserialno;
+	}
+
+	public Integer getInterestinmonths() {
+		return interestinmonths;
+	}
+
+	public void setInterestinmonths(Integer interestinmonths) {
+		this.interestinmonths = interestinmonths;
+	}
+    
+
+	
+    
 }

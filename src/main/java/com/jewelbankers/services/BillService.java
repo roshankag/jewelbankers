@@ -7,6 +7,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,6 +67,9 @@ public class BillService {
 	 
 	 @Autowired
 	 ProductTypeUtility productTypeUtility;
+	 
+	 @Autowired
+	 private PdfRedeemService pdfRedeemService;
 	 
 	 
 	public List<Bill> findBillsByProductTypeNo(Long productTypeNo) {
@@ -311,7 +315,22 @@ public class BillService {
 	
 	public List<Bill> findBillsByBillNo(Character billSerial,Integer billNo, Long billSequence ) 
 	  { 
-		  if(billNo != null && billNo >0) return billRepository.findByBillSerialAndBillNo(billSerial,billNo);
+		  if(billNo != null && billNo >0) {
+			  List<Bill> bills = billRepository.findByBillSerialAndBillNo(billSerial,billNo);
+			  for (Bill bill2 : bills) {
+				  int monthsbetween= monthsBetween(bill2);
+				bill2.setInterestinmonths(monthsbetween);
+				bill2.setRedemptionInterest(redemptioninterest(monthsbetween, bill2.getAmount()));
+				bill2.setReceivedinterest(
+						getReceievedInterest(
+								new BigDecimal(bill2.getAmount()), monthsbetween, 
+								getRateOfInterest(bill2.getProductTypeNo().intValue(), bill2.getAmount().intValue())).doubleValue());
+
+				
+			}
+			  return bills;
+		  }
+		  
 		  else return billRepository.findByBillSequence(billSequence);
 	  
 	  }
@@ -505,6 +524,7 @@ public class BillService {
 	    }
 
 	    Bill existingBill = billOptional.get();
+	    
 
 	    // Update fields with provided billDetails
 	    if (billDetails.getBillSerial() != null) existingBill.setBillSerial(billDetails.getBillSerial());
@@ -543,17 +563,39 @@ public class BillService {
 	    if (billDetails.getBillRedemSerial() != null) existingBill.setBillRedemSerial(billDetails.getBillRedemSerial());
 	    if (billDetails.getBillRedemNo() != null) existingBill.setBillRedemNo(billDetails.getBillRedemNo());
 	    if (billDetails.getComments() != null) existingBill.setComments(billDetails.getComments());
+	    if (billDetails.getReceivedinterest() != null) existingBill.setReceivedinterest(billDetails.getReceivedinterest());
+	    if (billDetails.getInterestinmonths() != null) existingBill.setInterestinmonths(billDetails.getInterestinmonths());
+
+	    System.out.println("Bill Interst:"+billDetails.getReceivedinterest());
+	    System.out.println("Months:"+billDetails.getInterestinmonths());
+	    
+	    
 
 	   
         //calculateRedemption(existingBill);
 	    return billRepository.save(existingBill);
 	}
 	
+	private int monthsBetween(Bill bill) {
+		  LocalDate redemptionDate = bill.getRedemptionDate() != null ? bill.getRedemptionDate() : LocalDate.now();
+		    
+		    // Calculate months between the two dates
+		    return (int) ChronoUnit.MONTHS.between(bill.getBillDate().withDayOfMonth(1), redemptionDate.withDayOfMonth(1));
+
+	}
+	
+	private BigDecimal getReceievedInterest(BigDecimal amountBD, int monthsBetween, double interestRateBD) {
+		BigDecimal receievedInterest = amountBD.multiply(new BigDecimal(interestRateBD))
+		        .multiply(BigDecimal.valueOf(monthsBetween))
+		        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+		return receievedInterest;
+	}
+	
 	private Bill calculateRedemption(Bill existingBill) {
 		 // New Calculation for Redemption Interest and Total
-	    BigDecimal interestRateBD = existingBill.getRateOfInterest() != null 
-	        ? existingBill.getRateOfInterest() 
-	        : getRateOfInterest(existingBill.getProductTypeNo(), existingBill.getAmount());
+		double interestRateBD = existingBill.getRateOfInterest() != null 
+	        ? existingBill.getRateOfInterest().doubleValue() 
+	        : getRateOfInterest(existingBill.getProductTypeNo().intValue(), existingBill.getAmount().intValue());
 
 	    LocalDate billDate = existingBill.getBillDate();
 	    LocalDate redemptionDate = existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now();
@@ -562,23 +604,43 @@ public class BillService {
 	    int monthsBetween = (int) ChronoUnit.MONTHS.between(billDate.withDayOfMonth(1), redemptionDate.withDayOfMonth(1));
 
 	    BigDecimal amountBD = BigDecimal.valueOf(existingBill.getAmount());
-	    BigDecimal redemptionInterest = amountBD.multiply(interestRateBD)
-	        .multiply(BigDecimal.valueOf(monthsBetween))
-	        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
-	    BigDecimal redemptionTotal = amountBD.add(redemptionInterest);
+	    BigDecimal receievedInterest=getReceievedInterest(amountBD,monthsBetween,interestRateBD);
+	    
+	    BigDecimal redemptionTotal = amountBD.add(receievedInterest);
+	    
+	    double redemptioninterest = redemptioninterest(monthsBetween, amountBD.intValue());
 
-	    existingBill.setRedemptionInterest(redemptionInterest.doubleValue());
+	    existingBill.setInterestinmonths(monthsBetween>0?monthsBetween:0);
+	    existingBill.setReceivedinterest(receievedInterest.doubleValue());
+	    existingBill.setRedemptionInterest(redemptioninterest);
 	    existingBill.setRedemptionTotal(redemptionTotal.doubleValue());
 	    return existingBill;
 	}
+	
+	private double redemptioninterest(int monthsBetween,int amountBD) {
+		
+		
+		double rate = 1.33;
+		
+		// Convert the double values to BigDecimal for multiplication
+		BigDecimal monthsBetweenBD = BigDecimal.valueOf(monthsBetween);
+		BigDecimal rateBD = BigDecimal.valueOf(rate);
 
-	private BigDecimal getRateOfInterest(Integer productTypeNo, Integer amount) {
-	    if (productTypeNo == null) {
+		// Perform multiplication with BigDecimal
+		BigDecimal redemptionInterestBD = monthsBetweenBD.multiply(rateBD).multiply(new BigDecimal(amountBD)).divide(new BigDecimal(100));
+
+		// If you need to convert the result back to double
+		double redemptionInterest = redemptionInterestBD.doubleValue();
+		return redemptionInterest;
+	}
+
+	private double getRateOfInterest(int productTypeNo, int amount) {
+	    if (productTypeNo==0) {
 	        throw new IllegalArgumentException("Product type number cannot be null");
 	    }
 	    Map<String, String> settingsMap = getSettingMap();
 	    
-	    String productType = productTypeNo.toString();
+	    //String productType = productTypeNo.toString();
 
 	    double roi = 0;
 	    
@@ -606,7 +668,7 @@ public class BillService {
 	        throw new IllegalArgumentException("Invalid product type: " + productTypeNo);
 	    }
 
-	    return new BigDecimal(roi);
+	    return roi;
 	}
 
 	private Map<String, String> getSettingMap() {
@@ -666,18 +728,33 @@ public class BillService {
 //	        return in;
 //	    }
 	 
-	 public ByteArrayInputStream generateAndSendBill(Bill bill) {
+	 public ByteArrayInputStream generateAndSendBill(Bill bill,  Map<String, String> settingsMap) {
 	        ByteArrayInputStream in = null;
 
 	        try {
 	            // Generate the PDF
-	            in = pdfService.generateAndSaveBillPdf(bill); // Retrieve the PDF as a ByteArrayInputStream
+	            in = pdfService.generateAndSaveBillPdf(bill,settingsMap); // Retrieve the PDF as a ByteArrayInputStream
 	        } catch (IOException | DocumentException e) {
 	            e.printStackTrace();
 	            throw new RuntimeException("Error generating PDF: " + e.getMessage());
 	        }
 	        return in;
 	    }
+	 
+	 public ByteArrayInputStream generateAndRedeemBillPdf(Bill bill,  Map<String, String> settingsMap) {
+	        ByteArrayInputStream in = null;
+
+	        try {
+	            // Generate the PDF
+	            in = pdfRedeemService.generateAndSaveRedeemBillPdf(bill,settingsMap); // Retrieve the PDF as a ByteArrayInputStream
+	        } catch (IOException | DocumentException e) {
+	            e.printStackTrace();
+	            throw new RuntimeException("Error generating PDF: " + e.getMessage());
+	        }
+	        return in;
+	    }
+	 
+	 
 
 
 }
