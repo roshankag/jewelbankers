@@ -146,9 +146,24 @@ public class BillController {
 	 */
 
     
+//    @GetMapping("/export/excel")
+//    public ResponseEntity<?> exportBillsToExcel() throws IOException {
+//        ByteArrayInputStream in = billService.exportBillsToExcel();
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
+//
+//        return ResponseEntity.ok()
+//                .headers(headers)
+//                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+//                .body(new InputStreamResource(in));
+//    }
+    
     @GetMapping("/export/excel")
-    public ResponseEntity<?> exportBillsToExcel() throws IOException {
-        ByteArrayInputStream in = billService.exportBillsToExcel();
+    public ResponseEntity<?> exportBillsToExcel(
+            @RequestParam("fromDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) throws IOException {
+
+        ByteArrayInputStream in = billService.exportBillsToExcel(fromDate, endDate);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
 

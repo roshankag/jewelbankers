@@ -28,7 +28,7 @@ public class PdfService {
 	@Autowired
 	SettingsUtillity settingsUtillity;
 
-    private static final String TEMPLATE_PATH = "template/bill1.pdf";
+    private static final String TEMPLATE_PATH = "template/bill2.pdf";
     private static final String OUTPUT_PATH = "bills";
 
    public ByteArrayInputStream generateAndSaveBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {
@@ -140,6 +140,8 @@ public class PdfService {
            
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getGrams()), 475, 490, 0); // Adjust x, y coordinates as needed
+            
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getOldbillserialno()), 475, 435, 0); 	
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getPresentValue()) , 470, 255, 0); // Adjust x, y coordinates as needed
 

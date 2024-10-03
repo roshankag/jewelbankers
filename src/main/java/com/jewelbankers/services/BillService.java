@@ -84,8 +84,13 @@ public class BillService {
         this.billRepository = billRepository;
     }
 
-    public ByteArrayInputStream exportBillsToExcel() throws IOException {
-        List<Bill> bills = billRepository.findAll();
+//    public ByteArrayInputStream exportBillsToExcel() throws IOException {
+//        List<Bill> bills = billRepository.findAll();
+//        return ExcelGenerator.generateBillExcel(bills);
+//    }
+    
+    public ByteArrayInputStream exportBillsToExcel(LocalDate fromDate, LocalDate endDate) throws IOException {
+        List<Bill> bills = billRepository.findByBillDateBetween(fromDate, endDate);
         return ExcelGenerator.generateBillExcel(bills);
     }
 	
