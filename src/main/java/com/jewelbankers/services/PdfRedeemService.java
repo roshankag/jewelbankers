@@ -112,7 +112,7 @@ public class PdfRedeemService {
             
             content.beginText();
             content.setFontAndSize(boldFont.getBaseFont(), 12); // Bold and larger font size for the name
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillNo().toString(), 60, 560, 0); // x=250, y=635 for name
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillSerial()+bill.getBillNo().toString(), 60, 560, 0); // x=250, y=635 for name
             content.endText();
             	
             
@@ -122,11 +122,16 @@ public class PdfRedeemService {
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getGrams()), 475, 490, 0); // Adjust x, y coordinates as needed
             
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getReceivedinterest()), 475, 440, 0); // Adjust x, y coordinates as needed
+            
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getInterestinmonths()), 475, 385, 0); // Adjust x, y coordinates as needed
             
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getReceivedinterest()), 475, 330, 0); // Adjust x, y coordinates as needed
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getRedemptionInterest()), 475, 330, 0); // Adjust x, y coordinates as needed
             
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getRedemptionTotal()) , 470, 265, 0); // Adjust x, y coordinates as needed
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getRedemptionTotal()) , 475, 265, 0); // Adjust x, y coordinates as needed
+            
+         // Set the font and size for the text
+            content.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED), 18);
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getAmount()) , 310, 210, 0); // Adjust x, y coordinates as needed
 

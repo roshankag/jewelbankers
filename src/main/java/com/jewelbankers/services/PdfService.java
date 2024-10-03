@@ -28,7 +28,7 @@ public class PdfService {
 	@Autowired
 	SettingsUtillity settingsUtillity;
 
-    private static final String TEMPLATE_PATH = "template/bill2.pdf";
+    private static final String TEMPLATE_PATH = "template/bill_pledge.pdf";
     private static final String OUTPUT_PATH = "bills";
 
    public ByteArrayInputStream generateAndSaveBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {

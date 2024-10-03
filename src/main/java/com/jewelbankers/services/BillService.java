@@ -7,7 +7,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +25,10 @@ import com.jewelbankers.Utility.ProductTypeUtility;
 import com.jewelbankers.Utility.SettingsUtillity;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.Customer;
-import com.jewelbankers.entity.Settings; // Adjust the package name based on your project structure
 import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
-import com.jewelbankers.repository.ProductTypeRepository;
 import com.jewelbankers.repository.SettingsRepository;
-import org.springframework.data.domain.Sort;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -591,7 +588,7 @@ public class BillService {
 	
 	private BigDecimal getReceievedInterest(BigDecimal amountBD, int monthsBetween, double interestRateBD) {
 		BigDecimal receievedInterest = amountBD.multiply(new BigDecimal(interestRateBD))
-		        .multiply(BigDecimal.valueOf(monthsBetween))
+		        .multiply(BigDecimal.valueOf(monthsBetween-1))
 		        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 		return receievedInterest;
 	}
@@ -628,7 +625,8 @@ public class BillService {
 		double rate = 1.33;
 		
 		// Convert the double values to BigDecimal for multiplication
-		BigDecimal monthsBetweenBD = BigDecimal.valueOf(monthsBetween);
+		BigDecimal monthsBetweenBD = BigDecimal.valueOf(monthsBetween);//.add(BigDecimal.ONE);
+		
 		BigDecimal rateBD = BigDecimal.valueOf(rate);
 
 		// Perform multiplication with BigDecimal
