@@ -160,18 +160,24 @@ public class BillController {
     
     @GetMapping("/export/excel")
     public ResponseEntity<?> exportBillsToExcel(
-            @RequestParam("fromDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
-            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) throws IOException {
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @RequestParam(required = false) Integer amount,
+            @RequestParam(required = false) Character status,
+            @RequestParam(required = false) Integer productTypeNo,
+            @RequestParam(required = false) String sortOrder) throws IOException {
 
-        ByteArrayInputStream in = billService.exportBillsToExcel(fromDate, endDate);
+        ByteArrayInputStream excelFile  = billService.exportBillsToExcel(search, fromDate, endDate, amount, status, productTypeNo, sortOrder);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-                .body(new InputStreamResource(in));
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) // Use this MIME type for .xlsx files
+                .body(new InputStreamResource(excelFile));
     }
+
 
     @GetMapping("/number")
     public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo", required = false) Integer billNo,

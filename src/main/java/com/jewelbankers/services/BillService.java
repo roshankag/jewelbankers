@@ -86,10 +86,14 @@ public class BillService {
 //        return ExcelGenerator.generateBillExcel(bills);
 //    }
     
-    public ByteArrayInputStream exportBillsToExcel(LocalDate fromDate, LocalDate endDate) throws IOException {
-        List<Bill> bills = billRepository.findByBillDateBetween(fromDate, endDate);
-        return ExcelGenerator.generateBillExcel(bills);
-    }
+	public ByteArrayInputStream exportBillsToExcel(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) throws IOException {
+	    // Retrieve the list of bills based on the search criteria
+	    List<Bill> bills = findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, sortOrder);
+	    
+	    // Generate the Excel file from the list of bills
+	    return ExcelGenerator.generateBillExcel(bills);
+	}
+
 	
 	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
 		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);
@@ -190,11 +194,11 @@ public class BillService {
 		return billRepository.findAll(pageable);
 	}
 	
-    //GET METHOD 
 	public Optional<Bill> findById(Long billSequence) {
+	    Map<String, String> settingsMap = getSettingMap();
 	    Optional<Bill> optionalBill = billRepository.findById(billSequence);
-	    // If the Bill is present, calculateRedemption is called; otherwise, the Optional remains empty.
-	    return optionalBill.map(this::calculateRedemption);
+	    // If the Bill is present, calculateRedemption is called with settingsMap
+	    return optionalBill.map(bill -> calculateRedemption(bill, settingsMap));
 	}
 
 	// Method to save or update a bill without an image
@@ -317,16 +321,17 @@ public class BillService {
 	
 	public List<Bill> findBillsByBillNo(Character billSerial,Integer billNo, Long billSequence ) 
 	  { 
+		 Map<String, String> settingsMap = getSettingMap();
 		  if(billNo != null && billNo >0) {
 			  List<Bill> bills = billRepository.findByBillSerialAndBillNo(billSerial,billNo);
 			  for (Bill bill2 : bills) {
 				  int monthsbetween= monthsBetween(bill2);
 				bill2.setInterestinmonths(monthsbetween);
-				bill2.setRedemptionInterest(redemptioninterest(monthsbetween, bill2.getAmount()));
+				bill2.setRedemptionInterest(redemptioninterest(monthsbetween, bill2.getAmount(),settingsMap));
 				bill2.setReceivedinterest(
 						getReceievedInterest(
 								new BigDecimal(bill2.getAmount()), monthsbetween, 
-								getRateOfInterest(bill2.getProductTypeNo().intValue(), bill2.getAmount().intValue())).doubleValue());
+								getRateOfInterest(bill2.getProductTypeNo().intValue(), bill2.getAmount().intValue(),settingsMap)).doubleValue());
 
 				
 			}
@@ -593,11 +598,11 @@ public class BillService {
 		return receievedInterest;
 	}
 	
-	private Bill calculateRedemption(Bill existingBill) {
+	private Bill calculateRedemption(Bill existingBill,Map<String, String> settingsMap) {
 		 // New Calculation for Redemption Interest and Total
 		double interestRateBD = existingBill.getRateOfInterest() != null 
 	        ? existingBill.getRateOfInterest().doubleValue() 
-	        : getRateOfInterest(existingBill.getProductTypeNo().intValue(), existingBill.getAmount().intValue());
+	        : getRateOfInterest(existingBill.getProductTypeNo().intValue(), existingBill.getAmount().intValue(),settingsMap);
 
 	    LocalDate billDate = existingBill.getBillDate();
 	    LocalDate redemptionDate = existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now();
@@ -610,7 +615,7 @@ public class BillService {
 	    
 	    BigDecimal redemptionTotal = amountBD.add(receievedInterest);
 	    
-	    double redemptioninterest = redemptioninterest(monthsBetween, amountBD.intValue());
+	    double redemptioninterest = redemptioninterest(monthsBetween, amountBD.intValue(),settingsMap);
 
 	    existingBill.setInterestinmonths(monthsBetween>0?monthsBetween:0);
 	    existingBill.setReceivedinterest(receievedInterest.doubleValue());
@@ -619,10 +624,12 @@ public class BillService {
 	    return existingBill;
 	}
 	
-	private double redemptioninterest(int monthsBetween,int amountBD) {
+	private double redemptioninterest(int monthsBetween,int amountBD, Map<String, String> settingsMap) {
 		
 		
-		double rate = 1.33;
+		double rate = Double.parseDouble(settingsMap.get("REDEEM_INTERST"));
+		
+
 		
 		// Convert the double values to BigDecimal for multiplication
 		BigDecimal monthsBetweenBD = BigDecimal.valueOf(monthsBetween);//.add(BigDecimal.ONE);
@@ -637,11 +644,11 @@ public class BillService {
 		return redemptionInterest;
 	}
 
-	private double getRateOfInterest(int productTypeNo, int amount) {
+	private double getRateOfInterest(int productTypeNo, int amount,Map<String, String> settingsMap) {
 	    if (productTypeNo==0) {
 	        throw new IllegalArgumentException("Product type number cannot be null");
 	    }
-	    Map<String, String> settingsMap = getSettingMap();
+	   
 	    
 	    //String productType = productTypeNo.toString();
 
@@ -650,17 +657,17 @@ public class BillService {
 
 	    if (productTypeUtility.getmap().get("GOLD").getProductTypeNo() == productTypeNo) { // Assuming "1" is for GOLD
 	       
-	    	if (amount < 5000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_5000")); // paramSeq = 44L; // GOLD_INTREST_LESS_THAN_5000
+	    	if (amount < 5000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_5000")); // paramSeq = 44L; // GOLD_INTREST_LESS_THAN_5000
 	        
-	    	else if (amount < 10000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_10000")); // GOLD_INTREST_LESS_THAN_10000
+	    	else if (amount < 10000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_10000")); // GOLD_INTREST_LESS_THAN_10000
 	        
-	    	else if (amount < 20000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_20000")); // GOLD_INTREST_LESS_THAN_20000
+	    	else if (amount < 20000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_20000")); // GOLD_INTREST_LESS_THAN_20000
 	        
-	    	else if (amount < 50000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_50000")); // GOLD_INTREST_LESS_THAN_50000
+	    	else if (amount < 50000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_50000")); // GOLD_INTREST_LESS_THAN_50000
 	        
-	    	else if (amount < 100000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_100000")); // GOLD_INTREST_LESS_THAN_100000
+	    	else if (amount < 100000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_100000")); // GOLD_INTREST_LESS_THAN_100000
 	        
-	    	else roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_MORE_THAN_100000")); // GOLD_INTREST_MORE_THAN_100000
+	    	else roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_MORE_THAN_100000")); // GOLD_INTREST_MORE_THAN_100000
 	    }
 	    
 	    else if (productTypeUtility.getmap().get("SILVER").getProductTypeNo() == productTypeNo) { // Assuming "2" is for SILVER
