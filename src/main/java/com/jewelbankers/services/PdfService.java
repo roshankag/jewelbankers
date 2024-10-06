@@ -145,7 +145,7 @@ public class PdfService {
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getPresentValue()) , 470, 255, 0); // Adjust x, y coordinates as needed
             
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getComments()) , 160, 16, 0); // Adjust x, y coordinates as needed
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getComments()) , 160, 160, 0); // Adjust x, y coordinates as needed
             
             //Set the font and size for the text
             content.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED), 18);
