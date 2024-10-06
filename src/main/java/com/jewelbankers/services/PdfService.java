@@ -28,7 +28,7 @@ public class PdfService {
 	@Autowired
 	SettingsUtillity settingsUtillity;
 
-    private static final String TEMPLATE_PATH = "template/bill_pledge.pdf";
+    private static final String TEMPLATE_PATH = "template/bill_pledgeF.pdf";
     private static final String OUTPUT_PATH = "bills";
 
    public ByteArrayInputStream generateAndSaveBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {
@@ -144,8 +144,16 @@ public class PdfService {
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getOldbillserialno()), 475, 435, 0); 	
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getPresentValue()) , 470, 255, 0); // Adjust x, y coordinates as needed
+            
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getComments()) , 160, 16, 0); // Adjust x, y coordinates as needed
+            
+            //Set the font and size for the text
+            content.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED), 18);
 
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Rs. "+ String.valueOf(bill.getAmount()) , 310, 205, 0); // Adjust x, y coordinates as needed
+            content.endText();
+            
+            
 
 
             content.endText();

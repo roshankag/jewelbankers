@@ -55,6 +55,16 @@ public class CustomerService {
     public List<Customer> findByNameStartingWith(String customerName) {
         return customerRepository.findByCustomerNameStartingWithIgnoreCase(customerName);
     }
+    
+    
+    public List<Customer> findByPhoneNo(Long phoneno) {
+        return customerRepository.findByPhoneno(phoneno);
+    }
+
+    // New method to find by both customerName and phoneNo
+    public List<Customer> findByNameAndPhone(String customerName, Long phoneno) {
+        return customerRepository.findByCustomerNameStartingWithIgnoreCaseAndPhoneno(customerName, phoneno);
+    }
 
 	
 	  public Optional<Customer> findById(Long id) { 

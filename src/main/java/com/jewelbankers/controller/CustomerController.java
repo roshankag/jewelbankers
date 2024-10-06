@@ -28,11 +28,28 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping
-    public List<Customer> getAllCustomers(@RequestParam(required = false) String customerName) {
-        // If name is provided, return filtered list; otherwise, return all customers
-        if (customerName != null && !customerName.isEmpty()) {
+    public List<Customer> getAllCustomers(
+            @RequestParam(required = false) String customerName, 
+            @RequestParam(required = false) Long phoneno) {
+        
+    	// Check if either customerName or phoneNo is provided
+        if (customerName != null && !customerName.isEmpty() && phoneno != null) {
+            // If both customerName and phoneNo are provided, filter by both
+            return customerService.findByNameAndPhone(customerName, phoneno);
+        } 
+        
+        else if (customerName != null && !customerName.isEmpty()) {
+            // If only customerName is provided, filter by customerName
             return customerService.findByNameStartingWith(customerName);
-        } else {
+        } 
+        
+        else if (phoneno != null) {
+            // If only phoneNo is provided, filter by phoneNo
+            return customerService.findByPhoneNo(phoneno);
+        } 
+        
+        else {
+            // If neither is provided, return all customers
             return customerService.findAll();
         }
     }
