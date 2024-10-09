@@ -18,6 +18,9 @@ public class SettingsUtillity {
         for (Settings setting : settingsList) {
             settingsMap.put(setting.getParamId(), setting.getParamValue());
         }
+        
+     // Debug: Print the settingsMap to verify its contents
+        System.out.println("Settings Map: " + settingsMap);
         return settingsMap;
     }
 	
@@ -35,5 +38,9 @@ public class SettingsUtillity {
     
     public String getAuctionDescription(Map<String,String> settingsMap) {
     	return settingsMap.get("AUCTION_DETAILS");
+    }
+    
+    public String getPledgeRules(Map<String,String> settingsMap) {
+    	return settingsMap.get("PLEDGE_RULES");
     }
 }

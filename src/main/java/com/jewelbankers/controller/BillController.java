@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
-import com.jewelbankers.exception.ResourceNotFoundException;
+import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.services.BillService;
 //import com.jewelbankers.services.FileStorageService;
 import com.jewelbankers.services.SettingsService;
@@ -168,7 +168,18 @@ public class BillController {
             @RequestParam(required = false) Integer productTypeNo,
             @RequestParam(required = false) String sortOrder) throws IOException {
 
-        ByteArrayInputStream excelFile  = billService.exportBillsToExcel(search, fromDate, endDate, amount, status, productTypeNo, sortOrder);
+        // Retrieve the list of bills based on the search criteria
+        List<Bill> bills = billService.findBillsBySearch(search, fromDate, endDate, amount, status, productTypeNo, sortOrder);
+        
+        if (bills.isEmpty()) {
+            // Return a 200 OK response with a message indicating no bills were found
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No bills found with the provided search criteria.");
+            return ResponseEntity.ok(response); // Returning a Map<String, String> when no bills are found
+        }
+
+        // Generate the Excel file from the list of bills
+        ByteArrayInputStream excelFile = ExcelGenerator.generateBillExcel(bills);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
 
@@ -177,6 +188,7 @@ public class BillController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) // Use this MIME type for .xlsx files
                 .body(new InputStreamResource(excelFile));
     }
+
 
 
     @GetMapping("/number")
@@ -229,13 +241,22 @@ public class BillController {
 
 
     @GetMapping("/search")
-    public ResponseEntity<List<Bill>> getBillsBySearch(@RequestParam(value = "search", required = false) String search) {
+    public ResponseEntity<?> getBillsBySearch(@RequestParam(value = "search", required = false) String search) {
         List<Bill> bills = billService.findBillsBySearch(search);
-        return ResponseEntity.ok(bills);
+        
+        if (bills.isEmpty()) {
+            // **Return a 200 OK response with a message indicating no bills were found**
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No bills found with the provided search criteria.");
+            return ResponseEntity.ok(response); // Returning a Map<String, String> when no bills are found
+        }
+        
+        // **Return the list of bills with a 200 OK status**
+        return ResponseEntity.ok(bills); // Returning the list of bills
     }
     
     @GetMapping("/fullsearch")
-    public ResponseEntity<List<Bill>> searchBills(
+    public ResponseEntity<?> searchBills(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate toDate,
@@ -245,8 +266,13 @@ public class BillController {
         
         List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, null);
         if (bills.isEmpty()) {
-            throw new ResourceNotFoundException("No bills found with the provided search criteria.");
+            // **Return a 200 OK response with a message indicating no bills were found**
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No bills found with the provided search criteria.");
+            return ResponseEntity.ok(response); // **Highlighted Change**
         }
+        
+        // **Return the list of bills with a 200 OK status**
         return ResponseEntity.ok(bills);
     }
     
@@ -290,7 +316,7 @@ public class BillController {
         }
     }
     
-    @GetMapping("pdf/{billSequence}")
+    @GetMapping("customerpdf/{billSequence}")
     public ResponseEntity<?> generateAndSendBill(@PathVariable Long billSequence) {
         try {
         	
@@ -317,6 +343,97 @@ public class BillController {
         }
     }
     
+    
+//    @GetMapping("pdf/{billSequence}")
+//    public ResponseEntity<?> generateAndSendBill(@PathVariable Long billSequence) {
+//        try {
+//            // Fetch settings from a database or service
+//            Map<String, String> settingsMap = settingsService.getShopDetails();
+//            
+//            Optional<Bill> bill = billService.findById(billSequence);
+//            
+//            // Generate PDFs for the bill
+//            ByteArrayInputStream[] pdfStreams = billService.generateAndSendBill(bill.get(), settingsMap);
+//            
+//            // Set filenames
+//            String customerFilename = "Bill-" + bill.get().getBillSerial() + "-" + bill.get().getBillNo() + "-customer.pdf";
+//            String officeFilename = "Bill-" + bill.get().getBillSerial() + "-" + bill.get().getBillNo() + "-office.pdf";
+//            
+//            // Create headers for the response
+//            HttpHeaders headers = new HttpHeaders();
+//            
+//            // Create an array of InputStreamResource to hold the PDF streams
+//            InputStreamResource customerResource = new InputStreamResource(pdfStreams[0]);
+//            InputStreamResource officeResource = new InputStreamResource(pdfStreams[1]);
+//
+//            // Build a response entity
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("customerPdf", customerResource);
+//            response.put("officePdf", officeResource);
+//            
+//            return ResponseEntity.ok()
+//                    .headers(headers)
+//                    .contentType(MediaType.APPLICATION_JSON)
+//                    .body(response);
+//            
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(500).body("Error generating PDFs: " + e.getMessage());
+//        }
+//    }
+//
+//    
+    
+//    @GetMapping("pdf/{billSequence}")
+//    public ResponseEntity<?> generateAndSendBill(@PathVariable Long billSequence) {
+//        try {
+//            // Fetch settings from a database or service
+//            Map<String, String> settingsMap = settingsService.getShopDetails();
+//
+//            Optional<Bill> bill = billService.findById(billSequence);
+//
+//            if (bill.isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                        .body("Bill not found with sequence: " + billSequence);
+//            }
+//
+//            // Generate PDFs for the bill
+//            ByteArrayInputStream[] pdfStreams = billService.generateAndSendBill(bill.get(), settingsMap);
+//
+//            // Set filenames (optional if you don't need them in the response)
+//            String customerFilename = "Bill-" + bill.get().getBillSerial() + "-" + bill.get().getBillNo() + "-customer.pdf";
+//            String officeFilename = "Bill-" + bill.get().getBillSerial() + "-" + bill.get().getBillNo() + "-office.pdf";
+//
+//            // Read the InputStream into byte arrays
+//            byte[] customerPdfBytes = pdfStreams[0].readAllBytes();
+//            byte[] officePdfBytes = pdfStreams[1].readAllBytes();
+//
+//            // Optionally, encode to Base64
+//            String customerBase64Pdf = Base64.getEncoder().encodeToString(customerPdfBytes);
+//            String officeBase64Pdf = Base64.getEncoder().encodeToString(officePdfBytes);
+//
+//            // Create headers for the response
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add("Content-Disposition", "attachment; filename=" + customerFilename); // Change for office PDF if needed
+//
+//            // Build a response entity
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("customerPdf", customerBase64Pdf);
+//            response.put("officePdf", officeBase64Pdf);
+//
+//            return ResponseEntity.ok()
+//                    .headers(headers)
+//                    .contentType(MediaType.APPLICATION_JSON)
+//                    .body(response);
+//
+//        } 
+//        catch (Exception e) 
+//        {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Error generating PDFs: " + e.getMessage());
+//        }
+//    }
     @GetMapping("redeempdf/{billSequence}")
     public ResponseEntity<?> generateAndRedeemBillPdf(@PathVariable Long billSequence) {
         try {
