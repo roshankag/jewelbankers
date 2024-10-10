@@ -327,7 +327,34 @@ public class BillController {
         	Optional<Bill> bill = billService.findById(billSequence);
         	String filename="Bill-"+bill.get().getBillSerial()+""+bill.get().getBillNo();
             // Generate PDF for the pledge bill
-            ByteArrayInputStream pdfStream = billService.generateAndSendBill(bill.get(),settingsMap);
+            ByteArrayInputStream pdfStream = billService.generateCustomerSendBill(bill.get(),settingsMap);
+
+            // Set headers for PDF response
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename="+filename+".pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(new InputStreamResource(pdfStream));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error generating PDF: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("officepdf/{billSequence}")
+    public ResponseEntity<?> generateOfficeSendBill(@PathVariable Long billSequence) {
+        try {
+        	
+        	// Fetch settings from a database or service
+        	Map<String, String> settingsMap = settingsService.getShopDetails();
+        	
+        	
+        	Optional<Bill> bill = billService.findById(billSequence);
+        	String filename="Bill-"+bill.get().getBillSerial()+""+bill.get().getBillNo();
+            // Generate PDF for the pledge bill
+            ByteArrayInputStream pdfStream = billService.generateOfficeSendBill(bill.get(),settingsMap);
 
             // Set headers for PDF response
             HttpHeaders headers = new HttpHeaders();

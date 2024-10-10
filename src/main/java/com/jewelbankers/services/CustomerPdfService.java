@@ -467,7 +467,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -488,7 +491,7 @@ import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.Settings;
 
 @Service
-public class PdfService {
+public class CustomerPdfService {
 
     @Autowired
     SettingsUtillity settingsUtillity;
@@ -499,7 +502,7 @@ public class PdfService {
     private static final String TEMPLATE_PATH = "template/customercopy.pdf";
     private static final String OUTPUT_PATH = "bills";
 
-    public ByteArrayInputStream generateAndSaveBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {
+    public ByteArrayInputStream generateCustomerBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {
         // Ensure the output directory exists
         File dir = new File(OUTPUT_PATH);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -575,11 +578,25 @@ public class PdfService {
             content.endText();
 
 
+         // // Define the desired output format
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Desired output format
+
+         // Assuming bill.getBillDate() returns a LocalDate
+         LocalDate billDate = bill.getBillDate(); // This should return the date as a LocalDate
+         String billDateFormatted;
+
+         // Format the LocalDate object into the desired format
+         if (billDate != null) {
+             billDateFormatted = billDate.format(outputFormatter);
+         } else {
+             billDateFormatted = "N/A"; // Default value if the bill date is null
+         }
+
          // Bill Date (Ensure it's not null)
-            content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 14);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillDate() != null ? bill.getBillDate().toString() : "N/A", 455, 665, 0);
-            content.endText();
+         content.beginText();
+         content.setFontAndSize(regularFont.getBaseFont(), 13);
+         content.showTextAligned(PdfContentByte.ALIGN_LEFT, billDateFormatted, 455, 665, 0);
+         content.endText();
 
          //	 (Ensure it's not null)
             String customerName = bill.getCustomer() != null && bill.getCustomer().getCustomerName() != null 
@@ -664,7 +681,7 @@ public class PdfService {
 
             // Set the starting position for the first line
             float yPosition = 300; // Starting Y position for A5
-            float lineSpacing = 10; // Space between lines (adjust as necessary)
+            float lineSpacing = 20; // Space between lines (adjust as necessary)
 
             // Display each line in the PDF content with adjusted alignment
             content.beginText();
@@ -683,11 +700,6 @@ public class PdfService {
             content.endText();
             
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 13);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getMonthlyIncome() != null ? bill.getMonthlyIncome() : "N/A"), 175, 220, 0);
-            content.endText();
-            
-            content.beginText();
             content.setFontAndSize(boldFont.getBaseFont(), 12);
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillSerial() + " " + 
                 (bill.getBillNo() != null ? bill.getBillNo().toString() : "N/A"), 147, 88, 0);
@@ -701,9 +713,24 @@ public class PdfService {
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 147, 70, 0);
             content.endText();
             
+         // Define the desired output format
+            DateTimeFormatter outputFormatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Desired output format
+
+            // Assuming bill.getBillDate() returns a LocalDate
+            LocalDate billDate2 = bill.getBillDate(); // This should return the date as a LocalDate
+            String billDateFormatted1;
+
+            // Format the LocalDate object into the desired format
+            if (billDate != null) {
+                billDateFormatted1 = billDate2.format(outputFormatter1);
+            } else {
+                billDateFormatted1 = "N/A"; // Default value if the bill date is null
+            }
+
+            // Displaying the bill date
             content.beginText();
             content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillDate() != null ? bill.getBillDate().toString() : "N/A", 140, 55, 0);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, billDateFormatted1, 140, 55, 0);
             content.endText();
             
             content.beginText();
@@ -720,6 +747,25 @@ public class PdfService {
             content.setFontAndSize(regularFont.getBaseFont(), 12);
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillDetails().get(0).getProductDescription() != null 
                 ? bill.getBillDetails().get(0).getProductDescription() : "N/A", 155, 23, 0);
+            content.endText();
+            
+            content.beginText();
+            content.setFontAndSize(regularFont.getBaseFont(), 13);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getMonthlyIncome() != null ? bill.getMonthlyIncome() : "N/A"), 175, 220, 0);
+            content.endText();
+            
+            LocalDate billDate1 = bill.getBillDate();  // Assuming billDate is a LocalDate
+            LocalDate dueDate = billDate1.plusYears(1).plusDays(7);  // Add 1 year and 7 days
+            
+            // Format the due date for displaying in the PDF
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.ENGLISH);
+            String dueDateFormatted = dueDate.format(formatter);
+            
+         // Set text color to red for dueDateFormatted
+            content.beginText();
+            content.setFontAndSize(regularFont.getBaseFont(), 12);  // Set font for regular text
+            content.setColorFill(BaseColor.CYAN);  // Set text color to red
+            content.showTextAligned(Element.ALIGN_LEFT, dueDateFormatted, 425, 300, 0); // Adjust the coordinates as needed
             content.endText();
             
             // Close the PDF Stamper and flush the data
