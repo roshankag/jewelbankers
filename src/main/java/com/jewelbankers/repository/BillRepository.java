@@ -1,5 +1,6 @@
 package com.jewelbankers.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +21,7 @@ public interface BillRepository extends JpaRepository<Bill, Long>,  JpaSpecifica
 	List<Bill> findByBillNo(Integer billNo);
 	List<Bill> findByCustomerCustomerName(String customerName);
 	List<Bill> findByBillSerialAndBillNo(Character billSerial,Integer billNo);
-//	List<Bill> findByBillDateBetween(LocalDate start, LocalDate end);
+	List<Bill> findByBillDateBetween(LocalDate fromDate, LocalDate endDate);
 	List<Bill> findByRedemptionStatus(Character redemptionStatus);
 	List<Bill> findByProductTypeNo(Long productTypeNo);
 	

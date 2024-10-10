@@ -14,7 +14,7 @@ import com.jewelbankers.repository.PledgeRepository;
 public class PledgeService {
 
     @Autowired
-    private PdfService pdfService;
+    private CustomerPdfService pdfService;
 
     @Autowired
     private FileUploadService fileUploadService;

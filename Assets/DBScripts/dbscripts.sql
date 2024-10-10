@@ -9,9 +9,16 @@ DROP FOREIGN KEY FKbi280u1ljn3crqviboipwl6sn;
 
 ALTER TABLE customer MODIFY COLUMN CustomerID bigint AUTO_INCREMENT;
 
-ALTER TABLE bill_header
-ADD CONSTRAINT FKewmlfkukce74p1064c3rxtqjl
-FOREIGN KEY (customerid) REFERENCES customer(CustomerID);
+--ALTER TABLE bill_header
+--ADD CONSTRAINT FKewmlfkukce74p1064c3rxtqjl
+--FOREIGN KEY (customerid) REFERENCES customer(CustomerID);
+
+ALTER TABLE `bill_header` DROP FOREIGN KEY `FKewmlfkukce74p1064c3rxtqjl`;
+
+ALTER TABLE `bill_header`
+ADD CONSTRAINT `FKewmlfkukce74p1064c3rxtqjl`
+FOREIGN KEY (`customerid`) REFERENCES `customer` (`CustomerID`)
+ON DELETE CASCADE;
 
 ALTER TABLE product_type MODIFY COLUMN product_type_no BIGINT AUTO_INCREMENT;
 

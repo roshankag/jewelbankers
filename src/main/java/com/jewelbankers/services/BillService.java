@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +26,10 @@ import com.jewelbankers.Utility.ProductTypeUtility;
 import com.jewelbankers.Utility.SettingsUtillity;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.Customer;
-import com.jewelbankers.entity.Settings; // Adjust the package name based on your project structure
 import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
-import com.jewelbankers.repository.ProductTypeRepository;
 import com.jewelbankers.repository.SettingsRepository;
-import org.springframework.data.domain.Sort;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -60,7 +58,10 @@ public class BillService {
 	 private EntityManager entityManager;
 	 
 	 @Autowired
-	 private PdfService pdfService;
+	 private CustomerPdfService customerPdfService;
+	 
+	 @Autowired
+	 private OfficePdfService officePdfService;
 	
 	 @Autowired
 	 SettingsUtillity settingsUtillity; 
@@ -84,10 +85,19 @@ public class BillService {
         this.billRepository = billRepository;
     }
 
-    public ByteArrayInputStream exportBillsToExcel() throws IOException {
-        List<Bill> bills = billRepository.findAll();
-        return ExcelGenerator.generateBillExcel(bills);
-    }
+//    public ByteArrayInputStream exportBillsToExcel() throws IOException {
+//        List<Bill> bills = billRepository.findAll();
+//        return ExcelGenerator.generateBillExcel(bills);
+//    }
+    
+	public ByteArrayInputStream exportBillsToExcel(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) throws IOException {
+	    // Retrieve the list of bills based on the search criteria
+	    List<Bill> bills = findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, sortOrder);
+	    
+	    // Generate the Excel file from the list of bills
+	    return ExcelGenerator.generateBillExcel(bills);
+	}
+
 	
 	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
 		return billRepository.findByCustomerCustomerNameOrCustomerStreetOrBillNo(customerName, street, billNo);
@@ -114,68 +124,81 @@ public class BillService {
 	    } else {
 	        // Returning bills sorted by 'billSeq' in descending order
 	        return billRepository.findByCustomerCustomerNameOrderByBillSequenceDesc(search);
-	    }	
+	    }    
 	}
-	
-	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) {
-	    return billRepository.findAll(new Specification<Bill>() {
-	        
-	        @Override
-	        public Predicate toPredicate(Root<Bill> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-	            List<Predicate> predicates = new ArrayList<>();                
-	            Predicate searchPredicate;
-	            
-	            // Handle search by Bill No or Customer Name
-	            if (search != null && !search.isEmpty() && BillUtility.ValidateBillNo(search)) {
-	                Character billSerial = search.toUpperCase().charAt(0);
-	                Integer billNo = Integer.parseInt(search.substring(1));
+	 public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) {
+	        try {
+	            List<Bill> bills = billRepository.findAll(new Specification<Bill>() {
 	                
-	                searchPredicate = cb.and(
-	                    cb.equal(root.get("billSerial"), billSerial),
-	                    cb.equal(root.get("billNo"), billNo)
-	                );
-	                predicates.add(searchPredicate);
-	            } else if (search != null && !search.isEmpty()) {
-	                searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
-	                predicates.add(searchPredicate);
+	                @Override
+	                public Predicate toPredicate(Root<Bill> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+	                    List<Predicate> predicates = new ArrayList<>();                
+	                    Predicate searchPredicate;
+	                    
+	                    // Handle search by Bill No or Customer Name
+	                    if (search != null && !search.isEmpty() && BillUtility.ValidateBillNo(search)) {
+	                        Character billSerial = search.toUpperCase().charAt(0);
+	                        Integer billNo = Integer.parseInt(search.substring(1));
+	                        
+	                        searchPredicate = cb.and(
+	                            cb.equal(root.get("billSerial"), billSerial),
+	                            cb.equal(root.get("billNo"), billNo)
+	                        );
+	                        predicates.add(searchPredicate);
+	                    } else if (search != null && !search.isEmpty()) {
+	                        searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
+	                        predicates.add(searchPredicate);
+	                    }
+	                    
+	                    // Handle date filtering
+	                    if (fromDate != null && toDate != null) {
+	                        predicates.add(cb.between(root.get("billDate"), fromDate, toDate));
+	                    } else if (fromDate != null) {
+	                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
+	                    } else if (toDate != null) {
+	                        predicates.add(cb.lessThanOrEqualTo(root.get("billDate"), toDate));
+	                    }
+	                    
+	                    // Handle amount filtering
+	                    if (amount != null) {
+	                        predicates.add(cb.equal(root.get("amount"), amount));
+	                    }
+	                    
+	                    // Handle status filtering
+	                    if (status != null) {
+	                        predicates.add(cb.equal(root.get("redemptionStatus"), status));
+	                    }
+	                    
+	                    // Handle product type filtering
+	                    if (productTypeNo != null) {
+	                        predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
+	                    }
+	                    
+	                    // Apply the sorting
+	                    if(sortOrder != null && sortOrder.equalsIgnoreCase("customername")) {
+	                        query.orderBy(cb.desc(root.get("customer").get("customerName")));
+	                    } else {
+	                        query.orderBy(cb.desc(root.get("billSequence")));
+	                    }
+	                    
+	                    return cb.and(predicates.toArray(new Predicate[0]));
+	                }
+	            });
+
+	            // **Check if the result is empty and return an empty list if true**
+	            if (bills.isEmpty()) {
+	                System.out.println("No bills found for the given search criteria.");
+	                return Collections.emptyList(); // **Return an empty list to avoid 500 error**
 	            }
-	            
-	            // Handle date filtering
-	            if (fromDate != null && toDate != null) {
-	                predicates.add(cb.between(root.get("billDate"), fromDate, toDate));
-	            } else if (fromDate != null) {
-	                predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
-	            } else if (toDate != null) {
-	                predicates.add(cb.lessThanOrEqualTo(root.get("billDate"), toDate));
-	            }
-	            
-	            // Handle amount filtering
-	            if (amount != null) {
-	                predicates.add(cb.equal(root.get("amount"), amount));
-	            }
-	            
-	            // Handle status filtering
-	            if (status != null) {
-	                predicates.add(cb.equal(root.get("redemptionStatus"), status));
-	            }
-	            
-	            // Handle product type filtering
-	            if (productTypeNo != null) {
-	                predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
-	            }
-	            
-	         // Apply the sorting by billSeq in descending order
-	            if(sortOrder!=null && sortOrder.equalsIgnoreCase("customername")) {
-	              query.orderBy(cb.desc(root.get("customer").get("customerName")));
-	            }
-	            else
-	            {
-	            query.orderBy(cb.desc(root.get("billSequence")));
-	            }
-	            return cb.and(predicates.toArray(new Predicate[0]));
+
+	            return bills;
+
+	        } catch (Exception e) {
+	            // **Log the exception and return an empty list to prevent a 500 error**
+	            System.err.println("An error occurred while searching for bills: " + e.getMessage());
+	            return Collections.emptyList();
 	        }
-	    });
-	}
+	    }
 
 
 	public List<Bill> findBillsByCustomerStreet(String street) {
@@ -188,11 +211,11 @@ public class BillService {
 		return billRepository.findAll(pageable);
 	}
 	
-    //GET METHOD 
 	public Optional<Bill> findById(Long billSequence) {
+	    Map<String, String> settingsMap = getSettingMap();
 	    Optional<Bill> optionalBill = billRepository.findById(billSequence);
-	    // If the Bill is present, calculateRedemption is called; otherwise, the Optional remains empty.
-	    return optionalBill.map(this::calculateRedemption);
+	    // If the Bill is present, calculateRedemption is called with settingsMap
+	    return optionalBill.map(bill -> calculateRedemption(bill, settingsMap));
 	}
 
 	// Method to save or update a bill without an image
@@ -315,16 +338,17 @@ public class BillService {
 	
 	public List<Bill> findBillsByBillNo(Character billSerial,Integer billNo, Long billSequence ) 
 	  { 
+		 Map<String, String> settingsMap = getSettingMap();
 		  if(billNo != null && billNo >0) {
 			  List<Bill> bills = billRepository.findByBillSerialAndBillNo(billSerial,billNo);
 			  for (Bill bill2 : bills) {
 				  int monthsbetween= monthsBetween(bill2);
 				bill2.setInterestinmonths(monthsbetween);
-				bill2.setRedemptionInterest(redemptioninterest(monthsbetween, bill2.getAmount()));
+				bill2.setRedemptionInterest(redemptioninterest(monthsbetween, bill2.getAmount(),settingsMap));
 				bill2.setReceivedinterest(
 						getReceievedInterest(
 								new BigDecimal(bill2.getAmount()), monthsbetween, 
-								getRateOfInterest(bill2.getProductTypeNo().intValue(), bill2.getAmount().intValue())).doubleValue());
+								getRateOfInterest(bill2.getProductTypeNo().intValue(), bill2.getAmount().intValue(),settingsMap)).doubleValue());
 
 				
 			}
@@ -586,16 +610,16 @@ public class BillService {
 	
 	private BigDecimal getReceievedInterest(BigDecimal amountBD, int monthsBetween, double interestRateBD) {
 		BigDecimal receievedInterest = amountBD.multiply(new BigDecimal(interestRateBD))
-		        .multiply(BigDecimal.valueOf(monthsBetween))
+		        .multiply(BigDecimal.valueOf(monthsBetween-1))
 		        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 		return receievedInterest;
 	}
 	
-	private Bill calculateRedemption(Bill existingBill) {
+	private Bill calculateRedemption(Bill existingBill,Map<String, String> settingsMap) {
 		 // New Calculation for Redemption Interest and Total
 		double interestRateBD = existingBill.getRateOfInterest() != null 
 	        ? existingBill.getRateOfInterest().doubleValue() 
-	        : getRateOfInterest(existingBill.getProductTypeNo().intValue(), existingBill.getAmount().intValue());
+	        : getRateOfInterest(existingBill.getProductTypeNo().intValue(), existingBill.getAmount().intValue(),settingsMap);
 
 	    LocalDate billDate = existingBill.getBillDate();
 	    LocalDate redemptionDate = existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now();
@@ -608,7 +632,7 @@ public class BillService {
 	    
 	    BigDecimal redemptionTotal = amountBD.add(receievedInterest);
 	    
-	    double redemptioninterest = redemptioninterest(monthsBetween, amountBD.intValue());
+	    double redemptioninterest = redemptioninterest(monthsBetween, amountBD.intValue(),settingsMap);
 
 	    existingBill.setInterestinmonths(monthsBetween>0?monthsBetween:0);
 	    existingBill.setReceivedinterest(receievedInterest.doubleValue());
@@ -617,13 +641,16 @@ public class BillService {
 	    return existingBill;
 	}
 	
-	private double redemptioninterest(int monthsBetween,int amountBD) {
+	private double redemptioninterest(int monthsBetween,int amountBD, Map<String, String> settingsMap) {
 		
 		
-		double rate = 1.33;
+		double rate = Double.parseDouble(settingsMap.get("REDEEM_INTERST"));
+		
+
 		
 		// Convert the double values to BigDecimal for multiplication
-		BigDecimal monthsBetweenBD = BigDecimal.valueOf(monthsBetween);
+		BigDecimal monthsBetweenBD = BigDecimal.valueOf(monthsBetween);//.add(BigDecimal.ONE);
+		
 		BigDecimal rateBD = BigDecimal.valueOf(rate);
 
 		// Perform multiplication with BigDecimal
@@ -634,11 +661,11 @@ public class BillService {
 		return redemptionInterest;
 	}
 
-	private double getRateOfInterest(int productTypeNo, int amount) {
+	private double getRateOfInterest(int productTypeNo, int amount,Map<String, String> settingsMap) {
 	    if (productTypeNo==0) {
 	        throw new IllegalArgumentException("Product type number cannot be null");
 	    }
-	    Map<String, String> settingsMap = getSettingMap();
+	   
 	    
 	    //String productType = productTypeNo.toString();
 
@@ -647,17 +674,17 @@ public class BillService {
 
 	    if (productTypeUtility.getmap().get("GOLD").getProductTypeNo() == productTypeNo) { // Assuming "1" is for GOLD
 	       
-	    	if (amount < 5000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_5000")); // paramSeq = 44L; // GOLD_INTREST_LESS_THAN_5000
+	    	if (amount < 5000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_5000")); // paramSeq = 44L; // GOLD_INTREST_LESS_THAN_5000
 	        
-	    	else if (amount < 10000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_10000")); // GOLD_INTREST_LESS_THAN_10000
+	    	else if (amount < 10000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_10000")); // GOLD_INTREST_LESS_THAN_10000
 	        
-	    	else if (amount < 20000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_20000")); // GOLD_INTREST_LESS_THAN_20000
+	    	else if (amount < 20000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_20000")); // GOLD_INTREST_LESS_THAN_20000
 	        
-	    	else if (amount < 50000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_50000")); // GOLD_INTREST_LESS_THAN_50000
+	    	else if (amount < 50000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_50000")); // GOLD_INTREST_LESS_THAN_50000
 	        
-	    	else if (amount < 100000) roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_LESS_THAN_100000")); // GOLD_INTREST_LESS_THAN_100000
+	    	else if (amount < 100000) roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_LESS_THAN_100000")); // GOLD_INTREST_LESS_THAN_100000
 	        
-	    	else roi = Integer.parseInt(settingsMap.get("GOLD_INTREST_MORE_THAN_100000")); // GOLD_INTREST_MORE_THAN_100000
+	    	else roi = Double.parseDouble(settingsMap.get("GOLD_INTREST_MORE_THAN_100000")); // GOLD_INTREST_MORE_THAN_100000
 	    }
 	    
 	    else if (productTypeUtility.getmap().get("SILVER").getProductTypeNo() == productTypeNo) { // Assuming "2" is for SILVER
@@ -728,12 +755,25 @@ public class BillService {
 //	        return in;
 //	    }
 	 
-	 public ByteArrayInputStream generateAndSendBill(Bill bill,  Map<String, String> settingsMap) {
+	 public ByteArrayInputStream generateCustomerSendBill(Bill bill,  Map<String, String> settingsMap) {
 	        ByteArrayInputStream in = null;
 
 	        try {
 	            // Generate the PDF
-	            in = pdfService.generateAndSaveBillPdf(bill,settingsMap); // Retrieve the PDF as a ByteArrayInputStream
+	            in = customerPdfService.generateCustomerBillPdf(bill,settingsMap); // Retrieve the PDF as a ByteArrayInputStream
+	        } catch (IOException | DocumentException e) {
+	            e.printStackTrace();
+	            throw new RuntimeException("Error generating PDF: " + e.getMessage());
+	        }
+	        return in;
+	    }
+	 
+	 public ByteArrayInputStream generateOfficeSendBill(Bill bill,  Map<String, String> settingsMap) {
+	        ByteArrayInputStream in = null;
+
+	        try {
+	            // Generate the PDF
+	            in = officePdfService.generateOfficeBillPdf(bill,settingsMap); // Retrieve the PDF as a ByteArrayInputStream
 	        } catch (IOException | DocumentException e) {
 	            e.printStackTrace();
 	            throw new RuntimeException("Error generating PDF: " + e.getMessage());
