@@ -31,7 +31,6 @@ import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.exception.ResourceNotFoundException;
 import com.jewelbankers.services.BillService;
-//import com.jewelbankers.services.FileStorageService;
 import com.jewelbankers.services.SettingsService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -269,6 +268,7 @@ public class BillController {
         }
     }
     
+    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("pdf/{billSequence}")
     public ResponseEntity<?> generateAndSendBill(@PathVariable Long billSequence) {
         try {
@@ -295,7 +295,7 @@ public class BillController {
             return ResponseEntity.status(500).body("Error generating PDF: " + e.getMessage());
         }
     }
-    
+  
     @GetMapping("redeempdf/{billSequence}")
     public ResponseEntity<?> generateAndRedeemBillPdf(@PathVariable Long billSequence) {
         try {
