@@ -43,4 +43,10 @@ public class SettingsUtillity {
     public String getPledgeRules(Map<String,String> settingsMap) {
     	return settingsMap.get("PLEDGE_RULES");
     }
+    
+    public String getPhotoFolder(Map<String,String> settingsMap) {
+    	return settingsMap.get("PHOTO_FOLDER");
+    }
+    
+    
 }

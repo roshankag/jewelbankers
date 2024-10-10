@@ -1,6 +1,8 @@
 package com.jewelbankers.controller;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.entity.Customer;
 import com.jewelbankers.services.CustomerService;
@@ -54,18 +57,48 @@ public class CustomerController {
         }
     }
     
+//    @PostMapping("/add")
+//    public Customer addCustomer(@RequestBody Customer customerRequest) {
+//        System.out.println(customerRequest.toString());
+//
+//        // Convert CustomerRequest to Customer entity
+//        Customer customer = new Customer();
+//        customer.setCustomerName(customerRequest.getCustomerName());
+//        customer.setAddress(customerRequest.getAddress());
+//        customer.setPhoneno(customerRequest.getPhoneno());
+//        customer.setPhoto(customerRequest.getPhoto());
+//
+//        return customerService.addCustomer(customer);
+//    }
+    
     @PostMapping("/add")
-    public Customer addCustomer(@RequestBody Customer customerRequest) {
-        System.out.println(customerRequest.toString());
+    public Customer addCustomer(
+        @RequestParam("customerName") String customerName,
+        @RequestParam("address") String address,
+        @RequestParam("phoneno") Long phoneno,
+        @RequestParam(value = "photo", required = false) MultipartFile photo,
+        @RequestParam Map<String, String> settingsMap) {
 
-        // Convert CustomerRequest to Customer entity
         Customer customer = new Customer();
-        customer.setCustomerName(customerRequest.getCustomerName());
-        customer.setAddress(customerRequest.getAddress());
-        customer.setPhoneno(customerRequest.getPhoneno());
+        customer.setCustomerName(customerName);
+        customer.setAddress(address);
+        customer.setPhoneno(phoneno);
+
+        // Handle the photo file if provided
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                // Save the photo with customer name as filename
+                String photoPath = customerService.savePhoto(photo, customerName, settingsMap);
+                customer.setPhoto(photoPath);  // Set the photo path in the Customer entity
+            } catch (IOException e) {
+                throw new RuntimeException("Photo upload failed", e);
+            }
+        }
 
         return customerService.addCustomer(customer);
     }
+
+
     
     @DeleteMapping("/{id}")
     @ResponseBody
