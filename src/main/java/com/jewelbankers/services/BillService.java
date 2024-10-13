@@ -7,6 +7,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.itextpdf.text.DocumentException;
 import com.jewelbankers.Utility.BillUtility;
@@ -220,21 +222,23 @@ public class BillService {
 
 	// Method to save or update a bill without an image
 	@Transactional
-	public Bill saveBill(Bill bill) {
+	public Bill saveBill(Bill bill, MultipartFile photo) throws IOException {
+		
+		// Convert the MultipartFile (photo) to a byte array
+        if (photo != null && !photo.isEmpty()) {
+            byte[] photoBytes = photo.getBytes();
+            bill.getCustomer().setPhoto(photoBytes);
+            
+            // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
+            String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
+            bill.getCustomer().setPhotoBase64(photoBase64);
+        }
+		
 		if(bill.getCustomer().getCustomerid() != null) {
 			
 	            // Set the updated customer back to the bill
 	            bill.setCustomer(getCustomer(bill));
-	        }
-		    
-		   // optionalCustomer.ifPresentOrElse(customer -> bill.setCustomer(customer), null);
-	    // If the customer is detached, merge it to make it managed
-		/*
-		 * if (bill.getCustomer() != null && entityManager.contains(bill.getCustomer())
-		 * == false) { Customer managedCustomer =
-		 * entityManager.merge(bill.getCustomer()); bill.setCustomer(managedCustomer); }
-		 */
-	
+	    }
 	    return billRepository.save(bill);
 	}
     public Customer getCustomer(Bill bill) 

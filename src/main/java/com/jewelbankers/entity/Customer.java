@@ -1,5 +1,7 @@
 package com.jewelbankers.entity;
 
+import java.util.Base64;
+
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import jakarta.persistence.Column;
@@ -7,7 +9,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 //import org.springframework.aot.generate.Generated;
 //import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -53,9 +57,26 @@ public class Customer {
 	@Column(name = "Customername")
 	private String customerName;
 	
-	@Column(name = "Photo")
-    private String photo;
+	@Lob
+    @Column(name = "Photo", columnDefinition = "BLOB")
+    private byte[] photo;
 	
+	@Transient
+    private String photoBase64;  // This will hold the Base64 string temporarily
+	
+	public String getPhotoBase64() {
+		 // Convert the byte array to Base64 string if it's not null
+        if (this.photo != null) {
+            this.photoBase64 = Base64.getEncoder().encodeToString(this.photo);
+        }
+        return photoBase64;
+	}
+
+	public void setPhotoBase64(String photoBase64) {
+		this.photoBase64 = photoBase64;
+	}
+
+
 	@Column(name = "proof_type")
     private Character proofType;
 
@@ -79,11 +100,11 @@ public class Customer {
 	@Column(name = "proof_details")
     private String proofDetails;
 
-	public String getPhoto() {
+	public byte[] getPhoto() {
 		return photo;
 	}
 
-	public void setPhoto(String photo) {
+	public void setPhoto(byte[] photo) {
 		this.photo = photo;
 	}
 

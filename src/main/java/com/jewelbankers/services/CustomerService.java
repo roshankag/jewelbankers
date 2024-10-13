@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,9 +70,9 @@ public class CustomerService {
     
     
     public List<Customer> findByPhoneNo(Long phoneno) {
-        return customerRepository.findByPhoneno(phoneno);
+        return customerRepository.findByPhonenoStartingWith(phoneno);
     }
-
+    
     // New method to find by both customerName and phoneNo
     public List<Customer> findByNameAndPhone(String customerName, Long phoneno) {
         return customerRepository.findByCustomerNameStartingWithIgnoreCaseAndPhoneno(customerName, phoneno);
@@ -117,6 +118,7 @@ public class CustomerService {
 	            existingCustomer.setRelationshipname(customer.getRelationshipname());
 	            existingCustomer.setProofType(customer.getProofType());
 	            existingCustomer.setProofDetails(customer.getProofDetails());
+	            existingCustomer.setPhoto(customer.getPhoto());
 	           // existingCustomer.setEmail(customer.getEmail());
 	            // Update other fields as needed
 	            return customerRepository.save(existingCustomer);
@@ -128,27 +130,23 @@ public class CustomerService {
 	}
 
 	public String savePhoto(MultipartFile file, String customerName, Map<String, String> settingsMap) throws IOException {
-	    // Retrieve the PHOTO_FOLDER from settings
+	    // Handle null settingsMap
+	    if (settingsMap == null) {
+	        settingsMap = new HashMap<>();
+	    }
+
 	    String photoFolder = settingsUtillity.getPhotoFolder(settingsMap);
-	    
-	    // Ensure the customer name is used for the filename
-	    // Replace any invalid characters in the customer name (for example, spaces)
 	    String sanitizedCustomerName = customerName.trim().replaceAll("[^a-zA-Z0-9]", "_");
 	    String fileName = sanitizedCustomerName + ".jpg";
-	    
-	    // Path where the photo will be saved
 	    String filePath = photoFolder + "\\uploads\\" + fileName;
 	    Path path = Paths.get(filePath);
-
-	    // Create the 'uploads' folder if it doesn't exist
+	    
 	    Files.createDirectories(path.getParent());
-
-	    // Copy the file to the destination
 	    Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
-	    // Return the file path where the photo is saved
 	    return filePath;
 	}
+
 
 	 
 }

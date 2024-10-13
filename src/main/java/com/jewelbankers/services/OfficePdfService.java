@@ -142,7 +142,7 @@ public class OfficePdfService {
                 ? bill.getCustomer().getCustomerName() : "Customer Name";
             content.beginText();
             content.setFontAndSize(boldFont.getBaseFont(), 13);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 60, 590, 0);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 35, 590, 0);
             content.endText();
 
          // Customer Address (Split into lines and ensure it's not null)
@@ -151,9 +151,9 @@ public class OfficePdfService {
 
             content.beginText();
             content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 60, 570, 0); // First line of address
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 57, 550, 0); // Second line of address
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 57, 530, 0); // Third line of address
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 35, 570, 0); // First line of address
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 30, 550, 0); // Second line of address
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 30, 530, 0); // Third line of address
             content.endText();
 
          // Bill Details (Ensure non-null and non-empty lists)

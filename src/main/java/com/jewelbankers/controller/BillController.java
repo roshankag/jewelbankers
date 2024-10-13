@@ -3,6 +3,7 @@ package com.jewelbankers.controller;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +26,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Bill;
+import com.jewelbankers.entity.Customer;
 import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.services.BillService;
 //import com.jewelbankers.services.FileStorageService;
@@ -59,12 +63,20 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
-    	System.out.println();
-        Bill createdBill = billService.saveBill(bill);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Bill> createBill( @RequestPart("bill") Bill bill, 
+            @RequestPart("photo") MultipartFile photo) {
+    	
+        try {
+            // Delegate the photo processing to the service layer
+            Bill createdBill = billService.saveBill(bill, photo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+    
     
 //    @PostMapping("/create")
 //    public ResponseEntity<?> createBill(@RequestBody Bill bill) {

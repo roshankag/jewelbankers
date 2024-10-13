@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -47,10 +48,9 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
       return new WebMvcConfigurer() {
           @Override
           public void addCorsMappings(CorsRegistry registry) {
-              registry.addMapping("/**")
+              registry.addMapping("/**").allowedOrigins("http://localhost:4200")
               //.allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
-              .allowedOrigins("*")
-              //.allowedOrigins("http://localhost:4200")
+             .allowedOrigins("*")
               .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                       .allowedHeaders("*");
                       //.allowCredentials(true);
@@ -117,10 +117,13 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
               .requestMatchers("/api/test/**").permitAll()
               .requestMatchers("/api/pledge/**").permitAll()
               .requestMatchers("/api/users/**").permitAll()
-              .requestMatchers("/api/customer/**").permitAll()
+              .requestMatchers("/api/customers/**").permitAll()
               .requestMatchers("/export/excel/**").permitAll()
               .requestMatchers(AUTH_WHITELIST).permitAll()
               .requestMatchers("/forgot-password/**").permitAll()
+              .requestMatchers("/jewelbankersapi/**").permitAll()
+              .requestMatchers("/", "/index.html", "/static/**", "/browser/**").permitAll()  // Allow static resources
+
               
               .anyRequest().authenticated()
         );
@@ -131,11 +134,19 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
     
     return http.build();
   }
+  
+//Add this to allow static resources (CSS, JS, etc.) to be loaded without authentication
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+      return (web) -> web.ignoring().requestMatchers("/html/**","/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico");
+  }
+  
   private static final String[] AUTH_WHITELIST = {
 		    "/api/v1/auth/**",
 		    "/v3/api-docs/**",
 		    "/v3/api-docs.yaml",
 		    "/swagger-ui/**",
-		    "/swagger-ui.html"
+		    "/swagger-ui.html",
+		    "/index.html"
 		};
 }
