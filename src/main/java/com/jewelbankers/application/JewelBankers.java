@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @ComponentScan({ "com" })
 //@OpenAPIDefinition(info = @Info(title = "Jewel Bankers Api",version = "V.1.0",description = "Documentation for Jewel Bankers APIs"))
 
-public class JewelBankers {	
+public class JewelBankers {			
 	
 	/**
 	 * @return	
