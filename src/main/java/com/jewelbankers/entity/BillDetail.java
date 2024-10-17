@@ -36,7 +36,6 @@ public class BillDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     @JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence")
-    //@JoinColumn(name = "BILL_SEQUENCE")
     private Bill bill;
 
     public Bill getBill() {

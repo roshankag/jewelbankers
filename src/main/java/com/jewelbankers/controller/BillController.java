@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,32 @@ public class BillController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    @PutMapping(value = "/update/{billSequence}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Bill> updateBill(
+            @PathVariable Long billSequence,
+            @RequestBody Bill bill) {
+        try {
+            // Validate the Bill object (Optional)
+            if (bill == null) {
+                return ResponseEntity.badRequest().body(null);
+            }
+
+            // Call the service to update the bill
+            Bill updatedBill = billService.updateBill(billSequence, bill, null); // No photo
+            return ResponseEntity.ok(updatedBill);
+        } catch (IOException e) {
+            // Log the exception (optional)
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            // Handle other exceptions that might occur
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
     
     
 //    @PostMapping("/create")

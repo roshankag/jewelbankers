@@ -192,6 +192,11 @@ public class BillService {
 	                System.out.println("No bills found for the given search criteria.");
 	                return Collections.emptyList(); // **Return an empty list to avoid 500 error**
 	            }
+	            
+	         // Print product descriptions for each bill found
+	            for (Bill bill : bills) {
+	                System.out.println("Product Description: " + bill.getBillDetails().get(0).getProductDescription()); // Adjust this to the actual method/property for description
+	            }
 
 	            return bills;
 
@@ -220,7 +225,7 @@ public class BillService {
 	    return optionalBill.map(bill -> calculateRedemption(bill, settingsMap));
 	}
 
-	// Method to save or update a bill without an image
+	// Method to save bill without an image
 	@Transactional
 	public Bill saveBill(Bill bill, MultipartFile photo) throws IOException {
 		
@@ -263,6 +268,60 @@ public class BillService {
 	    }
 	    return null;
     }
+    
+    @Transactional
+    public Bill updateBill(Long billSequence, Bill bill, MultipartFile photo) throws IOException {
+        // Fetch the existing bill from the repository
+        Optional<Bill> optionalBill = billRepository.findById(billSequence);
+        
+        if (optionalBill.isPresent()) {
+            Bill existingBill = optionalBill.get();
+
+            // Update the fields from the provided bill object
+            existingBill.setBillSerial(bill.getBillSerial());
+            existingBill.setBillNo(bill.getBillNo());
+            existingBill.setBillDate(bill.getBillDate());
+            existingBill.getCustomer().setCustomerName(bill.getCustomer().getCustomerName());
+            existingBill.getCustomer().setCustomerid(bill.getCustomer().getCustomerid());
+            existingBill.setProductTypeNo(bill.getProductTypeNo());
+            existingBill.setAmount(bill.getAmount());
+            existingBill.setGrams(bill.getGrams());
+            existingBill.getBillDetails().get(0).setProductQuantity(bill.getBillDetails().get(0).getProductQuantity());
+            existingBill.getBillDetails().get(0).setProductDescription(bill.getBillDetails().get(0).getProductDescription());
+            existingBill.setComments(bill.getComments());
+            existingBill.setOldbillserialno(bill.getOldbillserialno());
+            
+            // Process photo if provided
+            if (photo != null && !photo.isEmpty()) {
+                byte[] photoBytes = photo.getBytes();
+                existingBill.getCustomer().setPhoto(photoBytes);
+                
+                // Optional: Convert photo to Base64 for easy JSON transmission
+                String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
+                existingBill.getCustomer().setPhotoBase64(photoBase64);
+            }
+            
+            // Update customer fields
+            Customer customer = existingBill.getCustomer();
+            customer.setPhoneno(bill.getCustomer().getPhoneno());
+            customer.setAddress(bill.getCustomer().getAddress());
+            customer.setProofType(bill.getCustomer().getProofType());
+            customer.setProofDetails(bill.getCustomer().getProofDetails());
+            
+            // Update additional fields
+            existingBill.setRateOfInterest(bill.getRateOfInterest());
+            existingBill.setPresentValue(bill.getPresentValue());
+            existingBill.setAmountInWords(bill.getAmountInWords());
+            existingBill.setMonthlyIncome(bill.getMonthlyIncome());
+            
+            // Save and return the updated bill
+            return billRepository.save(existingBill);
+        } else {
+            // Handle case where the bill with the specified id does not exist
+            throw new EntityNotFoundException("Bill not found with id " + billSequence);
+        }
+    }
+
 	// Example method to get shop details and include in the bill
     public Map<String, String> getShopDetailsForBill() {
         return settingsService.getShopDetails();

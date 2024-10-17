@@ -469,6 +469,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -660,44 +661,48 @@ public class CustomerPdfService {
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getPresentValue() != null ? bill.getPresentValue() : "N/A"), 495, 335, 0);
             content.endText();
             
-            // Fetch settings from the database
+         // Fetch settings from the database
             List<Settings> settingsList = settingsService.getSettings();
-            
+
             // Convert the settings list to a map
-        //    Map<String, String> settingsMap = settingsUtillity.convertListToMap(settingsList);
-            
             settingsMap = settingsUtillity.convertListToMap(settingsList);
-            
+
             // Fetch pledge rules using the utility method
             String pledgeRules = settingsUtillity.getPledgeRules(settingsMap);
-            
+
             // Check if pledgeRules is null and set a default if necessary
             if (pledgeRules == null) {
-                pledgeRules = "Default rules text";  // Use your desired default text
+                pledgeRules = "The final due date for pledged items is only 1 year and 7 days: Interest must be paid once every three months without fail. The last date to redeem the pledged items: Reason for borrowing: My monthly income:";  // Default text
             }
 
-         // Split the pledgeRules into an array of lines
-            String[] lines = pledgeRules.split("\n");
+            // Manually add line breaks at appropriate places in the string
+            String[] lines = {
+                "The final due date for pledged items is only 1 year and 7 days:",
+                "Interest must be paid once every three months without fail.",
+                "The last date to redeem the pledged items:",
+                "Reason for borrowing:",
+                "My monthly income:"
+            };
 
             // Set the starting position for the first line
             float yPosition = 300; // Starting Y position for A5
             float lineSpacing = 20; // Space between lines (adjust as necessary)
 
-            // Display each line in the PDF content with adjusted alignment
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 14);  // Adjust the font size as needed
+            content.setFontAndSize(boldFont.getBaseFont(), 14);
             content.setColorFill(new BaseColor(0, 0, 0));
 
-            // Aligning each line differently
-            for (int i = 0; i < lines.length; i++) {
+            // Display each line in the PDF
+            for (String line : lines) {
                 if (yPosition < 40) { // Check if the Y position is below a threshold
                     break; // Stop if we're running out of space
                 }
-                content.showTextAligned(Element.ALIGN_LEFT, lines[i], 25, yPosition, 0);
+                content.showTextAligned(Element.ALIGN_LEFT, line, 25, yPosition, 0);
                 yPosition -= lineSpacing; // Move down for the next line
             }
 
             content.endText();
+
             
             content.beginText();
             content.setFontAndSize(boldFont.getBaseFont(), 12);

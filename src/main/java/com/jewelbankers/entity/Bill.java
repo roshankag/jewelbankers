@@ -59,7 +59,7 @@ public class Bill {
 		this.billDetails = billDetails;
 	}
 
-	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "bill", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JsonManagedReference
     private List<BillDetail> billDetails;
     
