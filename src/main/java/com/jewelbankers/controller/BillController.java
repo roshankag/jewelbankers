@@ -64,9 +64,9 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Bill> createBill( @RequestPart("bill") Bill bill, 
-            @RequestPart("photo") MultipartFile photo) {
+            @RequestPart(value = "photo", required = false) MultipartFile photo ) {
     	
         try {
             // Delegate the photo processing to the service layer
@@ -78,10 +78,11 @@ public class BillController {
         }
     }
     
-    @PutMapping(value = "/update/{billSequence}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{billSequence}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Bill> updateBill(
             @PathVariable Long billSequence,
-            @RequestBody Bill bill) {
+            @RequestPart("bill") Bill bill,  // Bind the Bill object from the request part
+            @RequestPart(value = "photo", required = false) MultipartFile photo) {
         try {
             // Validate the Bill object (Optional)
             if (bill == null) {
@@ -89,7 +90,7 @@ public class BillController {
             }
 
             // Call the service to update the bill
-            Bill updatedBill = billService.updateBill(billSequence, bill, null); // No photo
+            Bill updatedBill = billService.updateBill(billSequence, bill, photo); // No photo if not provided
             return ResponseEntity.ok(updatedBill);
         } catch (IOException e) {
             // Log the exception (optional)
