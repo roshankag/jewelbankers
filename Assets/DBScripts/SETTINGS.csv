@@ -1,0 +1,15 @@
+param_seq,param_id,PARAM_VALUE,param_example
+44,GOLD_INTREST_LESS_THAN_5000,3,36
+45,GOLD_INTREST_LESS_THAN_10000,2.5,24
+46,GOLD_INTREST_LESS_THAN_20000,2,NULL
+47,GOLD_INTREST_LESS_THAN_50000,2,NULL
+48,GOLD_INTREST_LESS_THAN_100000,2,NULL
+49,GOLD_INTREST_MORE_THAN_100000,1.5,NULL
+50,SILVER_INTREST,4,NULL
+51,REDEEM_INTERST,1.33,1.33
+52,PRINT_RULES,Y,Y/N
+53,WHATSAPP,Y,Y/N
+54,PLEDGE_PRINT,Y,Y/N
+55,REDEEM_PRINT,Y,Y/N
+56,PHOTO_FOLDER,"C:\Users\Roshan B T\backend",Y/N
+57,PLEDGE_RULES,"The final due date for pledged items is only 1 year and 7 days: Interest must be paid once every three months without fail. The last date to redeem the pledged items: Reason for borrowing: My monthly income:",NULL

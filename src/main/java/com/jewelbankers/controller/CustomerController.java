@@ -33,7 +33,7 @@ import com.jewelbankers.services.CustomerService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/customers")
+@RequestMapping("/jewelbankersapi/customers")
 public class CustomerController {
 
     @Autowired

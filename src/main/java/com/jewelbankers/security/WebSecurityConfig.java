@@ -43,32 +43,21 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
     return new AuthTokenFilter();
   }
 
-  @Bean
-  public WebMvcConfigurer corsConfigurer() {
-      return new WebMvcConfigurer() {
-          @Override
-          public void addCorsMappings(CorsRegistry registry) {
-              registry.addMapping("/**").allowedOrigins("http://localhost:4200")
-              //.allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
-             .allowedOrigins("*")
-              .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                      .allowedHeaders("*");
-                      //.allowCredentials(true);
-          }
-      };
-  }
-
-
-
-
-
-
-
-//  @Override
-//  public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-//    authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+//  @Bean
+//  public WebMvcConfigurer corsConfigurer() {
+//      return new WebMvcConfigurer() {
+//          @Override
+//          public void addCorsMappings(CorsRegistry registry) {
+//              registry.addMapping("/**").allowedOrigins("http://localhost:4200")
+//              //.allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
+//             .allowedOrigins("*")
+//              .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+//                      .allowedHeaders("*");
+//                      //.allowCredentials(true);
+//          }
+//      };
 //  }
-  
+//  
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {
       DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -94,18 +83,6 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-
-//  @Override
-//  protected void configure(HttpSecurity http) throws Exception {
-//    http.cors().and().csrf().disable()
-//      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-//      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-//      .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-//      .antMatchers("/api/test/**").permitAll()
-//      .anyRequest().authenticated();
-//
-//    http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-//  }
   
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -113,18 +90,30 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> 
-          auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/social/**").permitAll()
-              .requestMatchers("/api/test/**").permitAll()
-              .requestMatchers("/api/pledge/**").permitAll()
-              .requestMatchers("/api/users/**").permitAll()
-              .requestMatchers("/api/customers/**").permitAll()
-              .requestMatchers("/export/excel/**").permitAll()
-              .requestMatchers(AUTH_WHITELIST).permitAll()
-              .requestMatchers("/forgot-password/**").permitAll()
-              .requestMatchers("/jewelbankersapi/**").permitAll()
-              .requestMatchers("/", "/index.html", "/static/**", "/browser/**").permitAll()  // Allow static resources
+//          auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/social/**").permitAll()
+//              .requestMatchers("/api/test/**").permitAll()
+//              .requestMatchers("/api/pledge/**").permitAll()
+//              .requestMatchers("/api/users/**").permitAll()
+//              .requestMatchers("/api/customers/**").permitAll()
+//              .requestMatchers("/export/excel/**").permitAll()
+//              .requestMatchers(AUTH_WHITELIST).permitAll()
+//              .requestMatchers("/forgot-password/**").permitAll()
+//              .requestMatchers("/jewelbankersapi/**").permitAll()
+//              .requestMatchers("/", "/index.html", "/static/**", "/browser/**").permitAll()  // Allow static resources
+      
+        
+        auth.requestMatchers("/", "/index.html", "/static/**", "/browser/**",
+        		"/jewelbankersapi/social/**","/jewelbankersapi/api/**","/jewelbankersapi/forgot-password/" // Allow access to all api's
+//        		,"/**/*.js", // Allow access to all JavaScript files
+//                "/**/*.css", // Allow access to all CSS files
+//                "/**/*.png", // Allow access to PNG files (or other image formats as needed)
+//                "/**/*.jpg", // Allow access to JPG files
+//                "/**/*.jpeg", // Allow access to JPEG files
+//                "/**/*.gif", // Allow access to GIF files
+//                "/**/*.ico" // Allow access to favicon files
+        		).permitAll() // Allow access to browser resources   
 
-              
+//        auth.anyRequest().permitAll()
               .anyRequest().authenticated()
         );
     
@@ -135,18 +124,4 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
     return http.build();
   }
   
-//Add this to allow static resources (CSS, JS, etc.) to be loaded without authentication
-  @Bean
-  public WebSecurityCustomizer webSecurityCustomizer() {
-      return (web) -> web.ignoring().requestMatchers("/html/**","/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico");
-  }
-  
-  private static final String[] AUTH_WHITELIST = {
-		    "/api/v1/auth/**",
-		    "/v3/api-docs/**",
-		    "/v3/api-docs.yaml",
-		    "/swagger-ui/**",
-		    "/swagger-ui.html",
-		    "/index.html"
-		};
 }

@@ -25,7 +25,7 @@ import jakarta.mail.internet.MimeMessage;
 import net.bytebuddy.utility.RandomString;
 
 @RestController
-@RequestMapping("/forgot-password")
+@RequestMapping("/jewelbankersapi/forgot-password")
 @CrossOrigin("http://localhost:4200")
 public class ForgotPasswordController {
     @Autowired

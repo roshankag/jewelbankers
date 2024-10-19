@@ -50,7 +50,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 // http://localhost:8080
 @RestController
-@RequestMapping("/social")
+@RequestMapping("/jewelbankersapi/social")
 @CrossOrigin(origins = {"http://localhost:4200", "http://localhost"})
 //http://localhost:8080/social
 public class SocialController {

@@ -28,7 +28,7 @@ import com.jewelbankers.Utility.ErrorResponse;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/settings")
+@RequestMapping("/jewelbankersapi/settings")
 public class SettingsController {
 
     @Autowired

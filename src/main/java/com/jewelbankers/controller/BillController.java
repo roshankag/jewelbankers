@@ -42,7 +42,7 @@ import com.jewelbankers.services.SettingsService;
 import jakarta.persistence.EntityNotFoundException;
 
 @RestController
-@RequestMapping("/bills")
+@RequestMapping("/jewelbankersapi/bills")
 @CrossOrigin(origins = "http://localhost:4200")
 public class BillController {
 

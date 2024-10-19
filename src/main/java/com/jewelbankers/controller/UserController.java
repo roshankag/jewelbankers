@@ -22,7 +22,7 @@ import com.jewelbankers.services.UserService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/jewelbankersapi/api/users")
 public class UserController {
     private final UserDetailsServiceImpl userService;
 
