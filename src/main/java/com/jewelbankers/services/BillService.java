@@ -27,6 +27,7 @@ import com.jewelbankers.Utility.BillUtility;
 import com.jewelbankers.Utility.ProductTypeUtility;
 import com.jewelbankers.Utility.SettingsUtillity;
 import com.jewelbankers.entity.Bill;
+import com.jewelbankers.entity.BillDetail;
 import com.jewelbankers.entity.Customer;
 import com.jewelbankers.excel.ExcelGenerator;
 import com.jewelbankers.repository.BillRepository;
@@ -178,7 +179,7 @@ public class BillService {
 	                    
 	                    // Apply the sorting
 	                    if(sortOrder != null && sortOrder.equalsIgnoreCase("customername")) {
-	                        query.orderBy(cb.desc(root.get("customer").get("customerName")));
+	                        //query.orderBy(cb.desc(root.get("customer").get("customerName")));
 	                    } else {
 	                        query.orderBy(cb.desc(root.get("billSequence")));
 	                    }
@@ -195,9 +196,14 @@ public class BillService {
 	            
 	         // Print product descriptions for each bill found
 	            for (Bill bill : bills) {
-	                System.out.println("Product Description: " + bill.getBillDetails().get(0).getProductDescription()); // Adjust this to the actual method/property for description
+	                System.out.println("bill sequence: " + bill.getBillSequence()); // Adjust this to the actual method/property for description
+	                System.out.println("Product Description: " + bill.getProductDescriptions()); // Adjust this to the actual method/property for description
+	                
+//	                for (BillDetail billDetail : bill.getBillDetails()) {
+//
+//		            }
 	            }
-
+	            
 	            return bills;
 
 	        } catch (Exception e) {
@@ -672,10 +678,14 @@ public class BillService {
 	}
 	
 	private BigDecimal getReceievedInterest(BigDecimal amountBD, int monthsBetween, double interestRateBD) {
-		BigDecimal receievedInterest = amountBD.multiply(new BigDecimal(interestRateBD))
+	BigDecimal receievedInterest = new BigDecimal(0.0);
+	if(monthsBetween>1) {
+	 receievedInterest = amountBD.multiply(new BigDecimal(interestRateBD))
 		        .multiply(BigDecimal.valueOf(monthsBetween-1))
 		        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 		return receievedInterest;
+	}
+	return receievedInterest;	
 	}
 	
 	private Bill calculateRedemption(Bill existingBill,Map<String, String> settingsMap) {

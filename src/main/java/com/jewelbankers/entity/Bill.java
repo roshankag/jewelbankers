@@ -59,8 +59,10 @@ public class Bill {
 		this.billDetails = billDetails;
 	}
 
-	@OneToMany(mappedBy = "bill", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonManagedReference
+	//@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    //@JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence")
     private List<BillDetail> billDetails;
     
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
@@ -360,7 +362,14 @@ public class Bill {
 		this.interestinmonths = interestinmonths;
 	}
     
-
+	public String getProductDescriptions() {
+		StringBuffer productDescriptions= new StringBuffer();
+		
+		for (BillDetail billDetail : this.getBillDetails()) {
+			productDescriptions.append(billDetail.getProductDescription());
+		}
+		return productDescriptions.toString();
+	}
 	
     
 }
