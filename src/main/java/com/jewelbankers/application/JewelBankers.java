@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 //import io.swagger.v3.oas.annotations.info.Info;
 
 @RestController
-@SpringBootApplication	
+@SpringBootApplication
 //@EnableJpaRepositories
 @EnableJpaRepositories(basePackages = {"com.jewelbankers.repository"}) 
 @EntityScan(basePackages = {"com.jewelbankers.entity"})

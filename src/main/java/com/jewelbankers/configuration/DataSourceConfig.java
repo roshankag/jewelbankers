@@ -8,7 +8,11 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 @Configuration
 public class DataSourceConfig {
@@ -52,4 +56,19 @@ public class DataSourceConfig {
 
         return dynamicRoutingDataSource;
     }
+    
+
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DynamicRoutingDataSource dynamicRoutingDataSource) {
+        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(dynamicRoutingDataSource); // Set the dynamic routing data source here
+        em.setPackagesToScan("com.jewelbankers.entity"); // Replace with your entity package
+        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+
+        return em;
+    }
+    @Bean
+    public JpaTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean entityManagerFactory) {
+        return new JpaTransactionManager(entityManagerFactory.getObject());
+    }	
+
 }

@@ -281,21 +281,23 @@ public class BillService {
         Optional<Bill> optionalBill = billRepository.findById(billSequence);
         
         if (optionalBill.isPresent()) {
+        	System.out.println("Bill Exists **********");
             Bill existingBill = optionalBill.get();
 
             // Update the fields from the provided bill object
             existingBill.setBillSerial(bill.getBillSerial());
             existingBill.setBillNo(bill.getBillNo());
             existingBill.setBillDate(bill.getBillDate());
-            existingBill.getCustomer().setCustomerName(bill.getCustomer().getCustomerName());
-            existingBill.getCustomer().setCustomerid(bill.getCustomer().getCustomerid());
-            existingBill.setProductTypeNo(bill.getProductTypeNo());
-            existingBill.setAmount(bill.getAmount());
-            existingBill.setGrams(bill.getGrams());
-            existingBill.getBillDetails().get(0).setProductQuantity(bill.getBillDetails().get(0).getProductQuantity());
-            existingBill.getBillDetails().get(0).setProductDescription(bill.getBillDetails().get(0).getProductDescription());
-            existingBill.setComments(bill.getComments());
-            existingBill.setOldbillserialno(bill.getOldbillserialno());
+            
+         // Fetch or create a new customer (with the new ID) 
+            Customer updatedCustomer = bill.getCustomer();
+
+
+            // Update Update customer fields the bill with the new customer object 
+            // Set other fields if necessary
+            updatedCustomer.setCustomerName(bill.getCustomer().getCustomerName());            
+            //existingBill.getCustomer().setCustomerName(bill.getCustomer().getCustomerName());
+            //existingBill.getCustomer().setCustomerid(bill.getCustomer().getCustomerid());
             
             // Process photo if provided
             if (photo != null && !photo.isEmpty()) {
@@ -306,14 +308,45 @@ public class BillService {
                 String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
                 existingBill.getCustomer().setPhotoBase64(photoBase64);
             }
+            //Customer customer = existingBill.getCustomer();
+            updatedCustomer.setPhoneno(bill.getCustomer().getPhoneno());
+            updatedCustomer.setAddress(bill.getCustomer().getAddress());
+            updatedCustomer.setProofType(bill.getCustomer().getProofType());
+            updatedCustomer.setProofDetails(bill.getCustomer().getProofDetails());            
+            existingBill.setCustomer(updatedCustomer);
             
-            // Update customer fields
-            Customer customer = existingBill.getCustomer();
-            customer.setPhoneno(bill.getCustomer().getPhoneno());
-            customer.setAddress(bill.getCustomer().getAddress());
-            customer.setProofType(bill.getCustomer().getProofType());
-            customer.setProofDetails(bill.getCustomer().getProofDetails());
+            existingBill.setProductTypeNo(bill.getProductTypeNo());
+            existingBill.setAmount(bill.getAmount());
+            existingBill.setGrams(bill.getGrams());
             
+
+//            // Clear existing details and set the updated ones
+//            // Find the BillDetail to remove
+//            BillDetail detailToRemove = existingBill.getBillDetails()
+//                    .stream()
+//                    .filter(detail -> detail.getProductNo().equals(detailId))
+//                    .findFirst()
+//                    .orElseThrow(() -> new EntityNotFoundException("BillDetail not found"));
+//
+//            // Remove the BillDetail from the Bill
+//            existingBill.removeBillDetail(detailToRemove);
+//            existingBill.getBillDetails().clear();
+//            for (BillDetail detail : bill.getBillDetails()) {
+//                detail.setBill(existingBill);  // Set the bill reference in each BillDetail
+//                existingBill.getBillDetails().add(detail);
+//            }
+            
+            
+            //Set Product Description in Bill Details
+            //List<BillDetail> updatedBillDetails = bill.getBillDetails();
+            //existingBill.setBillDetails(updatedBillDetails);
+            //existingBill.getBillDetails().get(0).setProductQuantity(bill.getBillDetails().get(0).getProductQuantity());
+            //existingBill.getBillDetails().get(0).setProductDescription(bill.getBillDetails().get(0).getProductDescription());
+            
+            existingBill.setComments(bill.getComments());
+            existingBill.setOldbillserialno(bill.getOldbillserialno());
+            
+         
             // Update additional fields
             existingBill.setRateOfInterest(bill.getRateOfInterest());
             existingBill.setPresentValue(bill.getPresentValue());

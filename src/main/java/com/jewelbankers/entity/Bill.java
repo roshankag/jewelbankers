@@ -56,16 +56,28 @@ public class Bill {
 	}
 
 	public void setBillDetails(List<BillDetail> billDetails) {
-		this.billDetails = billDetails;
+		this.billDetails=billDetails;
+//	    this.billDetails.clear();  // Clear existing references if needed
+//	    this.billDetails.addAll(billDetails);
+//	    for (BillDetail detail : billDetails) {
+//	        detail.setBill(this);  // Ensure the back-reference is set
+//	    }
 	}
 
-	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+	public void removeBillDetail(BillDetail detail) {
+        if (billDetails.remove(detail)) {
+            detail.setBill(null);  // Clear the back-reference
+        }
+    }
+
+	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonManagedReference
 	//@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     //@JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence")
     private List<BillDetail> billDetails;
+
     
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.EAGER,  cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "customerid", referencedColumnName = "customerid")
     private Customer customer;
 

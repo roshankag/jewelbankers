@@ -102,7 +102,7 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
 //              .requestMatchers("/", "/index.html", "/static/**", "/browser/**").permitAll()  // Allow static resources
       
         
-        auth.requestMatchers("/", "/index.html", "/static/**", "/browser/**",
+        auth.requestMatchers("/", "/index.html", "/**", "/static/**", "/browser/**",
         		"/jewelbankersapi/social/**","/jewelbankersapi/api/**","/jewelbankersapi/forgot-password/" // Allow access to all api's
 //        		,"/**/*.js", // Allow access to all JavaScript files
 //                "/**/*.css", // Allow access to all CSS files

@@ -1,36 +1,33 @@
 package com.jewelbankers.configuration;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import javax.sql.DataSource;
+
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-
-import javax.sql.DataSource;
-
-@Configuration
-//@EnableJpaRepositories(basePackages = "com.balaji.springjwt.repository")
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+//@Configuration
+//@EnableTransactionManagement
 public class JpaConfig {
 
-	//@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("primary") DataSource dataSource) {
-		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-		emf.setDataSource(dataSource);
-		emf.setPackagesToScan("com.balaji.springjwt.models"); // Adjust package as needed
-		emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-		return emf;
-	}
+	/*
+	 * @Bean public LocalContainerEntityManagerFactoryBean
+	 * entityManagerFactory(DataSource primaryDataSource) {
+	 * LocalContainerEntityManagerFactoryBean em = new
+	 * LocalContainerEntityManagerFactoryBean();
+	 * em.setDataSource(primaryDataSource);
+	 * em.setPackagesToScan("com.jewelbankers.entity"); // Replace with your entity
+	 * package em.setJpaVendorAdapter(new HibernateJpaVendorAdapter()); return em; }
+	 * 
+	 * @Bean public JpaTransactionManager
+	 * transactionManager(LocalContainerEntityManagerFactoryBean
+	 * entityManagerFactory) { return new
+	 * JpaTransactionManager(entityManagerFactory.getObject()); }
+	 */
 
-	//@Bean
-	public JpaTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean entityManagerFactory) {
-		JpaTransactionManager transactionManager = new JpaTransactionManager();
-		transactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
-		return transactionManager;
-	}
 	
 	//  @Bean	  
 	// @Qualifier("primary") 
