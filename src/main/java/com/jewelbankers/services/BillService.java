@@ -9,9 +9,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -281,85 +284,98 @@ public class BillService {
         Optional<Bill> optionalBill = billRepository.findById(billSequence);
         
         if (optionalBill.isPresent()) {
-        	System.out.println("Bill Exists **********");
+            System.out.println("Bill Exists **********");
             Bill existingBill = optionalBill.get();
 
             // Update the fields from the provided bill object
             existingBill.setBillSerial(bill.getBillSerial());
             existingBill.setBillNo(bill.getBillNo());
             existingBill.setBillDate(bill.getBillDate());
-            
-         // Fetch or create a new customer (with the new ID) 
+
+            // Fetch the existing customer
+            Customer existingCustomer = existingBill.getCustomer();
+
+            // Get the updated customer details
             Customer updatedCustomer = bill.getCustomer();
 
+            // Check if the updated customer name is different
+            if (!existingCustomer.getCustomerName().equals(updatedCustomer.getCustomerName())) {
+                // Instead of creating a new customer, update the existing one
+                existingCustomer.setCustomerName(updatedCustomer.getCustomerName());
+                existingCustomer.setPhoneno(updatedCustomer.getPhoneno());
+                existingCustomer.setAddress(updatedCustomer.getAddress());
+                existingCustomer.setProofType(updatedCustomer.getProofType());
+                existingCustomer.setProofDetails(updatedCustomer.getProofDetails());
 
-            // Update Update customer fields the bill with the new customer object 
-            // Set other fields if necessary
-            updatedCustomer.setCustomerName(bill.getCustomer().getCustomerName());            
-            //existingBill.getCustomer().setCustomerName(bill.getCustomer().getCustomerName());
-            //existingBill.getCustomer().setCustomerid(bill.getCustomer().getCustomerid());
-            
-            // Process photo if provided
-            if (photo != null && !photo.isEmpty()) {
-                byte[] photoBytes = photo.getBytes();
-                existingBill.getCustomer().setPhoto(photoBytes);
-                
-                // Optional: Convert photo to Base64 for easy JSON transmission
-                String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
-                existingBill.getCustomer().setPhotoBase64(photoBase64);
+                // Process photo if provided
+                if (photo != null && !photo.isEmpty()) {
+                    byte[] photoBytes = photo.getBytes();
+                    existingCustomer.setPhoto(photoBytes);
+                    
+                    // Optional: Convert photo to Base64 for easy JSON transmission
+                    String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
+                    existingCustomer.setPhotoBase64(photoBase64);
+                }
+
+                // No need to set a new customer, just update the existing one
             }
-            //Customer customer = existingBill.getCustomer();
-            updatedCustomer.setPhoneno(bill.getCustomer().getPhoneno());
-            updatedCustomer.setAddress(bill.getCustomer().getAddress());
-            updatedCustomer.setProofType(bill.getCustomer().getProofType());
-            updatedCustomer.setProofDetails(bill.getCustomer().getProofDetails());            
-            existingBill.setCustomer(updatedCustomer);
-            
+
             existingBill.setProductTypeNo(bill.getProductTypeNo());
             existingBill.setAmount(bill.getAmount());
             existingBill.setGrams(bill.getGrams());
-            
-
-//            // Clear existing details and set the updated ones
-//            // Find the BillDetail to remove
-//            BillDetail detailToRemove = existingBill.getBillDetails()
-//                    .stream()
-//                    .filter(detail -> detail.getProductNo().equals(detailId))
-//                    .findFirst()
-//                    .orElseThrow(() -> new EntityNotFoundException("BillDetail not found"));
-//
-//            // Remove the BillDetail from the Bill
-//            existingBill.removeBillDetail(detailToRemove);
-//            existingBill.getBillDetails().clear();
-//            for (BillDetail detail : bill.getBillDetails()) {
-//                detail.setBill(existingBill);  // Set the bill reference in each BillDetail
-//                existingBill.getBillDetails().add(detail);
-//            }
-            
-            
-            //Set Product Description in Bill Details
-            //List<BillDetail> updatedBillDetails = bill.getBillDetails();
-            //existingBill.setBillDetails(updatedBillDetails);
-            //existingBill.getBillDetails().get(0).setProductQuantity(bill.getBillDetails().get(0).getProductQuantity());
-            //existingBill.getBillDetails().get(0).setProductDescription(bill.getBillDetails().get(0).getProductDescription());
-            
             existingBill.setComments(bill.getComments());
             existingBill.setOldbillserialno(bill.getOldbillserialno());
-            
-         
-            // Update additional fields
             existingBill.setRateOfInterest(bill.getRateOfInterest());
             existingBill.setPresentValue(bill.getPresentValue());
             existingBill.setAmountInWords(bill.getAmountInWords());
             existingBill.setMonthlyIncome(bill.getMonthlyIncome());
-            
+
+            // Update ProductDetails (productDescription and productQuantity)
+            List<BillDetail> existingBillDetails = existingBill.getBillDetails(); // Get existing details
+
+            // Create a map for quick lookup of existing details by productNo
+            Map<Integer, BillDetail> existingDetailMap = existingBillDetails.stream()
+                .collect(Collectors.toMap(BillDetail::getProductNo, detail -> detail));
+
+            // Create a list to track productNos from the incoming bill details
+            Set<Integer> incomingProductNos = bill.getBillDetails().stream()
+                .map(BillDetail::getProductNo)
+                .collect(Collectors.toSet());
+
+            // Iterate over incoming bill details
+            for (BillDetail detail : bill.getBillDetails()) {
+                if (existingDetailMap.containsKey(detail.getProductNo())) {
+                    // Update existing BillDetail
+                    BillDetail existingDetail = existingDetailMap.get(detail.getProductNo());
+                    existingDetail.setProductDescription(detail.getProductDescription());
+                    existingDetail.setProductQuantity(detail.getProductQuantity());
+                } else {
+                    // Add new BillDetail if it doesn't exist
+                    BillDetail newDetail = new BillDetail();
+                    newDetail.setProductNo(detail.getProductNo());
+                    newDetail.setProductDescription(detail.getProductDescription());
+                    newDetail.setProductQuantity(detail.getProductQuantity());
+
+                    // Set the relationship back to existingBill if necessary
+                    newDetail.setBill(existingBill);
+
+                    // Add the new detail to the existing list
+                    existingBillDetails.add(newDetail);
+                }
+            }
+
+            // Remove outdated BillDetails that are not in the incoming list
+            existingBillDetails.removeIf(existingDetail -> !incomingProductNos.contains(existingDetail.getProductNo()));
+
             // Save and return the updated bill
             return billRepository.save(existingBill);
+
         } else {
             // Handle case where the bill with the specified id does not exist
             throw new EntityNotFoundException("Bill not found with id " + billSequence);
         }
     }
+
 
 	// Example method to get shop details and include in the bill
     public Map<String, String> getShopDetailsForBill() {

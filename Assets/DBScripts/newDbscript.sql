@@ -65,6 +65,36 @@ INSERT INTO  ambikam.parameters(param_seq, param_id, PARAM_VALUE, param_example)
 (57, 'PLEDGE_RULES', 'The final due date for pledged items is only 1 year and 7 days: Interest must be paid once every three months without fail. The last date to redeem the pledged items: Reason for borrowing: My monthly income:', NULL);
 
 
+SELECT product_no, COUNT(*)
+FROM bill_detail
+GROUP BY product_no
+HAVING COUNT(*) > 1;
+
+DELETE bd1
+FROM bill_detail bd1
+INNER JOIN (
+    SELECT product_no
+    FROM bill_detail
+    GROUP BY product_no
+    HAVING COUNT(*) > 1
+) dup
+ON bd1.product_no = dup.product_no;
+
+SELECT product_no, COUNT(*)
+FROM bill_detail
+GROUP BY product_no
+HAVING COUNT(*) > 1;
+
+ALTER TABLE bill_detail
+MODIFY COLUMN product_no INT AUTO_INCREMENT UNIQUE;
+
+SELECT * FROM bill_detail ORDER BY product_no DESC;
+
+
+
+
+
+
 
 
 

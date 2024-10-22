@@ -2,6 +2,7 @@ package com.jewelbankers.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -70,7 +71,7 @@ public class Bill {
         }
     }
 
-	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "bill",  cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonManagedReference
 	//@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     //@JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence")
@@ -382,6 +383,13 @@ public class Bill {
 		}
 		return productDescriptions.toString();
 	}
+	public void addBillDetail(BillDetail billDetail) {
+	    if (this.billDetails == null) {
+	        this.billDetails = new ArrayList<>();
+	    }
+	    this.billDetails.add(billDetail);
+	}
+
 	
     
 }

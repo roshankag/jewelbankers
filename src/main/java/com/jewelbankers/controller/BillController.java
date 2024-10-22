@@ -64,34 +64,86 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<Bill> createBill( @RequestPart("bill") Bill bill, 
+//            @RequestPart(value = "photo", required = false) MultipartFile photo ) {
+//    	
+//        try {
+//            // Delegate the photo processing to the service layer
+//            Bill createdBill = billService.saveBill(bill, photo);
+//            return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+//
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
+    
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Bill> createBill( @RequestPart("bill") Bill bill, 
-            @RequestPart(value = "photo", required = false) MultipartFile photo ) {
-    	
+    public ResponseEntity<Map<String, Object>> createBill(@RequestPart("bill") Bill bill, 
+            @RequestPart(value = "photo", required = false) MultipartFile photo) {
+
         try {
             // Delegate the photo processing to the service layer
             Bill createdBill = billService.saveBill(bill, photo);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdBill);
+
+            // Create a response map to hold both the message and the bill
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Bill successfully pledged with customerId: " + createdBill.getCustomer().getCustomerid());
+            response.put("bill", createdBill);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+//    
+//    @PutMapping(value = "/{billSequence}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<Bill> updateBill(
+//            @PathVariable Long billSequence,
+//            @RequestPart("bill") Bill bill,  // Bind the Bill object from the request part
+//            @RequestPart(value = "photo", required = false) MultipartFile photo) {
+//        try {
+//            // Validate the Bill object (Optional)
+//            if (bill == null) {
+//                return ResponseEntity.badRequest().body(null);
+//            }
+//
+//            // Call the service to update the bill
+//            Bill updatedBill = billService.updateBill(billSequence, bill, photo); // No photo if not provided
+//            return ResponseEntity.ok(updatedBill);
+//        } catch (IOException e) {
+//            // Log the exception (optional)
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        } catch (Exception e) {
+//            // Handle other exceptions that might occur
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
     
     @PutMapping(value = "/{billSequence}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Bill> updateBill(
+    public ResponseEntity<Map<String, Object>> updateBill(
             @PathVariable Long billSequence,
-            @RequestPart("bill") Bill bill,  // Bind the Bill object from the request part
+            @RequestPart("bill") Bill bill,  
             @RequestPart(value = "photo", required = false) MultipartFile photo) {
         try {
-            // Validate the Bill object (Optional)
+            // Validate the Bill object
             if (bill == null) {
                 return ResponseEntity.badRequest().body(null);
             }
 
             // Call the service to update the bill
-            Bill updatedBill = billService.updateBill(billSequence, bill, photo); // No photo if not provided
-            return ResponseEntity.ok(updatedBill);
+            Bill updatedBill = billService.updateBill(billSequence, bill, photo);
+
+            // Create a response map to hold both the message and the updated bill
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Bill updated successfully with customerId: " + updatedBill.getCustomer().getCustomerid());
+            response.put("bill", updatedBill);
+
+            return ResponseEntity.ok(response);
         } catch (IOException e) {
             // Log the exception (optional)
             e.printStackTrace();
@@ -102,6 +154,7 @@ public class BillController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
 
     
