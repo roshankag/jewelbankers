@@ -1,5 +1,6 @@
 package com.jewelbankers.Utility;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,20 @@ public class SettingsUtillity {
     
     public String getPhotoFolder(Map<String,String> settingsMap) {
     	return settingsMap.get("PHOTO_FOLDER");
+    }
+    
+    public BigDecimal getCgst(Map<String, String> settingsMap) {
+        String cgstValue = settingsMap.get("CGST");
+        return new BigDecimal(cgstValue);
+    }
+
+    public BigDecimal getSgst(Map<String, String> settingsMap) {
+        String sgstValue = settingsMap.get("SGST");
+        return new BigDecimal(sgstValue);
+    }
+    
+    public String getGstNumber(Map<String, String> settingsMap) {
+        return settingsMap.get("GST_Number");
     }
     
     

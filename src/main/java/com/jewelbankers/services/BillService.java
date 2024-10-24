@@ -132,6 +132,7 @@ public class BillService {
 	        return billRepository.findByCustomerCustomerNameOrderByBillSequenceDesc(search);
 	    }    
 	}
+	
 	 public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) {
 	        try {
 	            List<Bill> bills = billRepository.findAll(new Specification<Bill>() {
@@ -255,6 +256,7 @@ public class BillService {
 	    }
 	    return billRepository.save(bill);
 	}
+	
     public Customer getCustomer(Bill bill) 
     {
     	Optional<Customer> optionalCustomer =  customerRepository.findById(bill.getCustomer().getCustomerid());

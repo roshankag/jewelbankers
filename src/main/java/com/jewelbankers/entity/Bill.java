@@ -52,6 +52,17 @@ public class Bill {
     @Column(name = "billDate")
     private LocalDate billDate;
     
+    public Long getInvoiceNo() {
+		return invoiceNo;
+	}
+
+	public void setInvoiceNo(Long invoiceNo) {
+		this.invoiceNo = invoiceNo;
+	}
+
+	@Column(name = "invoice_no", unique = true, nullable = false)
+    private Long invoiceNo;  // Auto-incremented Invoice No field
+    
 	public List<BillDetail> getBillDetails() {
 		return billDetails;
 	}

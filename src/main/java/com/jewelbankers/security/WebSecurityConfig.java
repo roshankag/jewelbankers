@@ -43,21 +43,21 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
     return new AuthTokenFilter();
   }
 
-//  @Bean
-//  public WebMvcConfigurer corsConfigurer() {
-//      return new WebMvcConfigurer() {
-//          @Override
-//          public void addCorsMappings(CorsRegistry registry) {
-//              registry.addMapping("/**").allowedOrigins("http://localhost:4200")
-//              //.allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
-//             .allowedOrigins("*")
-//              .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-//                      .allowedHeaders("*");
-//                      //.allowCredentials(true);
-//          }
-//      };
-//  }
-//  
+  @Bean
+  public WebMvcConfigurer corsConfigurer() {
+      return new WebMvcConfigurer() {
+          @Override
+          public void addCorsMappings(CorsRegistry registry) {
+              registry.addMapping("/**").allowedOrigins("http://localhost:4200","http://localhost:8080")
+              //.allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
+             .allowedOrigins("*")
+              .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                      .allowedHeaders("*");
+                      //.allowCredentials(true);
+          }
+      };
+  }
+  
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {
       DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -102,7 +102,7 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
 //              .requestMatchers("/", "/index.html", "/static/**", "/browser/**").permitAll()  // Allow static resources
       
         
-        auth.requestMatchers("/", "/index.html", "/**", "/static/**", "/browser/**",
+        auth.requestMatchers("/", "/index.html", "/**", "/static/**", "/browser/**","/jewelbankersapi/**",
         		"/jewelbankersapi/social/**","/jewelbankersapi/api/**","/jewelbankersapi/forgot-password/" // Allow access to all api's
 //        		,"/**/*.js", // Allow access to all JavaScript files
 //                "/**/*.css", // Allow access to all CSS files
