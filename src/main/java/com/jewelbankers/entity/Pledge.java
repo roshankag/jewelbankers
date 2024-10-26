@@ -9,8 +9,8 @@ import java.util.Random;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-@Entity
-@Table(name = "pledge")
+//@Entity
+//@Table(name = "pledge")
 public class Pledge {
 
     @Id

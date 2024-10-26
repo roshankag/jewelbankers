@@ -140,7 +140,7 @@ public class BillController {
 
             // Create a response map to hold both the message and the updated bill
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "Bill updated successfully with customerId: " + updatedBill.getCustomer().getCustomerid());
+            //response.put("message", "Bill updated successfully with customerId: " + updatedBill.getCustomer().getCustomerid());
             response.put("bill", updatedBill);
 
             return ResponseEntity.ok(response);

@@ -58,6 +58,7 @@ public void updateResetPasswordToken(String token, String email) throws Username
         return userRepository.findByResetPasswordToken(token);
     }
      
+   
     public void updatePassword(User user, String newPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(newPassword);

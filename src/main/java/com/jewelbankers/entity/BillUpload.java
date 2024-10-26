@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-@Entity
-@Table(name = "billupload")
+//@Entity
+//@Table(name = "billupload")
 public class BillUpload {
 
     @Id

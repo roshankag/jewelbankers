@@ -238,48 +238,98 @@ public class BillService {
 	// Method to save bill without an image
 	@Transactional
 	public Bill saveBill(Bill bill, MultipartFile photo) throws IOException {
-		
-		// Convert the MultipartFile (photo) to a byte array
-        if (photo != null && !photo.isEmpty()) {
-            byte[] photoBytes = photo.getBytes();
-            bill.getCustomer().setPhoto(photoBytes);
-            
-            // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
-            String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
-            bill.getCustomer().setPhotoBase64(photoBase64);
-        }
-		
+				
 		if(bill.getCustomer().getCustomerid() != null) {
 			
 	            // Set the updated customer back to the bill
-	            bill.setCustomer(getCustomer(bill));
+	            bill.setCustomer(setCustomer(bill, photo));
 	    }
 	    return billRepository.save(bill);
 	}
+//	
+//    public Customer setCustomer(Bill bill, MultipartFile photo) throws IOException 
+//    {
+//    	Customer customer=null;
+//		if(bill.getCustomer().getCustomerid() != null) {
+//    	
+//    	Optional<Customer> optionalCustomer =  customerRepository.findById(bill.getCustomer().getCustomerid());
+//	    //optionalCustomer.ifPresent(customer -> bill.setCustomer(customer));
+//        
+//	    if (optionalCustomer.isPresent()) {
+//	    	//Existing customer from database
+//	    	customer = optionalCustomer.get();
+//	    }else {
+//	    	customer = new Customer();
+//
+//	    }
+//            
+//            //Update the existing customer's details from the incoming bill's customer
+//            Customer incomingCustomer = bill.getCustomer();
+//            
+//           
+//            
+//        	// Convert the MultipartFile (photo) to a byte array
+//            if (photo != null && !photo.isEmpty()) {
+//                byte[] photoBytes = photo.getBytes();
+//                bill.getCustomer().setPhoto(photoBytes);
+//                
+//                // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
+//                String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
+//                customer.setPhotoBase64(photoBase64);
+//            }
+//            customer.setAddress(incomingCustomer.getAddress());
+//            customer.setPhoneno(incomingCustomer.getPhoneno());
+//            customer.setMailid(incomingCustomer.getMailid());
+//            customer.setProofType(incomingCustomer.getProofType());
+//            customer.setProofDetails(incomingCustomer.getProofDetails());
+//
+//            // Save the updated customer
+//            return customerRepository.save(customer);
+//	    }
+//         //   return existingCustomer;
+//	    return null;
+//    }
+//    
 	
-    public Customer getCustomer(Bill bill) 
-    {
-    	Optional<Customer> optionalCustomer =  customerRepository.findById(bill.getCustomer().getCustomerid());
-	    //optionalCustomer.ifPresent(customer -> bill.setCustomer(customer));
-	    
-	    if (optionalCustomer.isPresent()) {
-            Customer existingCustomer = optionalCustomer.get();
-            
-            // Update the existing customer's details from the incoming bill's customer
-            Customer incomingCustomer = bill.getCustomer();
-            existingCustomer.setAddress(incomingCustomer.getAddress());
-            existingCustomer.setPhoneno(incomingCustomer.getPhoneno());
-            existingCustomer.setMailid(incomingCustomer.getMailid());
-            existingCustomer.setProofType(incomingCustomer.getProofType());
-            existingCustomer.setProofDetails(incomingCustomer.getProofDetails());
+	public Customer setCustomer(Bill bill, MultipartFile photo) throws IOException {
+	    Customer incomingCustomer = bill.getCustomer();
+	    Customer customer;
 
-            // Save the updated customer
-            return customerRepository.save(existingCustomer);
-         //   return existingCustomer;
+	    // Check if the customer ID exists for an update, otherwise create a new customer
+	    if (incomingCustomer.getCustomerid() != null) {
+	        Optional<Customer> optionalCustomer = customerRepository.findById(incomingCustomer.getCustomerid());
+
+	        if (optionalCustomer.isPresent()) {
+	            // Existing customer from the database
+	            customer = optionalCustomer.get();
+	        } else {
+	            // If customer ID is provided but not found, create a new customer
+	            customer = new Customer();
+	        }
+	    } else {
+	        // New customer case
+	        customer = new Customer();
 	    }
-	    return null;
-    }
-    
+
+	    // Common setters for both new and existing customers
+	    customer.setCustomerName(incomingCustomer.getCustomerName());
+	    customer.setPhoneno(incomingCustomer.getPhoneno());
+	    customer.setAddress(incomingCustomer.getAddress());
+	    customer.setMailid(incomingCustomer.getMailid());
+	    customer.setProofType(incomingCustomer.getProofType());
+	    customer.setProofDetails(incomingCustomer.getProofDetails());
+
+	    // Handle photo if provided
+	    if (photo != null && !photo.isEmpty()) {
+	        byte[] photoBytes = photo.getBytes();
+	        customer.setPhoto(photoBytes);
+	        customer.setPhotoBase64(Base64.getEncoder().encodeToString(photoBytes));
+	    }
+
+	    // Save and return the customer (new or updated)
+	    return customerRepository.save(customer);
+	}
+
     @Transactional
     public Bill updateBill(Long billSequence, Bill bill, MultipartFile photo) throws IOException {
         // Fetch the existing bill from the repository
@@ -293,34 +343,46 @@ public class BillService {
             existingBill.setBillSerial(bill.getBillSerial());
             existingBill.setBillNo(bill.getBillNo());
             existingBill.setBillDate(bill.getBillDate());
+           
+            // Set the updated customer back to the bill
+            Customer updatedCustomer = setCustomer(bill, photo);
+    	   existingBill.setCustomer(updatedCustomer);
 
+//            if(existingBill.getCustomer() == null) {
+//            	   existingBill.setCustomer(updatedCustomer);
+//                   existingBill.getCustomer().setCustomerid(updatedCustomer.getCustomerid());
+//            }
+//         
+
+            
+//            // Check if the updated customer name is different
+            
             // Fetch the existing customer
-            Customer existingCustomer = existingBill.getCustomer();
-
+           // Customer existingCustomer = existingBill.getCustomer();
             // Get the updated customer details
-            Customer updatedCustomer = bill.getCustomer();
-
-            // Check if the updated customer name is different
-            if (!existingCustomer.getCustomerName().equals(updatedCustomer.getCustomerName())) {
-                // Instead of creating a new customer, update the existing one
-                existingCustomer.setCustomerName(updatedCustomer.getCustomerName());
-                existingCustomer.setPhoneno(updatedCustomer.getPhoneno());
-                existingCustomer.setAddress(updatedCustomer.getAddress());
-                existingCustomer.setProofType(updatedCustomer.getProofType());
-                existingCustomer.setProofDetails(updatedCustomer.getProofDetails());
-
-                // Process photo if provided
-                if (photo != null && !photo.isEmpty()) {
-                    byte[] photoBytes = photo.getBytes();
-                    existingCustomer.setPhoto(photoBytes);
-                    
-                    // Optional: Convert photo to Base64 for easy JSON transmission
-                    String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
-                    existingCustomer.setPhotoBase64(photoBase64);
-                }
-
-                // No need to set a new customer, just update the existing one
-            }
+            
+//            Customer updatedCustomer = bill.getCustomer();
+//            if (!existingCustomer.getCustomerName().equalsIgnoreCase(updatedCustomer.getCustomerName())) {
+//            	//bill.setCustomer(updatedCustomer);
+//                // Instead of creating a new customer, update the existing one
+//                existingCustomer.setCustomerName(updatedCustomer.getCustomerName());
+//                existingCustomer.setPhoneno(updatedCustomer.getPhoneno());
+//                existingCustomer.setAddress(updatedCustomer.getAddress());
+//                existingCustomer.setProofType(updatedCustomer.getProofType());
+//                existingCustomer.setProofDetails(updatedCustomer.getProofDetails());
+//
+//                // Process photo if provided
+//                if (photo != null && !photo.isEmpty()) {
+//                    byte[] photoBytes = photo.getBytes();
+//                    existingCustomer.setPhoto(photoBytes);
+//                    
+//                    // Optional: Convert photo to Base64 for easy JSON transmission
+//                    String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
+//                    existingCustomer.setPhotoBase64(photoBase64);
+//                }
+//
+//                // No need to set a new customer, just update the existing one
+//            }
 
             existingBill.setProductTypeNo(bill.getProductTypeNo());
             existingBill.setAmount(bill.getAmount());
@@ -450,6 +512,7 @@ public class BillService {
         Integer currentBillNo = billRepository.findCurrentBillNo();
         return (currentBillNo == null) ? 1 : currentBillNo + 1;
     }
+	
 	public int getNextBillRedemNo() {
         // Logic to fetch the next available redeem number
         Integer currentBillNo = billRepository. findCurrentBillRedemNo();
@@ -676,8 +739,8 @@ public class BillService {
 	    if (billDetails.getBillDate() != null) existingBill.setBillDate(billDetails.getBillDate());
 	    
 	    // Handle the customer entity
-	    if (billDetails.getCustomer() != null) {
-            existingBill.setCustomer(getCustomer(existingBill));
+	   // if (billDetails.getCustomer() != null) {
+            //existingBill.setCustomer(getCustomer(existingBill));
 
 //	        Customer customer = billDetails.getCustomer();
 //	        if (customer.getCustomerid() != null) {
@@ -690,7 +753,7 @@ public class BillService {
 //	        } else {
 //	            throw new IllegalArgumentException("Customer ID cannot be null");
 //	        }
-	    }
+	  //  }
 
 	    if (billDetails.getCareof() != null) existingBill.setCareof(billDetails.getCareof());
 	    if (billDetails.getProductTypeNo() != null) existingBill.setProductTypeNo(billDetails.getProductTypeNo());

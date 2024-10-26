@@ -1,18 +1,19 @@
-SELECT * FROM ambikam.roles;
-SELECT * FROM ambikam.user_roles;
-SELECT * FROM ambikam.users;
-
 INSERT INTO `ambikam`.`roles` (`id`, `name`) VALUES ('1', 'ROLE_USER');
 INSERT INTO `ambikam`.`roles` (`id`, `name`) VALUES ('3', 'ROLE_MODERATOR');
 INSERT INTO `ambikam`.`roles` (`id`, `name`) VALUES ('2', 'ROLE_ADMIN');
 
 
-INSERT INTO `ambikam`.`users` (`email`, `password`, `reset_password_token`, `username`) 
-VALUES ('roshankag2003@gmail.com', 'Roshan@2003', 'zVV8AM1N8lFdTKyezpq7UQgJppYJ5i', 'Roshan');
 
+INSERT INTO `ambikam`.`users` (`email`, `password`, `reset_password_token`, `username`) 
+VALUES ('roshankag2003@gmail.com', '$2a$10$U3dSUnA18ZI0yCAZeVe.Zugh50cZkW6nERSM6Szks9VmmniG4Quzq', 'zVV8AM1N8lFdTKyezpq7UQgJppYJ5i', 'Roshan');
+INSERT INTO `ambikam`.`users` (`email`, `password`, `reset_password_token`, `username`) 
+VALUES ('mahesh4kc@gmail.com', '$2a$10$l59otHhJSC9K6UwNlc7dVeUYmXFFDsE6hB6HlKAsU2eLgA/8woMNu', null, 'mahesh4kc');
 INSERT INTO `ambikam`.`user_roles` (`user_id`, `role_id`) VALUES ('1', '1');
 INSERT INTO `ambikam`.`user_roles` (`user_id`, `role_id`) VALUES ('1', '2');
 INSERT INTO `ambikam`.`user_roles` (`user_id`, `role_id`) VALUES ('1', '3');
+INSERT INTO `ambikam`.`user_roles` (`user_id`, `role_id`) VALUES ('2', '1');
+INSERT INTO `ambikam`.`user_roles` (`user_id`, `role_id`) VALUES ('2', '2');
+INSERT INTO `ambikam`.`user_roles` (`user_id`, `role_id`) VALUES ('2', '3');
 
 ALTER TABLE bill_header MODIFY COLUMN BILL_SEQUENCE INT AUTO_INCREMENT;
 
@@ -67,42 +68,43 @@ INSERT INTO  ambikam.parameters(param_seq, param_id, PARAM_VALUE, param_example)
 (59, 'SGST', '0.14', 'Example SGST'),
 (60, 'GST_Number', '22AAAAA0000A1Z5', 'Example SGST');
 
+UPDATE bill_detail AS bd
+JOIN (
+    SELECT 
+        BILL_SEQUENCE,
+        SUM(PRODUCT_QUANTITY) AS combined_quantity,
+        GROUP_CONCAT(PRODUCT_DESCRIPTION ORDER BY PRODUCT_NO SEPARATOR ', ') AS combined_description
+    FROM 
+        bill_detail
+    GROUP BY 
+        BILL_SEQUENCE
+) AS agg ON bd.BILL_SEQUENCE = agg.BILL_SEQUENCE
+SET 
+    bd.PRODUCT_QUANTITY = agg.combined_quantity,
+    bd.PRODUCT_DESCRIPTION = agg.combined_description;
+    
+SET SQL_SAFE_UPDATES = 0;
+delete from bill_detail where PRODUCT_NO > 1;
+SET SQL_SAFE_UPDATES = 1;
 
-SELECT product_no, COUNT(*)
-FROM bill_detail
-GROUP BY product_no
-HAVING COUNT(*) > 1;
-
-DELETE bd1
-FROM bill_detail bd1
-INNER JOIN (
-    SELECT product_no
+UPDATE bill_detail AS bd
+JOIN (
+    SELECT BILL_SEQUENCE, PRODUCT_NO, 
+           ROW_NUMBER() OVER (PARTITION BY PRODUCT_NO ORDER BY BILL_SEQUENCE) AS row_num
     FROM bill_detail
-    GROUP BY product_no
-    HAVING COUNT(*) > 1
-) dup
-ON bd1.product_no = dup.product_no;
-
-SELECT product_no, COUNT(*)
-FROM bill_detail
-GROUP BY product_no
-HAVING COUNT(*) > 1;
-
+) AS duplicates ON bd.BILL_SEQUENCE = duplicates.BILL_SEQUENCE
+SET bd.PRODUCT_NO = bd.PRODUCT_NO + row_num - 1
+WHERE duplicates.row_num > 1;
+    
 ALTER TABLE bill_detail
 MODIFY COLUMN product_no INT AUTO_INCREMENT UNIQUE;
 
-SELECT * FROM bill_detail ORDER BY product_no DESC;
+SET SQL_SAFE_UPDATES = 0;
+UPDATE customer
+SET address = CONCAT(address, ', ',street, ', ', area, ', ', district, ', ', state, ', ', country, ', ', pincode)
+where pincode is not null;
+update customer set pincode = 0; 
+SET SQL_SAFE_UPDATES = 1;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+commit;

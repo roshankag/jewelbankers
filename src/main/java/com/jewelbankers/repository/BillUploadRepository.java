@@ -7,8 +7,9 @@ import com.jewelbankers.entity.BillUpload;
 
 
 
-@Repository
-public interface BillUploadRepository extends JpaRepository<BillUpload, Long> {
+//@Repository
+public interface BillUploadRepository //extends JpaRepository<BillUpload, Long> 
+{
 
     // You can add custom query methods if needed
 }
