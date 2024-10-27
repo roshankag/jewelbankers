@@ -62,23 +62,24 @@ public class Customer {
 	private String customerName;
 	
 	@Lob
-    @Column(name = "Photo", columnDefinition = "BLOB")
+    @Column(name = "Photo", columnDefinition = "MEDIUMBLOB")
     private byte[] photo;
 	
-	@Transient
-    private String photoBase64;  // This will hold the Base64 string temporarily
-	
+//	@Transient
+//    private String photoBase64;  // This will hold the Base64 string temporarily
+//	
 	public String getPhotoBase64() {
 		 // Convert the byte array to Base64 string if it's not null
+		String photoBase64=null;
         if (this.photo != null) {
-            this.photoBase64 = Base64.getEncoder().encodeToString(this.photo);
+            photoBase64 = Base64.getEncoder().encodeToString(this.photo);
         }
         return photoBase64;
 	}
 
-	public void setPhotoBase64(String photoBase64) {
-		this.photoBase64 = photoBase64;
-	}
+//	public void setPhotoBase64(String photoBase64) {
+//		this.photoBase64 = photoBase64;
+//	}
 
 
 	@Column(name = "proof_type")

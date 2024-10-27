@@ -244,6 +244,14 @@ public class BillService {
 	            // Set the updated customer back to the bill
 	            bill.setCustomer(setCustomer(bill, photo));
 	    }
+		 if (photo != null && !photo.isEmpty()) {
+	          byte[] photoBytes = photo.getBytes();
+	          bill.getCustomer().setPhoto(photoBytes);
+	          
+	          // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
+	          //String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
+	          //customer.setPhotoBase64(photoBase64);
+	      }
 	    return billRepository.save(bill);
 	}
 //	
@@ -319,13 +327,15 @@ public class BillService {
 	    customer.setProofType(incomingCustomer.getProofType());
 	    customer.setProofDetails(incomingCustomer.getProofDetails());
 
-	    // Handle photo if provided
-	    if (photo != null && !photo.isEmpty()) {
-	        byte[] photoBytes = photo.getBytes();
-	        customer.setPhoto(photoBytes);
-	        customer.setPhotoBase64(Base64.getEncoder().encodeToString(photoBytes));
-	    }
-
+	 // Convert the MultipartFile (photo) to a byte array
+      if (photo != null && !photo.isEmpty()) {
+          byte[] photoBytes = photo.getBytes();
+          customer.setPhoto(photoBytes);
+          
+          // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
+          //String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
+          //customer.setPhotoBase64(photoBase64);
+      }
 	    // Save and return the customer (new or updated)
 	    return customerRepository.save(customer);
 	}

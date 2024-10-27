@@ -88,7 +88,9 @@ public class BillController {
 
             // Create a response map to hold both the message and the bill
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "Bill successfully pledged with customerId: " + createdBill.getCustomer().getCustomerid());
+            response.put("message", "Bill successfully pledged with customerId: " + createdBill.getCustomer()!= null && 
+            		createdBill.getCustomer().getCustomerid() != null ? 
+            				createdBill.getCustomer().getCustomerid() : "");
             response.put("bill", createdBill);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -140,7 +142,7 @@ public class BillController {
 
             // Create a response map to hold both the message and the updated bill
             Map<String, Object> response = new HashMap<>();
-            //response.put("message", "Bill updated successfully with customerId: " + updatedBill.getCustomer().getCustomerid());
+            response.put("message", "Bill updated successfully with customerId: " + updatedBill.getCustomer().getCustomerid());
             response.put("bill", updatedBill);
 
             return ResponseEntity.ok(response);
@@ -299,7 +301,7 @@ public class BillController {
 
     @GetMapping
     public ResponseEntity<Page<Bill>> getAllBills(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+                                                   @RequestParam(value = "size", defaultValue = "50") int size) {
         Page<Bill> bills = billService.getAllBills(page, size);
         return ResponseEntity.ok(bills);
     }

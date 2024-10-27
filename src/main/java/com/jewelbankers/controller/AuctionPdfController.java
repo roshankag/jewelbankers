@@ -68,8 +68,11 @@ public class AuctionPdfController {
             auctionDetails.put("billDate", bill.getBillDate().toString());
             auctionDetails.put("amount", String.valueOf(bill.getAmount()));
             auctionDetails.put("weight", String.valueOf(bill.getGrams()));
-            auctionDetails.put("customerName", bill.getCustomer().getCustomerName());
-            auctionDetails.put("customerAddress", bill.getCustomer().getAddress());
+            if(bill.getCustomer() != null) {
+            	  auctionDetails.put("customerName",  bill.getCustomer().getCustomerName() != null ? bill.getCustomer().getCustomerName() : "");
+                  auctionDetails.put("customerAddress", bill.getCustomer().getAddress());
+            }
+          
 
             String fromAddressText = String.format("From:\n%s\n%s\n%s\n%s\n%s",
                     settingsMap.get("SHOP_NAME"), settingsMap.get("SHOP_STREET"), settingsMap.get("SHOP_AREA"),
@@ -88,10 +91,11 @@ public class AuctionPdfController {
                     .headers(headers)
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
-        } catch (Exception e) {
-            // Log and handle other exceptions
-            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
-        }
+     } finally {}
+            //catch (Exception e) {
+//            // Log and handle other exceptions
+//            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+//        }
     }
 
 }

@@ -18,12 +18,11 @@ import java.util.stream.Stream;
 
 @Service
 public class AuctionPdfService {
-
-    public Map<String, List<Bill>> groupBillsByCustomerName(List<Bill> bills) {
-        return bills.stream()
-                .collect(Collectors.groupingBy(bill -> bill.getCustomer().getCustomerName()));
-    }
-
+	public Map<String, List<Bill>> groupBillsByCustomerName(List<Bill> bills) {
+	    return bills.stream()
+	            .filter(bill -> bill.getCustomer() != null && bill.getCustomer().getCustomerName() != null)
+	            .collect(Collectors.groupingBy(bill -> bill.getCustomer().getCustomerName()));
+	}
     public ByteArrayInputStream generateAuctionPdf(List<Bill> bills, Map<String, String> auctionDetails, String fromAddressText, String auctionDescription, String shopName) {
         Document document = new Document(PageSize.A4, 50, 50, 50, 50); // A4 size with custom margins
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -153,15 +152,18 @@ public class AuctionPdfService {
         PdfPCell toCell = new PdfPCell();
         toCell.setBorder(PdfPCell.NO_BORDER); // No border for a clean look
         toCell.addElement(new Paragraph("To:", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
-        toCell.addElement(new Paragraph(customer.getCustomerName(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+        if(customer!=null) {
+        	 toCell.addElement(new Paragraph(customer.getCustomerName(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
 
-        if (!customer.isFullAddress()) {
-            toCell.addElement(new Paragraph(customer.getAddress(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
-        } else {
-            toCell.addElement(new Paragraph(customer.getAddressArea(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
-            toCell.addElement(new Paragraph(customer.getStreetDistrict(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
-            toCell.addElement(new Paragraph(customer.getStatePincode(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+            // if (!customer.isFullAddress()) {
+                 toCell.addElement(new Paragraph(customer.getAddress(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+//             } else {
+//                 toCell.addElement(new Paragraph(customer.getAddressArea(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+//                 toCell.addElement(new Paragraph(customer.getStreetDistrict(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+//                 toCell.addElement(new Paragraph(customer.getStatePincode(), FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK)));
+//             }
         }
+       
 
         // Add both cells to the table
         addressTable.addCell(fromCell);

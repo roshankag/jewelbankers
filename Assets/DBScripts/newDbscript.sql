@@ -106,5 +106,7 @@ where pincode is not null;
 update customer set pincode = 0; 
 SET SQL_SAFE_UPDATES = 1;
 
+ALTER TABLE customer MODIFY COLUMN photo MEDIUMBLOB;
+
 
 commit;

@@ -50,13 +50,14 @@ public class ExcelGenerator {
             
             StringBuffer address = new StringBuffer();
             if (bill.getCustomer() != null) {
-                address.append(bill.getCustomer().getStreet()).append(", ")
-                       .append(bill.getCustomer().getArea()).append(", ")
-                       .append(bill.getCustomer().getDistrict()).append(", ")
-                       .append(bill.getCustomer().getState()).append(", ")
-                       .append(bill.getCustomer().getCountry()).append(", ")
-                       .append(bill.getCustomer().getPincode()).append(", ")
-                       .append(bill.getCustomer().getMobileno());
+            		address.append(bill.getCustomer().getAddress());
+//                address.append(bill.getCustomer().getStreet()).append(", ")
+//                       .append(bill.getCustomer().getArea()).append(", ")
+//                       .append(bill.getCustomer().getDistrict()).append(", ")
+//                       .append(bill.getCustomer().getState()).append(", ")
+//                       .append(bill.getCustomer().getCountry()).append(", ")
+//                       .append(bill.getCustomer().getPincode()).append(", ")
+//                       .append(bill.getCustomer().getMobileno());
             }
             createContentCell(row, 3, address.toString(), contentStyle);
             createContentCell(row, 4, bill.getGrams() != null ? bill.getGrams().toString() : "", contentStyle);
