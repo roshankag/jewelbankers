@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +36,7 @@ public class JewelBankers {
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(JewelBankers.class, args);
+		
 		
 		/*
 		 * BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); String

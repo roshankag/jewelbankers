@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -952,7 +953,7 @@ public class BillService {
 //	        return in;
 //	    }
 	 
-	 public ByteArrayInputStream generateCustomerSendBill(Bill bill,  Map<String, String> settingsMap) {
+	 public ByteArrayInputStream generateCustomerSendBill(Bill bill,  Map<String, String> settingsMap) throws SQLException {
 	        ByteArrayInputStream in = null;
 
 	        try {
@@ -965,7 +966,7 @@ public class BillService {
 	        return in;
 	    }
 	 
-	 public ByteArrayInputStream generateOfficeSendBill(Bill bill,  Map<String, String> settingsMap) {
+	 public ByteArrayInputStream generateOfficeSendBill(Bill bill,  Map<String, String> settingsMap) throws SQLException {
 	        ByteArrayInputStream in = null;
 
 	        try {

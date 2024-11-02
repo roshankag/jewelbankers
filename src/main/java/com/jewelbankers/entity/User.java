@@ -1,7 +1,10 @@
 package com.jewelbankers.entity;
 
+import java.sql.Date;
 import java.util.HashSet;
 import java.util.Set;
+
+
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -14,14 +17,78 @@ import jakarta.validation.constraints.Size;
       @UniqueConstraint(columnNames = "username"),
       @UniqueConstraint(columnNames = "email") 
     })
+
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @NotBlank
-  @Size(max = 20)
+  @Size(max = 50)
   private String username;
+  
+  @Column(name = "USER_DATABASE_NAME")
+  @NotBlank
+  @Size(max = 50)
+  private String userDatabaseName;
+  
+  public String getUserDatabaseName() {
+	return userDatabaseName;
+}
+
+public void setUserDatabaseName(String userDatabaseName) {
+	this.userDatabaseName = userDatabaseName;
+}
+
+public String getLocation() {
+	return location;
+}
+
+public void setLocation(String location) {
+	this.location = location;
+}
+
+public String getShopName() {
+	return shopName;
+}
+
+public void setShopName(String shopName) {
+	this.shopName = shopName;
+}
+
+public Date getCreateDate() {
+	return createDate;
+}
+
+public void setCreateDate(Date createDate) {
+	this.createDate = createDate;
+}
+
+public Date getUpdateDate() {
+	return updateDate;
+}
+
+public void setUpdateDate(Date updateDate) {
+	this.updateDate = updateDate;
+}
+
+  @Column(name = "location")
+  @NotBlank
+  @Size(max = 50)
+  private String location;
+  
+  @Column(name = "SHOP_NAME")
+  @NotBlank
+  @Size(max = 50)
+  private String shopName;
+  
+  @Column(name = "CREATE_DATE")
+  @Temporal(TemporalType.DATE)
+  private Date createDate;
+
+  @Column(name = "UPDATE_DATE")
+  @Temporal(TemporalType.DATE)
+  private Date updateDate;
 
   @NotBlank
   @Size(max = 50)
@@ -30,12 +97,14 @@ public class User {
 
   @Column(name = "reset_password_token")
     private String resetPasswordToken;
+  
+  
 
   @NotBlank
   @Size(max = 120)
   private String password;
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(  name = "user_roles", 
         joinColumns = @JoinColumn(name = "user_id"), 
         inverseJoinColumns = @JoinColumn(name = "role_id"))

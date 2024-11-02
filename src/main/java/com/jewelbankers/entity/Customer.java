@@ -2,8 +2,6 @@ package com.jewelbankers.entity;
 
 import java.util.Base64;
 
-
-
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import jakarta.persistence.Column;
@@ -13,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 
 
@@ -23,6 +20,7 @@ import jakarta.persistence.Transient;
 @EntityScan
 @Entity
 @Table(name = "customer")
+
 public class Customer {
 
 

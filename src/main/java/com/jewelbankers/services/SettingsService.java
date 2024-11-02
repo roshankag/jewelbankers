@@ -1,5 +1,6 @@
 package com.jewelbankers.services;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jewelbankers.configuration.DynamicRoutingDataSource;
 import com.jewelbankers.entity.Settings;
 import com.jewelbankers.repository.SettingsRepository;
 
@@ -18,7 +20,11 @@ import jakarta.transaction.Transactional;
 public class SettingsService {
 	@Autowired
 	private SettingsRepository settingsRepository;
-	public List<Settings> getSettings() {
+	
+	@Autowired
+	DynamicRoutingDataSource dynamicRoutingDataSource;
+	public List<Settings> getSettings() throws SQLException {
+		System.out.println(this.dynamicRoutingDataSource.getDataSourceKey() + this.dynamicRoutingDataSource.getConnection().getSchema());
 		return settingsRepository.findAll();
 	}
 	

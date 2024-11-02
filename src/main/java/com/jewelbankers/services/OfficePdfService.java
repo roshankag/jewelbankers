@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -41,7 +42,7 @@ public class OfficePdfService {
     private static final String TEMPLATE_PATH = "template/officecopy.pdf";
     private static final String OUTPUT_PATH = "bills";
 
-    public ByteArrayInputStream generateOfficeBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException {
+    public ByteArrayInputStream generateOfficeBillPdf(Bill bill, Map<String, String> settingsMap) throws IOException, DocumentException, SQLException {
         // Ensure the output directory exists
         File dir = new File(OUTPUT_PATH);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
