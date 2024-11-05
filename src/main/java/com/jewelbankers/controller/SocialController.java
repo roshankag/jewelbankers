@@ -413,11 +413,11 @@ public class SocialController {
     @Autowired
     private UserRepository userRepository;
 
-    @Value("${database.primary:default_value}")
-    private String primaryDatabase; // Your primary database name // Your primary database name
-
-    @Value("${database.secondary}")
-    private String secondaryDatabase; // Your secondary database name, if needed
+//    @Value("${database.primary:default_value}")
+//    private String primaryDatabase; // Your primary database name // Your primary database name
+//
+//    @Value("${database.secondary}")
+//    private String secondaryDatabase; // Your secondary database name, if needed
 
     @Autowired
     public SocialController(UserService userService, RoleService roleService, JwtUtils tokenService, PasswordEncoder passwordEncoder) {
@@ -502,18 +502,18 @@ public class SocialController {
         }
     }
 
-    private void switchDatabase(String userEmail) {
-        // Logic to switch database, e.g., based on userEmail or some condition
-        if (userEmail.endsWith("@example.com")) {
-            // Switch to primary database
-            System.out.println("Switching to primary database: " + primaryDatabase);
-            // Implement the logic to switch the database context (e.g., via DataSource)
-        } else {
-            // Switch to secondary database if needed
-            System.out.println("Switching to secondary database: " + secondaryDatabase);
-            // Implement the logic to switch the database context (e.g., via DataSource)
-        }
-    }
+//    private void switchDatabase(String userEmail) {
+//        // Logic to switch database, e.g., based on userEmail or some condition
+//        if (userEmail.endsWith("@example.com")) {
+//            // Switch to primary database
+//            System.out.println("Switching to primary database: " + primaryDatabase);
+//            // Implement the logic to switch the database context (e.g., via DataSource)
+//        } else {
+//            // Switch to secondary database if needed
+//            System.out.println("Switching to secondary database: " + secondaryDatabase);
+//            // Implement the logic to switch the database context (e.g., via DataSource)
+//        }
+//    }
 
     private Map<String, String> parseRequestBody(String requestBody) {
         ObjectMapper objectMapper = new ObjectMapper();
