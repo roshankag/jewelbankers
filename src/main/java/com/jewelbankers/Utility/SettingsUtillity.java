@@ -63,5 +63,16 @@ public class SettingsUtillity {
         return settingsMap.get("GST_Number");
     }
     
+    public String getGoldRate(Map<String, String> settingsMap) {
+        return settingsMap.get("GOLD_RATE");
+    }
+    
+    public String getSilverRate(Map<String, String> settingsMap) {
+        return settingsMap.get("SILVER_RATE");
+    }
+    
+    public String getDiamondRate(Map<String, String> settingsMap) {
+        return settingsMap.get("DIAMOND_RATE");
+    }
     
 }

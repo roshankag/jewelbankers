@@ -386,8 +386,6 @@ public class BillController {
     }
 
 
-
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBill(@PathVariable("id") Long id) {
         Optional<Bill> billOptional = billService.findById(id);

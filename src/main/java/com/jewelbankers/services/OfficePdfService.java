@@ -19,6 +19,7 @@ import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
@@ -136,6 +137,26 @@ public class OfficePdfService {
             content.setFontAndSize(regularFont.getBaseFont(), 14);
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, billDateFormatted, 460, 642, 0);
             content.endText();
+            
+            // Check if the customer has a photo and retrieve it as byte array
+            byte[] customerPhoto = bill.getCustomer() != null ? bill.getCustomer().getPhoto() : null;
+            
+            if (customerPhoto != null) {
+                try {
+                    // Convert the byte array to an iText Image
+                    Image photo = Image.getInstance(customerPhoto);
+
+                    // Set the position and scale of the photo as needed
+                    photo.setAbsolutePosition(470, 512); // Adjust coordinates (x, y) as needed
+                    photo.scaleToFit(90, 1000); // Scale the image to fit within 80x80 size
+
+                    // Add the photo to the PDF content
+                    content.addImage(photo);
+                } catch (Exception e) {
+                    System.out.println("Failed to add photo: " + e.getMessage());
+                }
+            }
+            
 
          //	 (Ensure it's not null)
             String customerName = bill.getCustomer() != null && bill.getCustomer().getCustomerName() != null 

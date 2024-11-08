@@ -33,14 +33,14 @@ public class JpaConfig {
 	// @Qualifier("primary") 
 	  //@Primary
 	 public DataSource dataSource1() { return
-	 DataSourceBuilder.create() .url("jdbc:mysql://localhost:3306/krishnag")
+	 DataSourceBuilder.create() .url("jdbc:mysql://localhost:3306/ambikam")
 	  .username("root") .password("admin") .build(); }
 	 
 
 	//@Bean
 	//@Qualifier("secondary")
 	public DataSource dataSource2() {
-		return DataSourceBuilder.create().url("jdbc:mysql://localhost:3306/roshankag2003").username("root")
+		return DataSourceBuilder.create().url("jdbc:mysql://localhost:3306/ambikam").username("root")
 				.password("admin").build();
 	}
 }

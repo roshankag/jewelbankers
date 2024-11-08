@@ -22,6 +22,11 @@ public class DataSourceService {
     public void switchSecondaryDataSource() {
     	dynamicRoutingDataSource.switchSecondaryDataSource();
     }
+
+	public void switchDataSource(String string) {
+	   dynamicRoutingDataSource.switchSecondaryDataSource();
+		
+	}
 }
 
 

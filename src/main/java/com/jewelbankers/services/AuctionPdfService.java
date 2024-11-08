@@ -79,7 +79,7 @@ public class AuctionPdfService {
     }
 
     private void addAuctionDetails(List<Bill> bills, Document document) throws DocumentException {
-        PdfPTable table = new PdfPTable(new float[]{1, 2, 2, 4, 1, 1});
+        PdfPTable table = new PdfPTable(new float[]{1, 2, 2, 4, 1});
         table.setWidthPercentage(100);
         table.setSpacingBefore(10f);
         table.setSpacingAfter(10f);
@@ -100,11 +100,11 @@ public class AuctionPdfService {
     }
 
     private void addTableHeader(PdfPTable table, Font headFont) {
-        Stream.of("Bill No", "Bill Date", "Amount", "Product Description", "Grams", "Amount in Words")
+        Stream.of("Bill No", "Bill Date", "Amount", "Product Description", "Grams")
                 .forEach(columnTitle -> {
                     PdfPCell header = new PdfPCell(new Phrase(columnTitle, headFont));
                     header.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    header.setPadding(5);
+                    header.setPadding(4);
                     table.addCell(header);
                 });
     }
@@ -123,13 +123,12 @@ public class AuctionPdfService {
         }
         table.addCell(createTableCell(productDesc.toString(), cellFont));
         table.addCell(createTableCell(String.valueOf(bill.getGrams()), cellFont));
-        table.addCell(createTableCell(bill.getAmountInWords(), cellFont));
     }
 
     private PdfPCell createTableCell(String content, Font font) {
         if (content == null) content = ""; // Handle null
         PdfPCell cell = new PdfPCell(new Phrase(content, font));
-        cell.setPadding(5);
+        cell.setPadding(4);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         return cell;
     }

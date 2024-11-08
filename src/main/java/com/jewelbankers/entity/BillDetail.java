@@ -14,7 +14,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-
 @Table(name = "bill_detail")
 public class BillDetail {
 

@@ -29,12 +29,12 @@ public class ExcelGenerator {
         Row headerRow = sheet.createRow(0);
         createHeaderCell(headerRow, 0, "Bill Serial", headerStyle);
         createHeaderCell(headerRow, 1, "Bill No", headerStyle);
-        createHeaderCell(headerRow, 2, "Customer Name", headerStyle);
-        createHeaderCell(headerRow, 3, "Address", headerStyle);
-        createHeaderCell(headerRow, 4, "Weight (grams)", headerStyle);
-        createHeaderCell(headerRow, 5, "Amount", headerStyle);
-        createHeaderCell(headerRow, 6, "Product Description", headerStyle);
-        createHeaderCell(headerRow, 7, "Bill Date", headerStyle);
+        createHeaderCell(headerRow, 2, "Bill Date", headerStyle);
+        createHeaderCell(headerRow, 3, "Customer Name", headerStyle);
+        createHeaderCell(headerRow, 4, "Address", headerStyle);
+        createHeaderCell(headerRow, 5, "Weight (grams)", headerStyle);
+        createHeaderCell(headerRow, 6, "Amount", headerStyle);
+        createHeaderCell(headerRow, 7, "Product Description", headerStyle);
         createHeaderCell(headerRow, 8, "Amount in Words", headerStyle);
 
         int rowIdx = 1;
@@ -46,7 +46,7 @@ public class ExcelGenerator {
 
             createContentCell(row, 0, bill.getBillSerial().toString(), contentStyle);
             createContentCell(row, 1, String.valueOf(bill.getBillNo()), contentStyle);
-            createContentCell(row, 2, bill.getCustomer() != null ? bill.getCustomer().getCustomerName() : "", contentStyle);
+            createContentCell(row, 3, bill.getCustomer() != null ? bill.getCustomer().getCustomerName() : "", contentStyle);
             
             StringBuffer address = new StringBuffer();
             if (bill.getCustomer() != null) {
@@ -59,13 +59,13 @@ public class ExcelGenerator {
 //                       .append(bill.getCustomer().getPincode()).append(", ")
 //                       .append(bill.getCustomer().getMobileno());
             }
-            createContentCell(row, 3, address.toString(), contentStyle);
-            createContentCell(row, 4, bill.getGrams() != null ? bill.getGrams().toString() : "", contentStyle);
-            createContentCell(row, 5, String.valueOf(bill.getAmount()), contentStyle);
+            createContentCell(row, 4, address.toString(), contentStyle);
+            createContentCell(row, 5, bill.getGrams() != null ? bill.getGrams().toString() : "", contentStyle);
+            createContentCell(row, 6, String.valueOf(bill.getAmount()), contentStyle);
 
             // Format Bill Date to "dd-MM-yyyy"
             String formattedDate = bill.getBillDate() != null ? bill.getBillDate().format(DATE_FORMATTER) : "";
-            createContentCell(row, 7, formattedDate, contentStyle);
+            createContentCell(row, 2, formattedDate, contentStyle);
 
             createContentCell(row, 8, bill.getAmountInWords(), contentStyle);
 
@@ -74,14 +74,14 @@ public class ExcelGenerator {
 
             // Add BillDetail rows below each Bill row
             for (BillDetail detail : bill.getBillDetails()) {
-                createContentCell(row, 6, detail.getProductDescription(), contentStyle);
+                createContentCell(row, 7, detail.getProductDescription(), contentStyle);
             }
         }
 
         // Create a row to display the total amount at the bottom
         Row totalRow = sheet.createRow(rowIdx++);
-        createContentCell(totalRow, 4, "Total Amount", totalStyle);
-        createContentCell(totalRow, 5, String.valueOf(totalAmount), totalStyle);
+        createContentCell(totalRow, 5, "Total Amount", totalStyle);
+        createContentCell(totalRow, 6, String.valueOf(totalAmount), totalStyle);
 
         // Auto-size columns for better alignment
         for (int i = 0; i <= 8; i++) {
