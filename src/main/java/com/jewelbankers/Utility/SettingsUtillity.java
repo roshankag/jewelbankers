@@ -75,4 +75,31 @@ public class SettingsUtillity {
         return settingsMap.get("DIAMOND_RATE");
     }
     
+ // Fetch rate based on itemtypeno (1 for Gold, 2 for Silver, etc.)
+    public BigDecimal getRateByItemType(Map<String, String> settingsMap, Integer itemtypeno) {
+        String rateKey = getRateKeyByItemType(itemtypeno);
+        String rateValue = settingsMap.get(rateKey);
+
+        if (rateValue != null) {
+            return new BigDecimal(rateValue);
+        } else {
+            throw new RuntimeException("Rate not found for item type: " + itemtypeno);
+        }
+    }
+
+    // Helper method to map itemtypeno to settings keys
+    private String getRateKeyByItemType(Integer itemtypeno) {
+        switch (itemtypeno) {
+            case 1:
+                return "GOLD_RATE";
+            case 2:
+                return "SILVER_RATE";
+            case 3:
+                return "DIAMOND_RATE";
+            default:
+                throw new IllegalArgumentException("Invalid item type number: " + itemtypeno);
+        }
+    }
+
+    
 }

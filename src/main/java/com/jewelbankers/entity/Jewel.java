@@ -141,14 +141,4 @@ public class Jewel {
 	public void setWastagecharge(BigDecimal wastagecharge) {
 		this.wastagecharge = wastagecharge;
 	}
-
-	public List<JewelDetail> getJeweldetails() {
-		return jeweldetails;
-	}
-
-	public void setJeweldetails(List<JewelDetail> jeweldetails) {
-		this.jeweldetails = jeweldetails;
-	}
-    
-    
 }

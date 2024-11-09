@@ -163,7 +163,7 @@ public class BillService {
 	                    } else if (fromDate != null) {
 	                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
 	                    } else if (toDate != null) {
-	                        predicates.add(cb.lessThanOrEqualTo(root.get("billDate"), toDate));
+	                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), toDate));
 	                    }
 	                    
 	                    // Handle amount filtering

@@ -1,5 +1,6 @@
 package com.jewelbankers.services;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Base64;
 import java.util.HashMap;
@@ -13,9 +14,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.Utility.SettingsUtillity;
-import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.Customer;
 import com.jewelbankers.entity.ItemType;
 import com.jewelbankers.entity.Jewel;
@@ -96,6 +98,55 @@ public class BillingService {
 
         return jewelDetail;  // Return the created JewelDetail object
     }
+    
+    @Transactional
+    public Jewel createJewelBill(String barcode, Long customerid, BigDecimal makingChargePercent, 
+                                 BigDecimal wastageChargePercent, MultipartFile photo) throws IOException {
+
+        // Fetch item details based on barcode
+        JewelDetail jewelDetail = jewelDetailRepository.findByBarcode(barcode)
+                .orElseThrow(() -> new RuntimeException("Item not found for the given barcode"));
+
+        // Convert settings to map
+        List<Settings> settingsList = settingsRepository.findAll();
+        Map<String, String> settingsMap = settingsUtility.convertListToMap(settingsList);
+
+        // Fetch rate based on itemtypeno in Jewel entity
+        Jewel jewel = new Jewel();
+        BigDecimal rate = settingsUtility.getRateByItemType(settingsMap, jewel.getItemtypeno());
+
+        // Calculate total amount, making charge, and wastage charge
+        BigDecimal weight = jewel.getWeight();
+        BigDecimal makingCharge = rate.multiply(weight).multiply(makingChargePercent).divide(new BigDecimal("100"));
+        BigDecimal wastageCharge = rate.multiply(weight).multiply(wastageChargePercent).divide(new BigDecimal("100"));
+        BigDecimal totalAmount = rate.multiply(weight).add(makingCharge).add(wastageCharge);
+
+        // Set customer details
+        Customer customer = customerRepository.findById(customerid)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        if (photo != null && !photo.isEmpty()) {
+            // Save the photo as a byte array in the Customer entity
+            customer.setPhoto(photo.getBytes());
+        }
+
+        // Set customer to jewel
+        jewel.setCustomer(customer);  // Associate the customer with the jewel
+
+        // Set values in the Jewel entity
+        jewel.setTotalamount(totalAmount.intValue());
+        jewel.setMakingcharge(makingCharge);
+        jewel.setWastagecharge(wastageCharge);
+        jewel.setWeight(weight);
+        jewel.setItemtypeno(jewel.getItemtypeno()); // Assuming itemtypeno is already set
+
+        // Save the customer (if new or modified)
+        customerRepository.save(customer);
+
+        // Save the Jewel entity
+        return jewelRepository.save(jewel);
+    }
+
 
     /**
      * Fetch item details from the database based on barcode and calculate
@@ -124,7 +175,7 @@ public class BillingService {
 
             // Auto-populate item details
             //response.put("itemno", itemDetail.getItemno());
-            response.put("itemType", itemType); // **Updated itemType assignment from dynamic method**
+            response.put("itemTypeNo", jewel.getItemtypeno()); // **Updated itemType assignment from dynamic method**
             response.put("quantity", itemDetail.getItemquantity());
             response.put("itemDescription", itemDetail.getItemdescription());
             response.put("weight", jewel.getWeight()); // Now accessing weight from Jewel entity
@@ -145,25 +196,15 @@ public class BillingService {
 //                response.put("error", "Customer details not found for the given item");
 //            }
 
-            // Fetch settings and convert to a map
+         // Fetch settings and convert to a map
             List<Settings> settingsList = settingsRepository.findAll();
             Map<String, String> settingsMap = settingsUtility.convertListToMap(settingsList);
 
-            // Fetch gold and silver rates from settings
-            String goldRateStr = settingsUtility.getGoldRate(settingsMap);
-            String silverRateStr = settingsUtility.getSilverRate(settingsMap);
-            String diamondRateStr = settingsUtility.getDiamondRate(settingsMap);
+            // Determine the correct rate based on itemtypeno from jewel entity
+            BigDecimal rate = settingsUtility.getRateByItemType(settingsMap, jewel.getItemtypeno());
 
-            BigDecimal goldRate = new BigDecimal(goldRateStr);
-            BigDecimal silverRate = new BigDecimal(silverRateStr);
-            BigDecimal diamondRate = new BigDecimal(diamondRateStr);
-
-//            response.put("goldRate", goldRate);
-//            response.put("silverRate", silverRate);
-//            response.put("diamondRate", diamondRate);
-
-         // Calculate the base amount based on weight and item type
-            BigDecimal baseAmount = calculateTotalAmount(itemDetail, goldRate, silverRate, diamondRate, jewel.getWeight(), itemType);
+            // Calculate the base amount based on weight and item type
+            BigDecimal baseAmount = rate.multiply(jewel.getWeight());
 
             // Calculate making charge and wastage charge based on client input
             BigDecimal makingCharge = baseAmount.multiply(makingChargePercentage).divide(BigDecimal.valueOf(100));
@@ -173,6 +214,7 @@ public class BillingService {
             BigDecimal totalAmount = baseAmount.add(makingCharge).add(wastageCharge);
 
             // Populate the response with the combined total amount
+            response.put("rate", rate);
             response.put("makingcharges", makingCharge);
             response.put("wastagecharges", wastageCharge);
             response.put("totalAmount", totalAmount);

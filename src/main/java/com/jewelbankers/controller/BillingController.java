@@ -1,14 +1,17 @@
 package com.jewelbankers.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.http.HttpStatus;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.Utility.ErrorResponse;
 import com.jewelbankers.entity.Jewel;
@@ -57,7 +62,7 @@ public class BillingController {
         	billingService.deleteJewelBill(id);
             return ResponseEntity.ok("Jewel Bill deleted successfully");
         } else {
-            return ResponseEntity.status(HttpStatus.SC_NOT_FOUND)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("Jewel Bill not found", "Jewel Bill with id " + id + " not found"));
         }
     }
@@ -70,10 +75,10 @@ public class BillingController {
             JewelDetail addedJewelDetail = billingService.addItemDetail(jewelDetail);
 
             // Return JewelDetail with status 201 (created)
-            return ResponseEntity.status(HttpStatus.SC_CREATED).body(addedJewelDetail);
+            return ResponseEntity.status(HttpStatus.CREATED).body(addedJewelDetail);
         } catch (Exception e) {
             // Return a ResponseEntity with a BAD_REQUEST status in case of an error
-            return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
@@ -95,10 +100,46 @@ public class BillingController {
 
         if (response.containsKey("error")) {
             // If an error message is present, return NOT_FOUND response
-            return ResponseEntity.status(HttpStatus.SC_NOT_FOUND).body(response.get("error"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.get("error"));
         } else {
             // If no errors, return OK response with calculated values
             return ResponseEntity.ok(response);
         }
     }
+    
+    @PostMapping(value = "/billing", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> createJewelBill(
+            @RequestPart("barcode") String barcode,
+            @RequestPart("customerid") Long customerid,
+            @RequestPart("makingChargePercent") BigDecimal makingChargePercent,
+            @RequestPart("wastageChargePercent") BigDecimal wastageChargePercent,
+            @RequestPart(value = "photo", required = false) MultipartFile photo) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Call the service layer to create the Jewel bill
+            Jewel jewel = billingService.createJewelBill(
+                    barcode,
+                    customerid,
+                    makingChargePercent,
+                    wastageChargePercent,
+                    photo);
+
+            response.put("message", "Jewel bill successfully created for customer ID: " +
+                    (jewel.getCustomer() != null ? jewel.getCustomer().getCustomerid() : "Unknown"));
+            response.put("jewel", jewel);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (IOException e) {
+            response.put("message", "Failed to process the provided photo.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+        } catch (RuntimeException e) {
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
 }
