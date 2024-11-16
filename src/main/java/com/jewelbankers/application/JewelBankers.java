@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class JewelBankers {	
 	
 	/**
-	 * @return	
+	 * @return		
 	 */
-	@RequestMapping("/hell") 
+	@RequestMapping("/hell") 	
 	String home() {
 		return "Hello World!";	
 	}

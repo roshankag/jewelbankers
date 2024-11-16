@@ -147,8 +147,8 @@ public class OfficePdfService {
                     Image photo = Image.getInstance(customerPhoto);
 
                     // Set the position and scale of the photo as needed
-                    photo.setAbsolutePosition(470, 512); // Adjust coordinates (x, y) as needed
-                    photo.scaleToFit(90, 1000); // Scale the image to fit within 80x80 size
+                    photo.setAbsolutePosition(450, 512); // Adjust coordinates (x, y) as needed
+                    photo.scaleToFit(100, 100); // Scale the image to fit within 80x80 size
 
                     // Add the photo to the PDF content
                     content.addImage(photo);

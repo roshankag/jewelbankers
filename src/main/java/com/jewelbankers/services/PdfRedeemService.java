@@ -137,8 +137,8 @@ public class PdfRedeemService {
                     Image photo = Image.getInstance(customerPhoto);
 
                     // Set the position and scale of the photo as needed
-                    photo.setAbsolutePosition(450, 500); // Adjust coordinates (x, y) as needed
-                    photo.scaleToFit(104, 1000); // Scale the image to fit within 80x80 size
+                    photo.setAbsolutePosition(450, 520); // Adjust coordinates (x, y) as needed
+                    photo.scaleToFit(130, 130); // Scale the image to fit within 80x80 size
 
                     // Add the photo to the PDF content
                     content.addImage(photo);

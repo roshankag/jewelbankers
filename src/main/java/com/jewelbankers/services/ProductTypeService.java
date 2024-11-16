@@ -48,5 +48,12 @@ public class ProductTypeService {
         }
         return false;
     }
+    
+ // Method to retrieve product type code by productTypeNo
+    public String getProductTypeCode(int productTypeNo) {
+        Optional<ProductType> productType = productTypeRepository.findByProductTypeNo(productTypeNo);
+        return productType.map(ProductType::getProductTypeCode).orElse("Unknown"); // Default to "Unknown" if not found
+    }
+
 }
 

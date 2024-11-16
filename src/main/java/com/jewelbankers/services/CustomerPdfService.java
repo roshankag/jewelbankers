@@ -628,7 +628,7 @@ public class CustomerPdfService {
             content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 35, 610, 0);
             content.endText();
 
-         // Customer Address (Split into lines and ensure it's not null)
+            // Customer Address (Split into lines and ensure it's not null)
             String[] addressLines = bill.getCustomer() != null && bill.getCustomer().getAddress() != null 
                 ? bill.getCustomer().getAddress().split(",") : new String[]{"Address Line 1", "Address Line 2", "Address Line 3"};
 

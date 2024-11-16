@@ -75,6 +75,31 @@ public class SettingsUtillity {
         return settingsMap.get("DIAMOND_RATE");
     }
     
+    public String getExcelPassword(Map<String, String> settingsMap) {
+        return settingsMap.get("EXCEL_PASSWORD");
+    }
+    
+    public String getLicenceNo(Map<String, String> settingsMap) {
+        return settingsMap.get("LICENCE_NO");
+    }
+    
+    
+    
+//    public String getExcelPassword(Map<String, String> settingsMap) {
+//        // Fetch the base password number from the settings (e.g., "EXCEL_PASSWORD" holds the base value as a string)
+//        String basePasswordValue = settingsMap.get("EXCEL_PASSWORD");
+//        if (basePasswordValue != null) {
+//            try {
+//                // Convert the base password value to an integer and add 100
+//                int basePassword = Integer.parseInt(basePasswordValue);
+//                return String.valueOf(basePassword + 100);
+//            } catch (NumberFormatException e) {
+//                throw new RuntimeException("Invalid password value in settings");
+//            }
+//        }
+//        return "defaultPassword"; // Fallback password in case the setting is not found
+//    }
+    
  // Fetch rate based on itemtypeno (1 for Gold, 2 for Silver, etc.)
     public BigDecimal getRateByItemType(Map<String, String> settingsMap, Integer itemtypeno) {
         String rateKey = getRateKeyByItemType(itemtypeno);

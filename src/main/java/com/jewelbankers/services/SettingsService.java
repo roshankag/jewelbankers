@@ -49,6 +49,22 @@ public class SettingsService {
             throw new RuntimeException("Photo directory setting not found");
         }
     }
+	
+	public String getLicenceNo() {
+        // Fetch LICENCE_NO setting from database
+        Optional<Settings> licenceSetting = settingsRepository.findByParamId("LICENCE_NO");
+        
+        // Return the paramValue if present, else return a default value
+        return licenceSetting.map(Settings::getParamValue).orElse("Not Available");
+    }
+	
+	public String getArticlePrint() {
+        // Fetch ARTICLE_PHOTO setting from database
+        Optional<Settings> licenceSetting = settingsRepository.findByParamId("ARTICLE_PHOTO");
+        
+        // Return the paramValue if present, else return a default value
+        return licenceSetting.map(Settings::getParamValue).orElse("Not Available");
+    }
 
 
     public String getParamValueByParamId(String paramId) {
