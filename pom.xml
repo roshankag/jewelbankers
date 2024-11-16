@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.jewelbankers</groupId>
 	<artifactId>jewelbankers-api</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<name>jewelbankersapi</name>
 	<description>Demo project for Spring Boot Security - JWT</description>
 
