@@ -41,26 +41,30 @@ public class DataSourceConfig {
         // Configure the default and initial data sources
         DataSource primaryDataSource = DataSourceFactory.createDataSource(
             primaryDataSourceUrl, primaryDataSourceUsername, primaryDataSourcePassword);
-        DataSource secondaryDataSource = DataSourceFactory.createDataSource(
-            "jdbc:mysql://localhost:3306/ambikam?allowPublicKeyRetrieval=true&useSSL=false", primaryDataSourceUsername, primaryDataSourcePassword);
-
-        //dynamicRoutingDataSource.setDefaultTargetDataSource(primaryDataSource);
-
-        //Map<Object, Object> targetDataSources = new HashMap<>();
-        //targetDataSources.put("primary", primaryDataSource);
-        //targetDataSources.put("ambikam", secondaryDataSource);
-        //dynamicRoutingDataSource.setTargetDataSources(targetDataSources);
+        
+       
 
         dynamicRoutingDataSource.addTargetDataSource(JEWEL_BANKERS, primaryDataSource);
-        dynamicRoutingDataSource.addTargetDataSource("ambikam", secondaryDataSource);
+//        dynamicRoutingDataSource.addTargetDataSource("ambikam", secondaryDataSource);
         dynamicRoutingDataSource.setDefaultTargetDataSource(primaryDataSource);
-
-        //dynamicRoutingDataSource.afterPropertiesSet();
 
         return dynamicRoutingDataSource;
     }
     
 
+//    @PostConstruct
+//    public void allUserDataSources() {
+//    	 List<User> users = userDetailsServiceImpl.allUsers();
+//         for (User user : users) {
+//         	 String url = "jdbc:mysql://localhost:3306/" + user.getUserDatabaseName() + "?allowPublicKeyRetrieval=true&useSSL=false";
+//         	 System.out.println("Data source url"+url);
+//              DataSource newDataSource = DataSourceFactory.createDataSource(url, primaryDataSourceUsername, primaryDataSourcePassword);
+//              dynamicRoutingDataSource().addTargetDataSource(user.getUserDatabaseName(), newDataSource);
+//
+//         }
+//    }
+    
+    
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DynamicRoutingDataSource dynamicRoutingDataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dynamicRoutingDataSource); // Set the dynamic routing data source here

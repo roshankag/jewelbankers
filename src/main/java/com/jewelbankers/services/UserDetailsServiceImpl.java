@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -79,6 +80,7 @@ public void updateResetPasswordToken(String token, String email) throws Username
 
         return users;
     }
+    
     public User updateUser(Long id, User user) {
     	System.out.println("update user id"+id);
     	try {
