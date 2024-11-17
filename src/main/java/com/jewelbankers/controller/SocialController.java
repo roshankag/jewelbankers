@@ -463,7 +463,7 @@ public class SocialController {
                 .collect(Collectors.toList());
 
             System.out.println("Valid token");
-            String token = tokenService.generateJwtToken(userEmail);
+            String token = tokenService.generateJwtToken(userDetails);
             
             // Handle the authentication response
             Map<String, Object> responseBody = new HashMap<>();
