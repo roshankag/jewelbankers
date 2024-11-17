@@ -66,10 +66,10 @@ public class DataSourceService {
     	//dynamicRoutingDataSource.setDataSourceKey(databaseName);
     	//dynamicRoutingDataSource.setDefaultDataSource(databaseName);
         // Perform database operations here using the specified dbName
-        //dynamicRoutingDataSource.clearDataSourceKey();
+        dynamicRoutingDataSource.clearDataSourceKey();
         
     	dynamicRoutingDataSource.setDataSourceKey(databaseName);
-    	//dynamicRoutingDataSource.setDefaultDataSource(databaseName);
+    	dynamicRoutingDataSource.setDefaultDataSource(databaseName);
     	
     	//dynamicRoutingDataSource.setDataSourceKey("secondary");
     	//dynamicRoutingDataSource.setDefaultDataSource("secondary");

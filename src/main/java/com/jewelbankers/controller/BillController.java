@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.Utility.ErrorResponse;
+import com.jewelbankers.configuration.DataSourceService;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.Customer;
 import com.jewelbankers.excel.ExcelGenerator;
@@ -46,6 +47,10 @@ import jakarta.persistence.EntityNotFoundException;
 @CrossOrigin(origins = "http://localhost:4200")
 public class BillController {
 
+
+	@Autowired
+	DataSourceService dataSourceService;
+	
     @Autowired
     private BillService billService;
     
@@ -302,7 +307,9 @@ public class BillController {
     @GetMapping
     public ResponseEntity<Page<Bill>> getAllBills(@RequestParam(value = "page", defaultValue = "0") int page,
                                                    @RequestParam(value = "size", defaultValue = "50") int size) {
-        Page<Bill> bills = billService.getAllBills(page, size);
+		dataSourceService.switchDataSource("ambikam");
+
+    	Page<Bill> bills = billService.getAllBills(page, size);
         return ResponseEntity.ok(bills);
     }
 
@@ -358,7 +365,8 @@ public class BillController {
             @RequestParam(required = false) Integer amount,
             @RequestParam(required = false) Character status,
             @RequestParam(required = false) Integer productTypeNo) {
-        
+		dataSourceService.switchDataSource("ambikam");
+      
         List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, null);
         if (bills.isEmpty()) {
             // **Return a 200 OK response with a message indicating no bills were found**

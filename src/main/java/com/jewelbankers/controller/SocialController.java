@@ -477,7 +477,8 @@ public class SocialController {
             // Dynamic database switching based on userEmail or some criteria
             System.out.println("DatebaseName:"+ userDetails.getUserDatabaseName());
             //switchDatabase(userDetails.getUserDatabaseName());
-            this.dataSourceService.switchDataSource(userDetails.getUserDatabaseName());
+            //this.dataSourceService.switchDataSource(userDetails.getUserDatabaseName());
+            this.dataSourceService.switchDataSource("ambikam");
             // Convert the response body to JSON
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = "";
