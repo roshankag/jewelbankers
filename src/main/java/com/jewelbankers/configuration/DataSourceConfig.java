@@ -1,14 +1,10 @@
 package com.jewelbankers.configuration;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -17,6 +13,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 @Configuration
 public class DataSourceConfig {
 
+	
+	public static final String JEWEL_BANKERS="jewelbankers";
+	
     @Value("${datasource.primary.url}")
     private String primaryDataSourceUrl;
 
@@ -52,7 +51,7 @@ public class DataSourceConfig {
         //targetDataSources.put("ambikam", secondaryDataSource);
         //dynamicRoutingDataSource.setTargetDataSources(targetDataSources);
 
-        dynamicRoutingDataSource.addTargetDataSource("jewelbankers_users", primaryDataSource);
+        dynamicRoutingDataSource.addTargetDataSource(JEWEL_BANKERS, primaryDataSource);
         dynamicRoutingDataSource.addTargetDataSource("ambikam", secondaryDataSource);
         dynamicRoutingDataSource.setDefaultTargetDataSource(primaryDataSource);
 

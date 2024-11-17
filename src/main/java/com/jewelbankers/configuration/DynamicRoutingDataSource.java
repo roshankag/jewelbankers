@@ -35,12 +35,12 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
     
     public void setDataSourceKey(String key) {
         contextHolder.set(key);
-        System.out.println("Data source key set to: " + key); // Debugging
+        //System.out.println("Data source key set to: " + key); // Debugging
     }
 
     public void clearDataSourceKey() {
         contextHolder.remove();
-        System.out.println("Data source key cleared."); // Debugging
+        //System.out.println("Data source key cleared."); // Debugging
     }
 
     // Method to add or update a target data source dynamically based on schema/database
@@ -60,6 +60,8 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
     	System.out.println("targetDataSources : size : "+this.targetDataSources.size());
     	DataSource dataSource = (DataSource) this.targetDataSources.get(key);
     	setDefaultTargetDataSource(dataSource);
+    	System.out.println("current Data Source: "+ key);
+
     }
 
 }

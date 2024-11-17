@@ -25,11 +25,13 @@ import com.jewelbankers.entity.Settings;
 
 import com.jewelbankers.services.SettingsService;
 import com.jewelbankers.Utility.ErrorResponse;
+import com.jewelbankers.aop.SwitchDatabase;
 import com.jewelbankers.configuration.DataSourceService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/jewelbankersapi/settings")
+@SwitchDatabase
 public class SettingsController {
 
 	@Autowired
@@ -42,9 +44,10 @@ public class SettingsController {
 //    private FileUploadServiceDummy fileUploadService;
 
 	@GetMapping
+	//@SwitchDatabase
 	public ResponseEntity<?> getSettings() {
 		try {
-			dataSourceService.switchDataSource("ambikam");
+			//dataSourceService.switchDataSource("ambikam");
 			List<Settings> settingsList = settingsService.getSettings();
 			return ResponseEntity.ok(settingsList);
 		} catch (Exception e) {

@@ -369,6 +369,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jewelbankers.aop.SwitchDatabase;
+import com.jewelbankers.configuration.DataSourceConfig;
 import com.jewelbankers.configuration.DataSourceService;
 import com.jewelbankers.entity.Role;
 import com.jewelbankers.entity.User;
@@ -389,6 +391,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/jewelbankersapi/social")
 @CrossOrigin(origins = {"http://localhost:4200", "http://localhost"})
+@SwitchDatabase
 public class SocialController {
 
     @Autowired
@@ -438,7 +441,7 @@ public class SocialController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+		//dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS);
         System.out.println("Request Body: " + requestBody);
 
         // Parse the request body to extract parameters
@@ -472,13 +475,13 @@ public class SocialController {
             responseBody.put("username", userDetails.getUsername());
             responseBody.put("email", userEmail);
             responseBody.put("roles", roles);
-            responseBody.put("databaseName",userDetails.getUserDatabaseName());
+            //responseBody.put("databaseName",userDetails.getUserDatabaseName());
             
             // Dynamic database switching based on userEmail or some criteria
-            System.out.println("DatebaseName:"+ userDetails.getUserDatabaseName());
+            //System.out.println("Social Controler Database Name:"+ userDetails.getUserDatabaseName());
             //switchDatabase(userDetails.getUserDatabaseName());
             //this.dataSourceService.switchDataSource(userDetails.getUserDatabaseName());
-            this.dataSourceService.switchDataSource("ambikam");
+            //this.dataSourceService.switchDataSource(userDetails.getUserDatabaseName());
             // Convert the response body to JSON
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = "";

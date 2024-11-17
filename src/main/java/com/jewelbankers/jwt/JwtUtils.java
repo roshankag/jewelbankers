@@ -100,6 +100,15 @@ public class JwtUtils {
                .parseClaimsJws(token).getBody().getSubject();
   }
 
+  public String getRequestUserdatabaseFromJwtToken(String token) {
+	  return Jwts.parserBuilder()
+	            .setSigningKey(key())
+	            .build()
+	            .parseClaimsJws(token)
+	            .getBody()
+	            .get("databasename", String.class); // Extract the "databasename" claim
+  }
+  
   public boolean validateJwtToken(String authToken) {
     try {
       Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
