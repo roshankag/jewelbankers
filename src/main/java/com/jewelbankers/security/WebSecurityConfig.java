@@ -48,7 +48,8 @@ public class WebSecurityConfig  {//extends WebSecurityConfigurerAdapter {
       return new WebMvcConfigurer() {
           @Override
           public void addCorsMappings(CorsRegistry registry) {
-              registry.addMapping("/**").allowedOrigins("http://localhost:4200","http://localhost:8080")
+              registry.addMapping("/**")
+              .allowedOrigins("http://localhost:4200","http://localhost:8080")
               //.allowedOrigins("http://localhost:4200","http://localhost","http://ec2-54-204-78-129.compute-1.amazonaws.com","http://localhost")
              .allowedOrigins("*")
               .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")

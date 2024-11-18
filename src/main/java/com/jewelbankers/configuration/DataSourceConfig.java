@@ -51,19 +51,6 @@ public class DataSourceConfig {
         return dynamicRoutingDataSource;
     }
     
-
-//    @PostConstruct
-//    public void allUserDataSources() {
-//    	 List<User> users = userDetailsServiceImpl.allUsers();
-//         for (User user : users) {
-//         	 String url = "jdbc:mysql://localhost:3306/" + user.getUserDatabaseName() + "?allowPublicKeyRetrieval=true&useSSL=false";
-//         	 System.out.println("Data source url"+url);
-//              DataSource newDataSource = DataSourceFactory.createDataSource(url, primaryDataSourceUsername, primaryDataSourcePassword);
-//              dynamicRoutingDataSource().addTargetDataSource(user.getUserDatabaseName(), newDataSource);
-//
-//         }
-//    }
-    
     
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DynamicRoutingDataSource dynamicRoutingDataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
