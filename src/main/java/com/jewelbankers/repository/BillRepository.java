@@ -28,6 +28,8 @@ public interface BillRepository extends JpaRepository<Bill, Long>,  JpaSpecifica
 	List<Bill> findByBillDateBetween(LocalDate fromDate, LocalDate endDate);
 	List<Bill> findByRedemptionStatus(Character redemptionStatus);
 	List<Bill> findByProductTypeNo(Long productTypeNo);
+	List<Bill> findByCustomerCustomeridAndRedemptionStatus(Long customerid, Character redemptionStatus);
+	List<Bill> findByCustomerCustomerNameAndRedemptionStatus(String customerName, Character redemptionStatus);
 	
 	// Find bills by Bill Serial and Bill No, sorted by 'billSeq' in descending order
     List<Bill> findByBillSerialAndBillNoOrderByBillSequenceDesc(Character billSerial, Integer billNo);

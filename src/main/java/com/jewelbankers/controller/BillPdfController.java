@@ -1,12 +1,16 @@
 package com.jewelbankers.controller;
 
-import com.jewelbankers.entity.Bill;
-import com.jewelbankers.exception.ResourceNotFoundException;
-import com.jewelbankers.repository.SettingsRepository;
-import com.jewelbankers.services.BillPdfService;
-import com.jewelbankers.services.BillService;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.jewelbankers.entity.Bill;
+import com.jewelbankers.repository.SettingsRepository;
+import com.jewelbankers.services.BillPdfService;
+import com.jewelbankers.services.BillService;
 
 @RequestMapping("/jewelbankersapi")
 @RestController
@@ -44,8 +46,14 @@ public class BillPdfController {
             @RequestParam(value = "productTypeNo", required = false) Integer productTypeNo) throws IOException {
         try {
             // Parse date parameters
-            LocalDate fromDate = fromDateStr != null ? LocalDate.parse(fromDateStr) : null;
-            LocalDate toDate = toDateStr != null ? LocalDate.parse(toDateStr) : null;
+            LocalDate fromDate = null;
+            LocalDate toDate = null;
+            try {
+                if (fromDateStr != null) fromDate = LocalDate.parse(fromDateStr);
+                if (toDateStr != null) toDate = LocalDate.parse(toDateStr);
+            } catch (DateTimeParseException e) {
+                return ResponseEntity.badRequest().body("Invalid date format. Please use 'yyyy-MM-dd'.");
+            }
 
             Map<String, String> settingsMap = settingsRepository.findAll().stream()
                     .collect(HashMap::new, (m, v) -> m.put(v.getParamId(), v.getParamValue()), HashMap::putAll);
@@ -59,9 +67,9 @@ public class BillPdfController {
                 response.put("message", "No bills found for the provided search criteria.");
                 return ResponseEntity.ok(response);
             }
-
+            
             // Generate the PDF for the bills
-            ByteArrayInputStream pdfStream = billPdfService.generateBillPdf(bills);
+            ByteArrayInputStream pdfStream = billPdfService.generateBillPdf(bills, settingsMap.get("SHOP_NAME"), settingsMap);
 
             byte[] pdfBytes = pdfStream.readAllBytes();
 
@@ -75,7 +83,10 @@ public class BillPdfController {
                     .body(pdfBytes);
         } catch (Exception e) {
             // Log and handle other exceptions
-            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "An error occurred");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }

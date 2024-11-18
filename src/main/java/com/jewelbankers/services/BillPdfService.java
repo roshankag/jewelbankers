@@ -5,34 +5,30 @@ import com.itextpdf.text.pdf.*;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.BillDetail;
 import com.jewelbankers.entity.Customer;
-
 import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
 @Service
 public class BillPdfService {
 
-    public ByteArrayInputStream generateBillPdf(List<Bill> bills) {
+    public ByteArrayInputStream generateBillPdf(List<Bill> bills, String shopName, Map<String, String> shopAddress) {
         // Sort bills by date in descending order
         bills.sort(Comparator.comparing(Bill::getBillDate).reversed());
 
-        Document document = new Document(PageSize.A4, 50, 50, 50, 50); // A4 size with custom margins
+        Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20); // Compact margins for more content
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // Add heading
-            addHeading(document);
-
-            // Add bill details table
+            addHeading(document, shopName, shopAddress);
             addBillDetailsTable(bills, document);
 
             document.close();
@@ -44,28 +40,42 @@ public class BillPdfService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
-    private void addHeading(Document document) throws DocumentException {
+    private void addHeading(Document document, String shopName, Map<String, String> shopAddress) throws DocumentException {
         Paragraph header = new Paragraph("Bill Details",
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Font.BOLD, BaseColor.BLACK));
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.BOLD, BaseColor.BLACK));
         header.setAlignment(Element.ALIGN_CENTER);
         document.add(header);
         document.add(Chunk.NEWLINE);
+
+        StringBuilder shopDetails = new StringBuilder();
+        if (shopName != null) {
+            shopDetails.append(shopName).append("\n");
+        }
+        if (shopAddress != null) {
+            String line1 = shopAddress.getOrDefault("SHOP_NO", "") + ", " + shopAddress.getOrDefault("SHOP_STREET", "");
+            String line2 = shopAddress.getOrDefault("SHOP_AREA", "") + ", " + shopAddress.getOrDefault("SHOP_CITY", "");
+            String line3 = shopAddress.getOrDefault("SHOP_STATE", "") + " - " + shopAddress.getOrDefault("SHOP_PINCODE", "");
+
+            shopDetails.append(line1).append("\n").append(line2).append("\n").append(line3);
+        }
+
+        Paragraph shopDetailsParagraph = new Paragraph(shopDetails.toString(),
+                FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD, BaseColor.BLACK));
+        shopDetailsParagraph.setAlignment(Element.ALIGN_CENTER);
+        document.add(shopDetailsParagraph);
     }
 
     private void addBillDetailsTable(List<Bill> bills, Document document) throws DocumentException {
-        // Adjust column widths for better alignment and readability
-        PdfPTable table = new PdfPTable(new float[]{1, 1, 1.5f, 2, 2.5f, 3, 1});
+        // Adjusted column widths to give more space to "Product Desc" column
+        PdfPTable table = new PdfPTable(new float[]{0.8f, 4.0f, 1.5f, 1.5f, 1.5f, 1.2f, 3.5f, 1.5f, 1.5f, 1.2f}); // Modified width of "Product Desc" to 3.5f
         table.setWidthPercentage(100);
         table.setSpacingBefore(10f);
-        table.setSpacingAfter(10f);
 
         Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10);
-        Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+        Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 9);
 
-        // Add table headers with background color
         addTableHeader(table, headFont);
 
-        // Add table data rows
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         for (Bill bill : bills) {
             addTableRow(bill, table, cellFont, formatter);
@@ -75,49 +85,83 @@ public class BillPdfService {
     }
 
     private void addTableHeader(PdfPTable table, Font headFont) {
-        Stream.of("Bill Serial", "Bill No", "Bill Date", "Customer Name", "Address", "Product Description", "Grams")
+        Stream.of("Pledge No", "Customer Details", "Date", "Amount", "Redem Total", 
+                  "Weight", "Product Desc", "Redem No", "Redem Date", "Status")
                 .forEach(columnTitle -> {
                     PdfPCell header = new PdfPCell(new Phrase(columnTitle, headFont));
                     header.setHorizontalAlignment(Element.ALIGN_CENTER);
                     header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                    header.setPadding(6);
-                    header.setBackgroundColor(BaseColor.LIGHT_GRAY); // Add a light gray background for headers
+                    header.setPadding(5);
+                    header.setBackgroundColor(BaseColor.LIGHT_GRAY);
                     table.addCell(header);
                 });
     }
 
     private void addTableRow(Bill bill, PdfPTable table, Font cellFont, DateTimeFormatter formatter) {
-        table.addCell(createTableCell(String.valueOf(bill.getBillSerial()), cellFont));
-        table.addCell(createTableCell(String.valueOf(bill.getBillNo()), cellFont));
-        
-        // Format the bill date to dd-MM-yyyy
-        table.addCell(createTableCell(bill.getBillDate().format(formatter), cellFont));
-        
-        // Customer details
-        Customer customer = bill.getCustomer();
-        table.addCell(createTableCell(customer != null ? customer.getCustomerName() : "", cellFont));
-        table.addCell(createTableCell(customer != null ? customer.getAddress() : "", cellFont));
-        
-        // Product description from BillDetails
-        StringBuilder productDesc = new StringBuilder();
-        for (BillDetail billDetail : bill.getBillDetails()) {
-            productDesc.append(billDetail.getProductDescription()).append("; ");
-        }
-        table.addCell(createTableCell(productDesc.toString(), cellFont));
+        // Pledge No
+        String pledgeNo = bill.getBillSerial() != null && bill.getBillNo() != null ? bill.getBillSerial() + "" + bill.getBillNo() : ""; // Handle null
+        table.addCell(createTableCell(pledgeNo, cellFont));
 
-        // Align grams to the right for consistency with numerical data
-        PdfPCell gramsCell = createTableCell(String.valueOf(bill.getGrams()), cellFont);
-        gramsCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        table.addCell(gramsCell);
-    }
+        // Customer Details
+        Customer customer = bill.getCustomer();
+        String customerDetails = (customer != null && customer.getCustomerName() != null && customer.getAddress() != null) 
+                                  ? customer.getCustomerName() + ", " + customer.getAddress() : ""; // Handle null
+        table.addCell(createTableCell(customerDetails, cellFont));
+
+        // Date
+        table.addCell(createTableCell(bill.getBillDate() != null ? bill.getBillDate().format(formatter) : "", cellFont)); // Handle null
+
+        // Amount
+        table.addCell(createTableCell(bill.getAmount() != null ? String.valueOf(bill.getAmount()) : "", cellFont)); // Handle null
+        
+        // Redemption Total
+        String redemTotal = "";
+        if (bill.getRedemptionStatus() != null && bill.getRedemptionStatus() != 'O' && bill.getRedemptionTotal() != null) {
+            redemTotal = bill.getRedemptionTotal() != 0 ? String.valueOf(bill.getRedemptionTotal()) : "";
+        }
+        table.addCell(createTableCell(redemTotal, cellFont)); // Display blank if open or 0
+
+        // Weight /GM
+        table.addCell(createTableCell(bill.getGrams() != null ? String.valueOf(bill.getGrams()) : "", cellFont)); // Handle null
+
+        // Product Description
+        StringBuilder ornamentDetails = new StringBuilder();
+        for (BillDetail billDetail : bill.getBillDetails()) {
+            if (billDetail.getProductDescription() != null) {
+                ornamentDetails.append(billDetail.getProductDescription()).append("; ");
+            }
+        }
+        table.addCell(createTableCell(ornamentDetails.toString().trim(), cellFont)); // Display full product description
+
+        // Redemption No
+        String redemNo = bill.getBillRedemSerial() != null && bill.getBillRedemNo() != null ? bill.getBillRedemSerial() + "" + bill.getBillRedemNo() : ""; // Handle null
+        table.addCell(createTableCell(redemNo, cellFont));
+
+        // Redemption Date
+        String redemptionDate = (bill.getRedemptionDate() != null) ? bill.getRedemptionDate().format(formatter) : ""; // Handle null
+        table.addCell(createTableCell(redemptionDate, cellFont));
+
+     // Status
+        String status = "";
+        if (bill.getRedemptionStatus() != null) {
+            char redemptionStatus = bill.getRedemptionStatus();  // Assuming it's a char
+            if (redemptionStatus == 'R') {
+                status = "Paid"; // Display "Paid" for redemption status "R"
+            } else if (redemptionStatus != 'O') {
+                status = ""; // For all other statuses, display blank
+            }
+        }
+        table.addCell(createTableCell(status, cellFont));
+    } 
 
     private PdfPCell createTableCell(String content, Font font) {
-        if (content == null) content = ""; // Handle null
+        // Adjusted to handle both `null` and "null" string values by displaying them as blank
+        if (content == null || "null".equals(content)) content = ""; // Handle null or "null" strings
         PdfPCell cell = new PdfPCell(new Phrase(content, font));
-        cell.setPadding(4);
+        cell.setPadding(3);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE); // Center-align vertically
-        cell.setBorderWidth(0.5f); // Add a subtle border
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setFixedHeight(16); // Compact row height
         return cell;
     }
 }

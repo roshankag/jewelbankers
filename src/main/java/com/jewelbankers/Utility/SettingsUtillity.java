@@ -75,6 +75,14 @@ public class SettingsUtillity {
         return settingsMap.get("DIAMOND_RATE");
     }
     
+    public String getExcelPassword(Map<String, String> settingsMap) {
+        return settingsMap.get("EXCEL_PASSWORD");
+    }
+    
+    public String getLicenceNo(Map<String, String> settingsMap) {
+        return settingsMap.get("LICENCE_NO");
+    }
+    
  // Fetch rate based on itemtypeno (1 for Gold, 2 for Silver, etc.)
     public BigDecimal getRateByItemType(Map<String, String> settingsMap, Integer itemtypeno) {
         String rateKey = getRateKeyByItemType(itemtypeno);

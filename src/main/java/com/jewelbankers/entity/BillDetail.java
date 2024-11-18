@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -29,8 +30,20 @@ public class BillDetail {
 
     @Column(name = "PRODUCT_DESCRIPTION", length = 2000)
     private String productDescription;
+    
+    @Lob
+    @Column(name = "articlephoto", columnDefinition = "MEDIUMBLOB")
+    private byte[] articlephoto;
 
-    @Column(name = "PRODUCT_QUANTITY")
+    public byte[] getArticlephoto() {
+		return articlephoto;
+	}
+
+	public void setArticlephoto(byte[] articlephoto) {
+		this.articlephoto = articlephoto;
+	}
+
+	@Column(name = "PRODUCT_QUANTITY")
     private int productQuantity;
     
     @ManyToOne(fetch = FetchType.LAZY)

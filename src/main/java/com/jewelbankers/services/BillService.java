@@ -7,9 +7,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,6 +47,12 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class BillService {
+	
+	// Constants for redemption status
+    private static final char REDEMPTION_STATUS_OPEN = 'O';
+    
+    private static final char REDEMPTION_STATUS_CLOSED = 'C';
+    
 	@Autowired
 	private BillRepository billRepository;
 	
@@ -78,6 +83,9 @@ public class BillService {
 	 @Autowired
 	 private PdfRedeemService pdfRedeemService;
 	 
+	 @Autowired
+	 private PdfService pdfService;
+	 
 	 
 	public List<Bill> findBillsByProductTypeNo(Long productTypeNo) {
         return billRepository.findByProductTypeNo(productTypeNo);
@@ -97,12 +105,29 @@ public class BillService {
 //    }
     
 	public ByteArrayInputStream exportBillsToExcel(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) throws IOException {
-	    // Retrieve the list of bills based on the search criteria
-	    List<Bill> bills = findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, sortOrder);
-	    
-	    // Generate the Excel file from the list of bills
-	    return ExcelGenerator.generateBillExcel(bills);
-	}
+        // Retrieve the list of bills based on the search criteria
+        List<Bill> bills = findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, sortOrder);
+
+        if (bills.isEmpty()) {
+            return null; // Return null if no bills are found
+        }
+
+        // Fetch the settings and get the password for the Excel file
+        Map<String, String> settingsMap = settingsUtillity.convertListToMap(settingsRepository.findAll());
+        String password = settingsUtillity.getExcelPassword(settingsMap);
+
+        // Add 100 to the password (as per your requirement)
+        try {
+            Integer passwordNumber = Integer.parseInt(password);
+            password = String.valueOf(passwordNumber + 100);
+        } catch (NumberFormatException e) {
+            // Handle invalid password format if necessary
+            password = "defaultPassword"; // Fallback password if the format is invalid
+        }
+
+        // Generate the Excel file from the list of bills with the dynamic password
+        return ExcelGenerator.generateBillExcel(bills, password);
+    }
 
 	
 	public List<Bill> findBillsByCustomerName(String customerName, String street, Integer billNo) {
@@ -237,7 +262,7 @@ public class BillService {
 
 	// Method to save bill without an image
 	@Transactional
-	public Bill saveBill(Bill bill, MultipartFile photo) throws IOException {
+	public Bill saveBill(Bill bill, MultipartFile photo, MultipartFile articlephoto) throws IOException {
 				
 		if(bill.getCustomer().getCustomerid() != null) {
 			
@@ -247,6 +272,12 @@ public class BillService {
 		 if (photo != null && !photo.isEmpty()) {
 	          byte[] photoBytes = photo.getBytes();
 	          bill.getCustomer().setPhoto(photoBytes);
+	          
+	       // Process articlePhoto and assign it to the first BillDetail item
+	          if (articlephoto != null && !articlephoto.isEmpty() && bill.getBillDetails() != null && !bill.getBillDetails().isEmpty()) {
+	              byte[] articlephotobytes = articlephoto.getBytes();
+	              bill.getBillDetails().get(0).setArticlephoto(articlephotobytes);
+	          }
 	          
 	          // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
 	          //String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
@@ -341,7 +372,7 @@ public class BillService {
 	}
 
     @Transactional
-    public Bill updateBill(Long billSequence, Bill bill, MultipartFile photo) throws IOException {
+    public Bill updateBill(Long billSequence, Bill bill, MultipartFile photo, MultipartFile articlephoto) throws IOException {
         // Fetch the existing bill from the repository
         Optional<Bill> optionalBill = billRepository.findById(billSequence);
         
@@ -423,12 +454,25 @@ public class BillService {
                     BillDetail existingDetail = existingDetailMap.get(detail.getProductNo());
                     existingDetail.setProductDescription(detail.getProductDescription());
                     existingDetail.setProductQuantity(detail.getProductQuantity());
+                    
+                    // Set articlephoto for this BillDetail if provided
+                    if (articlephoto != null && !articlephoto.isEmpty()) {
+                        byte[] articlePhotoBytes = articlephoto.getBytes();
+                        existingDetail.setArticlephoto(articlePhotoBytes);
+                    }
+                    
                 } else {
                     // Add new BillDetail if it doesn't exist
                     BillDetail newDetail = new BillDetail();
                     newDetail.setProductNo(detail.getProductNo());
                     newDetail.setProductDescription(detail.getProductDescription());
                     newDetail.setProductQuantity(detail.getProductQuantity());
+                    
+                 // Set articlephoto for new BillDetail if provided
+                    if (articlephoto != null && !articlephoto.isEmpty()) {
+                        byte[] articlePhotoBytes = articlephoto.getBytes();
+                        newDetail.setArticlephoto(articlePhotoBytes);
+                    }
 
                     // Set the relationship back to existingBill if necessary
                     newDetail.setBill(existingBill);
@@ -965,6 +1009,21 @@ public class BillService {
 	        return in;
 	    }
 	 
+	 public ByteArrayInputStream generateSendBill(Bill bill, Map<String, String> settingsMap) {
+		    ByteArrayInputStream in = null;
+
+		    try {
+		        // Generate the PDF using PdfService
+		        in = pdfService.generatePdf(bill, settingsMap);  // Retrieve the PDF as a ByteArrayInputStream
+		    } catch (IOException | DocumentException e) {
+		        e.printStackTrace();
+		        throw new RuntimeException("Error generating PDF: " + e.getMessage());
+		    }
+		    
+		    return in;
+		}
+
+	 
 	 public ByteArrayInputStream generateOfficeSendBill(Bill bill,  Map<String, String> settingsMap) {
 	        ByteArrayInputStream in = null;
 
@@ -992,6 +1051,138 @@ public class BillService {
 	    }
 	 
 	 
+	 public List<Map<String, Object>> getOpenBillsForCustomer(Long customerid) {
+		    // Fetch bills where redemptionStatus is 'O' (open bills)
+		    List<Bill> bills = billRepository.findByCustomerCustomeridAndRedemptionStatus(customerid, REDEMPTION_STATUS_OPEN);
 
+		    return bills.stream().map(bill -> {
+		        int monthsDuration = monthsDuration(bill);
+		        BigDecimal amountBD = BigDecimal.valueOf(bill.getAmount());
+		        double interestRateBD = bill.getRateOfInterest().doubleValue();
+
+		        BigDecimal interest = getInterest(amountBD, monthsDuration, interestRateBD);
+		        BigDecimal total = calculateTotal(amountBD, interest);
+		        
+		        bill.setNoOfMonths(monthsDuration);
+	            bill.setInterest(interest);
+	            bill.setTotal(total);
+
+		        // Create a map with only the needed fields
+		        Map<String, Object> resultMap = new HashMap<>();
+		        
+		        resultMap.put("billSerial", bill.getBillSerial());
+		        resultMap.put("billNo", bill.getBillNo());
+		        resultMap.put("billDate", bill.getBillDate());
+		        resultMap.put("weight", bill.getGrams());
+		        resultMap.put("amount", bill.getAmount());
+		        resultMap.put("noOfMonths", bill.getNoOfMonths());
+		        resultMap.put("interest", bill.getInterest());
+		        resultMap.put("total", bill.getTotal());
+		        resultMap.put("productDescription", bill.getBillDetails().get(0).getProductDescription()); // assuming this field is in Bill.java
+
+		        return resultMap;
+		    }).collect(Collectors.toList());
+		}
+
+//	 private int monthsDuration(Bill bill) {
+//		    // Calculate months between the bill date and the current date
+//		    return (int) ChronoUnit.MONTHS.between(bill.getBillDate().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1));
+//		}
+//
+//	    private BigDecimal getInterest(BigDecimal amountBD, int monthsDuration, double interestRateBD) {
+//	        BigDecimal Interest = BigDecimal.ZERO;
+//	        if (monthsDuration > 1) {
+//	        	Interest = amountBD.multiply(BigDecimal.valueOf(interestRateBD))
+//	                    .multiply(BigDecimal.valueOf(monthsDuration - 1))
+//	                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+//	        }
+//	        return Interest;
+//	    }
+//
+//	    private BigDecimal calculateTotal(BigDecimal amountBD, int monthsDuration, double interestRateBD) {
+//	        BigDecimal Interest = getInterest(amountBD, monthsDuration, interestRateBD);
+//	        return amountBD.add(Interest);
+//	    }
+	 
+	 public List<Map<String, Object>> getOpenBillsForCustomer(String customerName) {
+		    // Fetch bills where redemptionStatus is 'O' (open bills) using customerName
+		    List<Bill> bills = billRepository.findByCustomerCustomerNameAndRedemptionStatus(customerName, REDEMPTION_STATUS_OPEN);
+
+		    return bills.stream().map(bill -> {
+		        int monthsDuration = monthsDuration(bill);
+		        BigDecimal amountBD = BigDecimal.valueOf(bill.getAmount());
+		        double interestRateBD = bill.getRateOfInterest().doubleValue();
+
+		        BigDecimal interest = getInterest(amountBD, monthsDuration, interestRateBD);
+		        BigDecimal total = calculateTotal(amountBD, interest);
+
+		        // Assuming you have setters or transient fields for these calculated values
+		        bill.setNoOfMonths(monthsDuration);
+		        bill.setInterest(interest);
+		        bill.setTotal(total);
+
+		        // Create a map with only the needed fields
+		        Map<String, Object> resultMap = new HashMap<>();
+
+		        resultMap.put("billSerial", bill.getBillSerial());
+		        resultMap.put("billNo", bill.getBillNo());
+		        resultMap.put("billDate", bill.getBillDate());
+		        resultMap.put("weight", bill.getGrams());
+		        resultMap.put("amount", bill.getAmount());
+		        resultMap.put("noOfMonths", bill.getNoOfMonths());
+		        resultMap.put("interest", bill.getInterest());
+		        resultMap.put("total", bill.getTotal());
+		        resultMap.put("productDescription", bill.getBillDetails().get(0).getProductDescription()); // assuming this field is in Bill.java
+
+		        return resultMap;
+
+		    }).collect(Collectors.toList());
+		}
+
+		private int monthsDuration(Bill bill) {
+		    LocalDate billDate = bill.getBillDate();
+		    LocalDate currentDate = LocalDate.now();
+
+		    // If the current date is before the bill date (e.g., the bill is in the future), return 0 months
+		    if (currentDate.isBefore(billDate)) {
+		        return 0; // No months have passed yet
+		    }
+
+		    // If the current date is before the bill's anniversary in the current month, return 0 months
+		    if (currentDate.getMonthValue() == billDate.getMonthValue() && currentDate.getDayOfMonth() < billDate.getDayOfMonth()) {
+		        return 0;
+		    }
+
+		    // Calculate the difference in years and months between the bill date and current date
+		    int yearDiff = currentDate.getYear() - billDate.getYear();
+		    int monthDiff = currentDate.getMonthValue() - billDate.getMonthValue();
+
+		    // Calculate total months between bill date and current date
+		    int months = yearDiff * 12 + monthDiff;
+
+		    // If the current day is before the bill's day of the current month, subtract one month
+		    if (currentDate.getDayOfMonth() < billDate.getDayOfMonth()) {
+		        months--; // Subtract 1 month as the current month is not complete yet
+		    }
+
+		    // Ensure the months count is non-negative (e.g., if the current date is still in the same month as the bill date)
+		    return Math.max(months, 0);
+		}
+
+		private BigDecimal getInterest(BigDecimal amount, int monthsDuration, double interestRate) {
+		    // If no months have passed, no interest should be calculated
+		    if (monthsDuration <= 0) {
+		        return BigDecimal.ZERO;
+		    }
+
+		    // Calculate the interest
+		    return amount.multiply(BigDecimal.valueOf(interestRate))
+		                 .multiply(BigDecimal.valueOf(monthsDuration))
+		                 .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+		}
+
+		private BigDecimal calculateTotal(BigDecimal amount, BigDecimal interest) {
+		    return amount.add(interest);
+		}
 
 }

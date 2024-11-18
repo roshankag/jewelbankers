@@ -1,10 +1,12 @@
 package com.jewelbankers.controller;
 
-import com.jewelbankers.exception.ResourceNotFoundException;
-import com.jewelbankers.services.AuctionPdfService;
-import com.jewelbankers.entity.Bill;
-import com.jewelbankers.repository.SettingsRepository;
-import com.jewelbankers.services.BillService;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,12 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.jewelbankers.entity.Bill;
+import com.jewelbankers.repository.SettingsRepository;
+import com.jewelbankers.services.AuctionPdfService;
+import com.jewelbankers.services.BillService;
 
 @RequestMapping("/jewelbankersapi")
 @RestController
@@ -74,12 +74,17 @@ public class AuctionPdfController {
             }
           
 
-            String fromAddressText = String.format("From:\n%s\n%s\n%s\n%s\n%s",
-                    settingsMap.get("SHOP_NAME"), settingsMap.get("SHOP_STREET"), settingsMap.get("SHOP_AREA"),
-                    settingsMap.get("SHOP_CITY") + settingsMap.get("SHOP_PINCODE"), settingsMap.get("SHOP_STATE"));
+            String fromAddressText = String.format("From:\n%s\n%s, %s\n%s\n%s\n%s",
+                    settingsMap.get("SHOP_NAME"), 
+                    settingsMap.get("SHOP_NO"), // Add SHOP_NO here
+                    settingsMap.get("SHOP_STREET"),
+                    settingsMap.get("SHOP_AREA"),
+                    settingsMap.get("SHOP_CITY") + " - " + settingsMap.get("SHOP_PINCODE"), // Add a separator for better readability
+                    settingsMap.get("SHOP_STATE"));
+
 
             ByteArrayInputStream pdfStream = auctionPdfService.generateAuctionPdf(
-                    bills, auctionDetails, fromAddressText, auctionDescription, settingsMap.get("SHOP_NAME"));
+                    bills, auctionDetails, fromAddressText, auctionDescription, settingsMap.get("SHOP_NAME"), settingsMap);
 
             byte[] pdfBytes = pdfStream.readAllBytes();
 

@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 //@EntityScan
 @Entity
@@ -351,6 +352,40 @@ public class Bill {
     
     @Column(name = "interestinmonths")
     private Integer interestinmonths;
+    
+ // Computed fields
+    @Transient
+    private Integer noOfMonths;
+
+    public Integer getNoOfMonths() {
+		return noOfMonths;
+	}
+
+	public void setNoOfMonths(Integer noOfMonths) {
+		this.noOfMonths = noOfMonths;
+	}
+
+	public BigDecimal getInterest() {
+		return interest;
+	}
+
+	public void setInterest(BigDecimal interest) {
+		this.interest = interest;
+	}
+
+	public BigDecimal getTotal() {
+		return total;
+	}
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
+	}
+
+	@Transient
+    private BigDecimal interest;
+
+    @Transient
+    private BigDecimal total;
 
 	public Double getReceivedinterest() {
 		return receivedinterest;
