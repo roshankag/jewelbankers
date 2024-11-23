@@ -30,10 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.Utility.ErrorResponse;
-import com.jewelbankers.Utility.SettingsUtillity;
 import com.jewelbankers.entity.Bill;
-import com.jewelbankers.excel.ExcelGenerator;
-import com.jewelbankers.repository.SettingsRepository;
 import com.jewelbankers.services.BillService;
 //import com.jewelbankers.services.FileStorageService;
 import com.jewelbankers.services.SettingsService;
@@ -172,22 +169,7 @@ public class BillController {
         Page<Bill> bills = billService.getAllBills(page, size);
         return ResponseEntity.ok(bills);
     }
-    
-//    @GetMapping("/openbillsbyid")
-//    public ResponseEntity<?> getOpenBillsByCustomer(@RequestParam Long customerid) {
-//        // Fetch open bills for the customer based on customerId
-//        List<Map<String, Object>> bills = billService.getOpenBillsForCustomer(customerid);
-//
-//        if (bills.isEmpty()) {
-//            // Return a 200 OK response with a message indicating no open bills were found
-//            Map<String, String> response = new HashMap<>();
-//            response.put("message", "No open bills found for the specified customer.");
-//            return ResponseEntity.ok(response);
-//        }
-//
-//        // Return the list of open bills with a 200 OK status
-//        return ResponseEntity.ok(bills);
-//    }
+   
     
     @GetMapping("/openbillsbyname")
     public ResponseEntity<?> getOpenBillsByCustomer(@RequestParam String customerName) {
@@ -422,6 +404,12 @@ public class BillController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error generating PDF: " + e.getMessage());
         }
+    }
+    
+    @GetMapping("/product-descriptions")
+    public ResponseEntity<List<String>> getProductDescriptionsByPrefix(@RequestParam("prefix") String prefix) {
+        List<String> filteredDescriptions = billService.getAllProductDescriptions(prefix);
+        return ResponseEntity.ok(filteredDescriptions);
     }
     
 }

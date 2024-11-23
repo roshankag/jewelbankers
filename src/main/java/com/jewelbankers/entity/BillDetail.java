@@ -28,7 +28,7 @@ public class BillDetail {
     @Column(name = "PRODUCT_NO")
     private int productNo;
 
-    @Column(name = "PRODUCT_DESCRIPTION", length = 2000)
+    @Column(name = "PRODUCT_DESCRIPTION", length = 20000)
     private String productDescription;
     
     @Lob

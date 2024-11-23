@@ -19,8 +19,18 @@ public class SignupRequest {
   @NotBlank
   @Size(min = 6, max = 40)
   private String password;
+  
+  private String feesStatus; 
 
-  public String getUsername() {
+  public String getFeesStatus() {
+	return feesStatus;
+}
+
+public void setFeesStatus(String feesStatus) {
+	this.feesStatus = feesStatus;
+}
+
+public String getUsername() {
     return username;
   }
 

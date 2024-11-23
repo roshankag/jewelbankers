@@ -1,9 +1,20 @@
 package com.jewelbankers.entity;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -30,8 +41,64 @@ public class User {
 
   @Column(name = "reset_password_token")
     private String resetPasswordToken;
+  
+  // Add the new field below
+  @Column(name = "end_date")
+  private LocalDate endDate;
+  
+  @Column(name = "free_trial_start_date")
+  private LocalDate freeTrialStartDate;
+  
+  @Column(name = "free_trial_end_date")
+  private LocalDate freeTrialEndDate;
+  
+  @Column(name = "yearly_subscription_start_date")
+  private LocalDate yearlySubscriptionStartDate;
+  
+  @Column(name = "yearly_subscription_end_date")
+  private LocalDate yearlySubscriptionEndDate;
 
-  @NotBlank
+  public LocalDate getFreeTrialStartDate() {
+	return freeTrialStartDate;
+}
+
+public void setFreeTrialStartDate(LocalDate freeTrialStartDate) {
+	this.freeTrialStartDate = freeTrialStartDate;
+}
+
+public LocalDate getFreeTrialEndDate() {
+	return freeTrialEndDate;
+}
+
+public void setFreeTrialEndDate(LocalDate freeTrialEndDate) {
+	this.freeTrialEndDate = freeTrialEndDate;
+}
+
+public LocalDate getYearlySubscriptionStartDate() {
+	return yearlySubscriptionStartDate;
+}
+
+public void setYearlySubscriptionStartDate(LocalDate yearlySubscriptionStartDate) {
+	this.yearlySubscriptionStartDate = yearlySubscriptionStartDate;
+}
+
+public LocalDate getYearlySubscriptionEndDate() {
+	return yearlySubscriptionEndDate;
+}
+
+public void setYearlySubscriptionEndDate(LocalDate yearlySubscriptionEndDate) {
+	this.yearlySubscriptionEndDate = yearlySubscriptionEndDate;
+}
+
+public LocalDate getEndDate() {
+	return endDate;
+}
+
+public void setEndDate(LocalDate endDate) {
+	this.endDate = endDate;
+}
+
+@NotBlank
   @Size(max = 120)
   private String password;
 
