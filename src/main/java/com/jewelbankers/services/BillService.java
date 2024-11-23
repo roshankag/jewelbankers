@@ -32,6 +32,7 @@ import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.BillDetail;
 import com.jewelbankers.entity.Customer;
 import com.jewelbankers.excel.ExcelGenerator;
+import com.jewelbankers.repository.BillDetailRepository;
 import com.jewelbankers.repository.BillRepository;
 import com.jewelbankers.repository.CustomerRepository;
 import com.jewelbankers.repository.SettingsRepository;
@@ -55,6 +56,9 @@ public class BillService {
     
 	@Autowired
 	private BillRepository billRepository;
+	
+	@Autowired
+	private BillDetailRepository billDetailRepository;
 	
 	@Autowired
     private SettingsService settingsService;
@@ -1184,5 +1188,9 @@ public class BillService {
 		private BigDecimal calculateTotal(BigDecimal amount, BigDecimal interest) {
 		    return amount.add(interest);
 		}
+		
+		public List<String> getAllProductDescriptions(String prefix) {
+	        return billDetailRepository.findProductDescriptionsByPrefix(prefix);
+	    }
 
 }

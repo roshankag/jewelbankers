@@ -26,7 +26,7 @@ public class JewelDetail {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer itemno;
 
-    @Column(name = "itemdescription", length = 2000)
+    @Column(name = "itemdescription", length = 16000)
     private String itemdescription;
 
     @Column(name = "itemquantity")

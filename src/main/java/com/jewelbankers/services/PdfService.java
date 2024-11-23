@@ -5,10 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -71,7 +73,8 @@ public class PdfService {
 
         return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
     }
-
+    
+    //First Section
     private void addFirstSection(Document document, Bill bill, Font boldFont, Font regularFont, PdfWriter writer) throws DocumentException {
         // Get the PdfContentByte from PdfWriter for absolute positioning
         PdfContentByte content = writer.getDirectContent();
@@ -86,15 +89,37 @@ public class PdfService {
         content.endText();
         
      // Product, Quantity, and Amount (more space)
+     // Assuming you have a Bill object with details
         content.beginText();
         content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for product and quantity
         content.setColorFill(BaseColor.BLACK);  // Set color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, 
-            "Rs. " + bill.getAmount() + "       " + 
-            bill.getBillDetails().get(0).getProductDescription() + "       " + 
-            String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 50, 805, 0);  // Product and quantity with spacing
+
+        // Calculate total quantity from all BillDetails
+        int totalQuantity = 0;
+        for (BillDetail detail : bill.getBillDetails()) {
+            totalQuantity += detail.getProductQuantity();
+        }
+
+        // Convert the total quantity to words
+        String quantityInWords = convertNumberToWords(totalQuantity);
+
+        // Determine the product description based on total quantity
+        String productDescriptionText;
+        if (totalQuantity == 1) {
+            // Display full description if quantity is 1
+            productDescriptionText = bill.getBillDetails().get(0).getProductDescription();
+        } else {
+            // Display consolidated description if quantity is 2 or more
+            productDescriptionText = quantityInWords + " Gold Articles"; // e.g., "Sixteen Gold Articles"
+        }
+
+        // Create the display text
+        String displayText = "Rs. " + bill.getAmount() + "       " + productDescriptionText;
+
+        // Display the text on the PDF
+        content.showTextAligned(Element.ALIGN_LEFT, displayText, 50, 805, 0);  // Adjust the position as needed
         content.endText();
         
         content.beginText();
@@ -129,7 +154,8 @@ public class PdfService {
         content.stroke();          // Render the line
 
     }
-
+    
+    //Second Section
     private void addSecondSection(
             Document document,
             Bill bill,
@@ -141,9 +167,9 @@ public class PdfService {
         PdfContentByte content = writer.getDirectContent();
         
         content.beginText();
-        content.setFontAndSize(regularFont.getBaseFont(), 12);
+        content.setFontAndSize(regularFont.getBaseFont(), 10);
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-        content.showTextAligned(Element.ALIGN_LEFT, "Office Copy", 30, 730, 0);
+        content.showTextAligned(Element.ALIGN_LEFT, "Office Copy", 20, 735, 0);
         content.endText();
         
 //     // Underline "Office Copy"
@@ -174,7 +200,7 @@ public class PdfService {
         content.beginText();
         content.setFontAndSize(regularFont.getBaseFont(), 12);
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-        content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 700, 0);  // License number
+        content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 720, 0);  // License number
         content.endText();
 
         // Retrieve shop details from settings map
@@ -188,7 +214,7 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 680, 0);  // Left alignment with coordinates (50, 665)
+        content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 700, 0);  // Left alignment with coordinates (50, 665)
         content.endText();
 
 
@@ -202,19 +228,19 @@ public class PdfService {
         content.beginText();
         content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-        content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine1, 50, 660, 0);  // Position at (50, 640)
+        content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine1, 50, 680, 0);  // Position at (50, 640)
         content.endText();
 
         content.beginText();
         content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-        content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine2, 50, 640, 0);  // Position at (50, 620)
+        content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine2, 50, 660, 0);  // Position at (50, 620)
         content.endText();
 
         content.beginText();
         content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-        content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine3, 50, 620, 0);  // Position at (50, 600)
+        content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine3, 50, 640, 0);  // Position at (50, 600)
         content.endText();
 
 
@@ -222,17 +248,31 @@ public class PdfService {
         content.beginText();
         content.setFontAndSize(boldFont.getBaseFont(), 12);
     	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-        content.showTextAligned(Element.ALIGN_LEFT, "To,", 270, 705, 0);
+        content.showTextAligned(Element.ALIGN_LEFT, "To,", 260, 710, 0);
         content.endText();
 
         if (bill.getCustomer() != null) {
-        	content.beginText();
-        	content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 14 for the customer name
-        	content.setColorFill(BaseColor.BLACK);  // Set the text color to black
-        	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-        	content.setLineWidth(0.5f);  // Set line width for stroke effect
-        	content.showTextAligned(Element.ALIGN_LEFT, bill.getCustomer().getCustomerName(), 290, 690, 0);  // Display the customer name
-        	content.endText();
+            // Prepare the string with customer name and phone number
+            String customerDetails = bill.getCustomer().getCustomerName(); // Get customer name
+            Long phoneNo = bill.getCustomer().getPhoneno();               // Get phone number
+            
+            // Append phone number if it's not null or 0
+            if (phoneNo != null && phoneNo != 0) {
+                customerDetails += "  -  " + phoneNo;
+            }
+            
+            // Set up the text rendering
+            content.beginText();
+            content.setFontAndSize(boldFont.getBaseFont(), 13);            // Font size 13
+            content.setColorFill(BaseColor.BLACK);                         // Text color: black
+            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+            content.setLineWidth(0.5f);                                    // Set line width for stroke effect
+            
+            // Display the concatenated customer name and phone number
+            content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 270, 695, 0); // Adjust Y-coordinate as needed
+            content.endText();
+        
+
 
 
             // Customer Address (Split into lines and ensure it's not null)
@@ -242,33 +282,19 @@ public class PdfService {
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 290, 675, 0);  // First line of address
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 270, 680, 0);  // First line of address
                 content.endText();
 
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 290, 660, 0);  // Second line of address
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 270, 665, 0);  // Second line of address
                 content.endText();
 
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 290, 645, 0);  // Third line of address
-                content.endText();
-                
-                content.beginText();
-                content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the customer phone number
-                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-
-                // Check if phone number is not null and not 0 before displaying
-                Long phoneNo = bill.getCustomer().getPhoneno();
-                if (phoneNo != null && phoneNo != 0) {
-                    content.showTextAligned(Element.ALIGN_LEFT, String.valueOf(phoneNo), 290, 630, 0);  // Display phone number
-                } else {
-                    // Leave blank if phone number is null or 0
-                    content.showTextAligned(Element.ALIGN_LEFT, "", 290, 630, 0);
-                }
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 270, 650, 0);  // Third line of address
                 content.endText();
                 
              // Check if the customer has a photo and retrieve it as byte array
@@ -333,14 +359,19 @@ public class PdfService {
         content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 690, 0);  // Date aligned to left with label
         content.endText();
 
-        // Display Pledge No
+     // Display Pledge No
         content.beginText();
         content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the pledge number label
-        content.setColorFill(BaseColor.BLACK);  // Set the text color to black
+        content.setColorFill(BaseColor.BLACK);              // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-        content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + bill.getBillSerial() + bill.getBillNo(), 450, 670, 0);  // Pledge No aligned to left with label
+        content.setLineWidth(0.5f);                         // Set line width for stroke effect
+
+        // Format Pledge No with space between serial and number
+        String pledgeNo = bill.getBillSerial() + " " + bill.getBillNo(); 
+
+        content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 670, 0);  // Pledge No aligned to left with label
         content.endText();
+
 
      // Add Loan Amount
         content.beginText();
@@ -348,7 +379,7 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "Loan Amount : " + bill.getAmount(), 40, 600, 0);  // Loan amount displayed at (40, 600)
+        content.showTextAligned(Element.ALIGN_LEFT, "Loan Amount : " + bill.getAmount(), 40, 620, 0);  // Loan amount displayed at (40, 600)
         content.endText();
 
         // Convert Amount in Words to Capitalize the First Letter of Each Word
@@ -364,7 +395,7 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "In Words: " + formattedAmountInWords, 180, 602, 0);  // Formatted words displayed at (190, 600)
+        content.showTextAligned(Element.ALIGN_LEFT, "In Words: " + formattedAmountInWords, 180, 620, 0);  // Formatted words displayed at (190, 600)
         content.endText();
 
 
@@ -378,14 +409,26 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 580, 0);  // Text displayed at (40, 580)
+        content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 600, 0);  // Text displayed at (40, 580)
         content.endText();
         
-        // Create table for the pledge details
+     // Write the formatted text with the product type name to the PDF content
+        content.beginText();
+        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the product type line
+        content.setColorFill(BaseColor.BLACK);  // Set the text color to black
+        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+        content.setLineWidth(0.5f);  // Set line width for stroke effect
+        content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 600, 0);  // Text displayed at (40, 600)
+        content.endText();
+
+        // Adjust the table position to render just below the text
+        float tableYPosition = 590; // Adjust the Y position of the table relative to the text
+
+        // Create the table for the pledge details
         PdfPTable table = new PdfPTable(3); // 3 columns for item details
         table.setTotalWidth(400); // Set the total width to fit within the specified area
         table.setLockedWidth(true); // Lock width to ensure layout consistency
-        table.setWidths(new int[]{1, 7, 1}); // Adjust column width ratios
+        table.setWidths(new int[]{1, 4, 1}); // Adjust column width ratios
 
         // Font for the header
         BaseFont baseFont = BaseFont.createFont();
@@ -394,80 +437,93 @@ public class PdfService {
         // Add table headers
         PdfPCell cell = new PdfPCell(new Phrase("S.No.", headerFont));
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setPadding(5f); // Increase padding for more height
+        cell.setPadding(4f); // Increase padding for more height
         table.addCell(cell);
 
         cell = new PdfPCell(new Phrase("Particulars of Pledge", headerFont));
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setPadding(5f);
+        cell.setPadding(4f);
         table.addCell(cell);
 
         cell = new PdfPCell(new Phrase("Nos", headerFont));
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setPadding(5f);
+        cell.setPadding(4f);
         table.addCell(cell);
 
         // Font for the table data
-        Font dataFont = new Font(baseFont, 12);
+        Font dataFont = new Font(baseFont, 10);
 
-        int serialNo = 1;
+        // Assuming bill is a single Bill object
+        Bill item = bill;
+        List<BillDetail> billDetails = item.getBillDetails(); // Assuming getBillDetails() returns a list
 
-        // Assuming bill is a single Bill object, not a collection
-        Bill item = bill;  // No iteration since bill is a single object
-        List<BillDetail> billDetails = item.getBillDetails();  // Assuming getBillDetails() returns a list
-
+        // Check if there are items in the billDetails list
         if (billDetails != null && !billDetails.isEmpty()) {
-            // Process the details of the single Bill
-            String description = billDetails.get(0).getProductDescription();
-            int quantity = billDetails.get(0).getProductQuantity();
+            int serialNo = 1; // Initialize serial number
 
-            // Add a new row for the bill details
-            PdfPCell dataCell1 = new PdfPCell(new Phrase("1", dataFont));
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            dataCell1.setPadding(20f);  // Increase padding for more height
-            table.addCell(dataCell1);
+            for (BillDetail detail : billDetails) {
+                // Fetch data for each row
+                String description = detail.getProductDescription(); // Dynamically fetched product description
+                int quantity = detail.getProductQuantity(); // Dynamically fetched product quantity
 
-            PdfPCell dataCell2 = new PdfPCell(new Phrase(description, dataFont));
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            dataCell2.setPadding(20f);
-            table.addCell(dataCell2);
+                // Add a new row for each product
+                PdfPCell dataCell1 = new PdfPCell(new Phrase(String.valueOf(serialNo), dataFont));
+                dataCell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+                dataCell1.setPadding(5f);
+                table.addCell(dataCell1);
 
-            PdfPCell dataCell3 = new PdfPCell(new Phrase(String.valueOf(quantity), dataFont));
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            dataCell3.setPadding(20f);
-            table.addCell(dataCell3);
+                PdfPCell dataCell2 = new PdfPCell(new Phrase(description, dataFont));
+                dataCell2.setHorizontalAlignment(Element.ALIGN_LEFT); // Align left for better readability
+                dataCell2.setPadding(5f);
+                table.addCell(dataCell2);
+
+                PdfPCell dataCell3 = new PdfPCell(new Phrase(String.valueOf(quantity), dataFont));
+                dataCell3.setHorizontalAlignment(Element.ALIGN_CENTER);
+                dataCell3.setPadding(5f);
+                table.addCell(dataCell3);
+
+                serialNo++; // Increment serial number for the next row
+            }
+        } else {
+            // Add a placeholder row if no details are available
+            PdfPCell placeholderCell = new PdfPCell(new Phrase("No items available", dataFont));
+            placeholderCell.setColspan(3);
+            placeholderCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            placeholderCell.setPadding(5f);
+            table.addCell(placeholderCell);
         }
 
-        // Add a large empty row for spacing before the summary row
-        PdfPCell emptyRow = new PdfPCell(new Phrase(" "));
-        emptyRow.setFixedHeight(30f); // Adjust height to create a moderate gap
-        emptyRow.setColspan(3);  // Span across all columns
-        emptyRow.setBorder(Rectangle.NO_BORDER); // No border for the empty row
-        table.addCell(emptyRow);
+     // Write the table directly below the text
+        table.writeSelectedRows(0, -1, 40, tableYPosition, content);
+        
+     // Calculate Net Weight as Gross Weight - 0.500
+        BigDecimal grossWeightDecimal = bill.getGrams();
+        BigDecimal netWeightValue = grossWeightDecimal.subtract(BigDecimal.valueOf(0.500));
+        BigDecimal netWeightDecimal = netWeightValue.setScale(3, RoundingMode.HALF_UP); // Round to 3 decimal places
 
-        // Summary row (displayed closer to the note section)
-        BigDecimal grams = bill.getGrams();
-        BigDecimal netWeightValue = grams.subtract(BigDecimal.valueOf(0.500));
-        BigDecimal netWeightDecimal = netWeightValue.setScale(3, RoundingMode.HALF_UP);
-        String netWeight = netWeightDecimal.toString();
-        String grossWeight = String.valueOf(bill.getGrams());
-        String presentValue = String.format("%d", bill.getPresentValue());
+        String grossWeight = grossWeightDecimal.toString(); // Convert to String
+        String netWeight = netWeightDecimal.toString(); // Convert to String
+        String presentValue = String.format("%d", bill.getPresentValue()); // Present Value as String
 
-        // Bold font for summary
-        Font summaryFont = new Font(baseFont, 12, Font.BOLD);
+        // Begin text for custom fields after the table
+        content.beginText();
 
-        // Summary cell in one row, with fields aligned to the left
-        PdfPCell summaryCell = new PdfPCell(new Phrase("Gross Wt : " + grossWeight + "     Nett Wt : " + netWeight + "     Value : " + presentValue, summaryFont));
-        summaryCell.setColspan(3);  // Span across all 3 columns
-        summaryCell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        summaryCell.setBorder(Rectangle.NO_BORDER); // Remove the border line
-        summaryCell.setPaddingTop(-15f); // Move the summary fields slightly higher
-        summaryCell.setPaddingBottom(5f); // Adjust padding to control spacing above the note section
-        table.addCell(summaryCell);
+        // Font and size for custom fields
+        content.setFontAndSize(boldFont.getBaseFont(), 12); // Use a bold font size 10
+        content.setColorFill(BaseColor.BLACK); // Set text color to black
+        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
+        content.setLineWidth(0.5f);  // Set line width for stroke effect
 
-        // Position table on the page at specific coordinates (adjust coordinates as necessary)
-        table.writeSelectedRows(0, -1, 40, 560, content);
+        // Display "Gross Wt"
+        content.showTextAligned(Element.ALIGN_LEFT, "Gross Wt : " + grossWeight, 40, 445, 0); // Adjust X, Y coordinates as per the layout
 
+        // Display "Nett Wt"
+        content.showTextAligned(Element.ALIGN_LEFT, "Net Wt : " + netWeight, 200, 445, 0); // Adjust X coordinate to position correctly next to "Gross Wt"
+
+        // Display "Value"
+        content.showTextAligned(Element.ALIGN_LEFT, "Present Value : " + presentValue, 330, 445, 0); // Adjust X coordinate for correct alignment
+
+        content.endText();
 
 
      /// Date format for displaying the date as dd-MM-yyyy
@@ -550,9 +606,9 @@ public class PdfService {
            PdfContentByte content = writer.getDirectContent();
            
            content.beginText();
-           content.setFontAndSize(regularFont.getBaseFont(), 12);
+           content.setFontAndSize(regularFont.getBaseFont(), 10);
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-           content.showTextAligned(Element.ALIGN_LEFT, "Customer Copy", 30, 350, 0);
+           content.showTextAligned(Element.ALIGN_LEFT, "Customer Copy", 20, 355, 0);
            content.endText();
            
            
@@ -579,7 +635,7 @@ public class PdfService {
            content.beginText();
            content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 330, 0);  // License number
+           content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 340, 0);  // License number
            content.endText();
 
            // Retrieve shop details from settings map
@@ -593,7 +649,7 @@ public class PdfService {
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 310, 0);  // Left alignment with coordinates (50, 665)
+           content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 325, 0);  // Left alignment with coordinates (50, 665)
            content.endText();
 
 
@@ -607,19 +663,19 @@ public class PdfService {
            content.beginText();
            content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine1, 50, 290, 0);  // Position at (50, 640)
+           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine1, 50, 305, 0);  // Position at (50, 640)
            content.endText();
 
            content.beginText();
            content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine2, 50, 270, 0);  // Position at (50, 620)
+           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine2, 50, 285, 0);  // Position at (50, 620)
            content.endText();
 
            content.beginText();
            content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine3, 50, 250, 0);  // Position at (50, 600)
+           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine3, 50, 265, 0);  // Position at (50, 600)
            content.endText();
 
 
@@ -627,18 +683,27 @@ public class PdfService {
            content.beginText();
            content.setFontAndSize(boldFont.getBaseFont(), 12);
        	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-           content.showTextAligned(Element.ALIGN_LEFT, "To,", 270, 330, 0);
+           content.showTextAligned(Element.ALIGN_LEFT, "To,", 260, 330, 0);
            content.endText();
 
            if (bill.getCustomer() != null) {
-           	content.beginText();
-           	content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 14 for the customer name
-           	content.setColorFill(BaseColor.BLACK);  // Set the text color to black
-           	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-           	content.setLineWidth(0.5f);  // Set line width for stroke effect
-           	content.showTextAligned(Element.ALIGN_LEFT, bill.getCustomer().getCustomerName(), 290, 315, 0);  // Display the customer name
-           	content.endText();
+        	    // Prepare the string with customer name and phone number
+        	    String customerDetails = bill.getCustomer().getCustomerName();
+        	    Long phoneNo = bill.getCustomer().getPhoneno();
+        	    if (phoneNo != null && phoneNo != 0) {
+        	        customerDetails += "  -  " + phoneNo;
+        	    }
+        	    
+        	    // Set up the text rendering
+        	    content.beginText();
+        	    content.setFontAndSize(boldFont.getBaseFont(), 13); // Font size 13 for the details
+        	    content.setColorFill(BaseColor.BLACK);             // Set the text color to black
+        	    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+        	    content.setLineWidth(0.5f);                        // Set line width for stroke effect
 
+        	    // Display the concatenated customer details
+        	    content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 270, 315, 0);
+        	    content.endText();
 
                // Customer Address (Split into lines and ensure it's not null)
                String[] addressLines = bill.getCustomer().getAddress() != null ? bill.getCustomer().getAddress().split(",") : new String[]{"Address Line 1", "Address Line 2", "Address Line 3"};
@@ -647,33 +712,19 @@ public class PdfService {
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 290, 300, 0);  // First line of address
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 270, 300, 0);  // First line of address
                    content.endText();
 
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 290, 285, 0);  // Second line of address
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 270, 285, 0);  // Second line of address
                    content.endText();
 
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 290, 270, 0);  // Third line of address
-                   content.endText();
-                   
-                   content.beginText();
-                   content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the customer phone number
-                   content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-
-                   // Check if phone number is not null and not 0 before displaying
-                   Long phoneNo = bill.getCustomer().getPhoneno();
-                   if (phoneNo != null && phoneNo != 0) {
-                       content.showTextAligned(Element.ALIGN_LEFT, String.valueOf(phoneNo), 290, 255, 0);  // Display phone number
-                   } else {
-                       // Leave blank if phone number is null or 0
-                       content.showTextAligned(Element.ALIGN_LEFT, "", 290, 265, 0);
-                   }
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 270, 270, 0);  // Third line of address
                    content.endText();
                    
                 // Check if the customer has a photo and retrieve it as byte array
@@ -738,14 +789,19 @@ public class PdfService {
            content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 330, 0);  // Date aligned to left with label
            content.endText();
 
-           // Display Pledge No
+        // Display Pledge No
            content.beginText();
            content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the pledge number label
-           content.setColorFill(BaseColor.BLACK);  // Set the text color to black
+           content.setColorFill(BaseColor.BLACK);              // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-           content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + bill.getBillSerial() + bill.getBillNo(), 450, 310, 0);  // Pledge No aligned to left with label
+           content.setLineWidth(0.5f);                         // Set line width for stroke effect
+
+           // Format Pledge No with space between serial and number
+           String pledgeNo = bill.getBillSerial() + " " + bill.getBillNo(); 
+
+           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 310, 0);  // Pledge No aligned to left with label
            content.endText();
+
 
         // Add Loan Amount
            content.beginText();
@@ -753,7 +809,7 @@ public class PdfService {
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Loan Amount : " + bill.getAmount(), 40, 230, 0);  // Loan amount displayed at (40, 600)
+           content.showTextAligned(Element.ALIGN_LEFT, "Loan Amount : " + bill.getAmount(), 40, 245, 0);  // Loan amount displayed at (40, 600)
            content.endText();
 
            // Convert Amount in Words to Capitalize the First Letter of Each Word
@@ -769,7 +825,7 @@ public class PdfService {
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "In Words: " + formattedAmountInWords, 180, 232, 0);  // Formatted words displayed at (190, 600)
+           content.showTextAligned(Element.ALIGN_LEFT, "In Words: " + formattedAmountInWords, 180, 245, 0);  // Formatted words displayed at (190, 600)
            content.endText();
 
 
@@ -783,14 +839,17 @@ public class PdfService {
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 210, 0);  // Text displayed at (40, 580)
+           content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 225, 0);  // Text displayed at (40, 580)
            content.endText();
            
-        // Create table for the pledge details
+        // Adjust the table position to render just below the text
+           float tableYPosition = 220; // Adjust the Y position of the table relative to the text
+
+           // Create the table for the pledge details
            PdfPTable table = new PdfPTable(3); // 3 columns for item details
            table.setTotalWidth(400); // Set the total width to fit within the specified area
            table.setLockedWidth(true); // Lock width to ensure layout consistency
-           table.setWidths(new int[]{1, 7, 1}); // Adjust column width ratios
+           table.setWidths(new int[]{1, 4, 1}); // Adjust column width ratios
 
            // Font for the header
            BaseFont baseFont = BaseFont.createFont();
@@ -799,79 +858,94 @@ public class PdfService {
            // Add table headers
            PdfPCell cell = new PdfPCell(new Phrase("S.No.", headerFont));
            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-           cell.setPadding(5f); // Increase padding for more height
+           cell.setPadding(4f); // Increase padding for more height
            table.addCell(cell);
 
            cell = new PdfPCell(new Phrase("Particulars of Pledge", headerFont));
            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-           cell.setPadding(5f);
+           cell.setPadding(4f);
            table.addCell(cell);
 
            cell = new PdfPCell(new Phrase("Nos", headerFont));
            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-           cell.setPadding(5f);
+           cell.setPadding(4f);
            table.addCell(cell);
 
            // Font for the table data
-           Font dataFont = new Font(baseFont, 12);
+           Font dataFont = new Font(baseFont, 10);
 
-           int serialNo = 1;
+           // Assuming bill is a single Bill object
+           Bill item = bill;
+           List<BillDetail> billDetails = item.getBillDetails(); // Assuming getBillDetails() returns a list
 
-           // Assuming bill is a single Bill object, not a collection
-           Bill item = bill;  // No iteration since bill is a single object
-           List<BillDetail> billDetails = item.getBillDetails();  // Assuming getBillDetails() returns a list
-
+           // Check if there are items in the billDetails list
            if (billDetails != null && !billDetails.isEmpty()) {
-               // Process the details of the single Bill
-               String description = billDetails.get(0).getProductDescription();
-               int quantity = billDetails.get(0).getProductQuantity();
+               int serialNo = 1; // Initialize serial number
 
-               // Add a new row for the bill details
-               PdfPCell dataCell1 = new PdfPCell(new Phrase("1", dataFont));
-               cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-               dataCell1.setPadding(20f);  // Increase padding for more height
-               table.addCell(dataCell1);
+               for (BillDetail detail : billDetails) {
+                   // Fetch data for each row
+                   String description = detail.getProductDescription(); // Dynamically fetched product description
+                   int quantity = detail.getProductQuantity(); // Dynamically fetched product quantity
 
-               PdfPCell dataCell2 = new PdfPCell(new Phrase(description, dataFont));
-               cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-               dataCell2.setPadding(20f);
-               table.addCell(dataCell2);
+                   // Add a new row for each product
+                   PdfPCell dataCell1 = new PdfPCell(new Phrase(String.valueOf(serialNo), dataFont));
+                   dataCell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+                   dataCell1.setPadding(5f);
+                   table.addCell(dataCell1);
 
-               PdfPCell dataCell3 = new PdfPCell(new Phrase(String.valueOf(quantity), dataFont));
-               cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-               dataCell3.setPadding(20f);
-               table.addCell(dataCell3);
+                   PdfPCell dataCell2 = new PdfPCell(new Phrase(description, dataFont));
+                   dataCell2.setHorizontalAlignment(Element.ALIGN_LEFT); // Align left for better readability
+                   dataCell2.setPadding(5f);
+                   table.addCell(dataCell2);
+
+                   PdfPCell dataCell3 = new PdfPCell(new Phrase(String.valueOf(quantity), dataFont));
+                   dataCell3.setHorizontalAlignment(Element.ALIGN_CENTER);
+                   dataCell3.setPadding(5f);
+                   table.addCell(dataCell3);
+
+                   serialNo++; // Increment serial number for the next row
+               }
+           } else {
+               // Add a placeholder row if no details are available
+               PdfPCell placeholderCell = new PdfPCell(new Phrase("No items available", dataFont));
+               placeholderCell.setColspan(3);
+               placeholderCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+               placeholderCell.setPadding(5f);
+               table.addCell(placeholderCell);
            }
 
-           // Add a large empty row for spacing before the summary row
-           PdfPCell emptyRow = new PdfPCell(new Phrase(" "));
-           emptyRow.setFixedHeight(30f); // Adjust height to create a moderate gap
-           emptyRow.setColspan(3);  // Span across all columns
-           emptyRow.setBorder(Rectangle.NO_BORDER); // No border for the empty row
-           table.addCell(emptyRow);
+        // Write the table directly below the text
+           table.writeSelectedRows(0, -1, 40, tableYPosition, content);
+           
+        // Calculate Net Weight as Gross Weight - 0.500
+           BigDecimal grossWeightDecimal = bill.getGrams();
+           BigDecimal netWeightValue = grossWeightDecimal.subtract(BigDecimal.valueOf(0.500));
+           BigDecimal netWeightDecimal = netWeightValue.setScale(3, RoundingMode.HALF_UP); // Round to 3 decimal places
 
-           // Summary row (displayed closer to the note section)
-           BigDecimal grams = bill.getGrams();
-           BigDecimal netWeightValue = grams.subtract(BigDecimal.valueOf(0.500));
-           BigDecimal netWeightDecimal = netWeightValue.setScale(3, RoundingMode.HALF_UP);
-           String netWeight = netWeightDecimal.toString();
-           String grossWeight = String.valueOf(bill.getGrams());
-           String presentValue = String.format("%d", bill.getPresentValue());
+           String grossWeight = grossWeightDecimal.toString(); // Convert to String
+           String netWeight = netWeightDecimal.toString(); // Convert to String
+           String presentValue = String.format("%d", bill.getPresentValue()); // Present Value as String
 
-           // Bold font for summary
-           Font summaryFont = new Font(baseFont, 12, Font.BOLD);
+           // Begin text for custom fields after the table
+           content.beginText();
 
-           // Summary cell in one row, with fields aligned to the left
-           PdfPCell summaryCell = new PdfPCell(new Phrase("Gross Wt : " + grossWeight + "     Nett Wt : " + netWeight + "     Value : " + presentValue, summaryFont));
-           summaryCell.setColspan(3);  // Span across all 3 columns
-           summaryCell.setHorizontalAlignment(Element.ALIGN_LEFT);
-           summaryCell.setBorder(Rectangle.NO_BORDER); // Remove the border line
-           summaryCell.setPaddingTop(-15f); // Move the summary fields slightly higher
-           summaryCell.setPaddingBottom(5f); // Adjust padding to control spacing above the note section
-           table.addCell(summaryCell);
+           // Font and size for custom fields
+           content.setFontAndSize(boldFont.getBaseFont(), 12); // Use a bold font size 10
+           content.setColorFill(BaseColor.BLACK); // Set text color to black
+           content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
+           content.setLineWidth(0.5f);  // Set line width for stroke effect
 
-           // Position table on the page at specific coordinates (adjust coordinates as necessary)
-           table.writeSelectedRows(0, -1, 40, 190, content);
+           // Display "Gross Wt"
+           content.showTextAligned(Element.ALIGN_LEFT, "Gross Wt : " + grossWeight, 40, 75, 0); // Adjust X, Y coordinates as per the layout
+
+           // Display "Nett Wt"
+           content.showTextAligned(Element.ALIGN_LEFT, "Net Wt : " + netWeight, 200, 75, 0); // Adjust X coordinate to position correctly next to "Gross Wt"
+
+           // Display "Value"
+           content.showTextAligned(Element.ALIGN_LEFT, "Present Value : " + presentValue, 330, 75, 0); // Adjust X coordinate for correct alignment
+
+           content.endText();
+
 
 
 
@@ -930,4 +1004,21 @@ public class PdfService {
 
        }
     }
+       /**
+        * Converts a number to words (e.g., 17 -> "Seventeen").
+        * This is a utility function for handling quantities in words.
+        */
+       private String convertNumberToWords(int number) {
+    	    String[] words = {"", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+    	                      "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+    	    String[] tens = {"", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+
+    	    if (number < 20) {
+    	        return words[number];
+    	    } else if (number < 100) {
+    	        return tens[number / 10] + (number % 10 > 0 ? " " + words[number % 10] : "");
+    	    } else {
+    	        return "More than Ninety-Nine";  // Customize for larger numbers
+    	    }
+       } 
 }

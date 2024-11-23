@@ -71,75 +71,42 @@ public class BillingController {
     @PostMapping("/addItemDetail")
     public ResponseEntity<JewelDetail> addItemDetail(@RequestBody JewelDetail jewelDetail) {
         try {
-            // Call the service method to add the item details
-            JewelDetail addedJewelDetail = billingService.addItemDetail(jewelDetail);
+            // Log the incoming jewelDetail to ensure it's parsed correctly
+            System.out.println("Received JewelDetail: " + jewelDetail);
 
-            // Return JewelDetail with status 201 (created)
+            JewelDetail addedJewelDetail = billingService.addItemDetail(jewelDetail);
             return ResponseEntity.status(HttpStatus.CREATED).body(addedJewelDetail);
         } catch (Exception e) {
-            // Return a ResponseEntity with a BAD_REQUEST status in case of an error
+            // Log the error for debugging
+            System.out.println("Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
+
     /**
      * Endpoint to fetch item details and calculate total amount, making charge, and wastage charge.
-     * @param barcode The barcode of the item to fetch and calculate.
-     * @param makingChargePercentage The making charge percentage provided by the client.
-     * @param wastageChargePercentage The wastage charge percentage provided by the client.
+     * @param barcode The barcode of the item to fetch.
      * @return ResponseEntity containing item details and calculations, or error message.
      */
-    @GetMapping("/scan/{barcode}/{makingCharge}/{wastageCharge}")
+    @GetMapping("/scan/{barcode}")
     public ResponseEntity<?> getItemDetailsByBarcode(
-            @PathVariable String barcode, 
-            @PathVariable BigDecimal makingCharge, 
-            @PathVariable BigDecimal wastageCharge) {
+            @PathVariable String barcode) {
 
-        // Call the service to fetch item details and perform calculations
-        Map<String, Object> response = billingService.getItemDetailsAndCalculate(barcode, makingCharge, wastageCharge);
+        // Call the service to fetch item details 
+        Map<String, Object> response = billingService.getItemDetails(barcode);
 
         if (response.containsKey("error")) {
             // If an error message is present, return NOT_FOUND response
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.get("error"));
         } else {
-            // If no errors, return OK response with calculated values
+            // If no errors, return OK response 
             return ResponseEntity.ok(response);
         }
     }
     
-    @PostMapping(value = "/billing", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, Object>> createJewelBill(
-            @RequestPart("barcode") String barcode,
-            @RequestPart("customerid") Long customerid,
-            @RequestPart("makingChargePercent") BigDecimal makingChargePercent,
-            @RequestPart("wastageChargePercent") BigDecimal wastageChargePercent,
-            @RequestPart(value = "photo", required = false) MultipartFile photo) {
-
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            // Call the service layer to create the Jewel bill
-            Jewel jewel = billingService.createJewelBill(
-                    barcode,
-                    customerid,
-                    makingChargePercent,
-                    wastageChargePercent,
-                    photo);
-
-            response.put("message", "Jewel bill successfully created for customer ID: " +
-                    (jewel.getCustomer() != null ? jewel.getCustomer().getCustomerid() : "Unknown"));
-            response.put("jewel", jewel);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (IOException e) {
-            response.put("message", "Failed to process the provided photo.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-
-        } catch (RuntimeException e) {
-            response.put("message", "Error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-    }
+   
+    
+    
 
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.social.ResourceNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,9 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jewelbankers.entity.User;
-import com.jewelbankers.repository.UserRepository;
 import com.jewelbankers.services.UserDetailsServiceImpl;
-import com.jewelbankers.services.UserService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
