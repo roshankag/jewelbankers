@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.jewelbankers.entity.User;
+import com.jewelbankers.entity.users;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -16,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
   public Boolean existsByEmail(String email);
   
   public User findByResetPasswordToken(String token);
+  
+  User findByname(String username);
 
   public User findByEmail(String email);
 }

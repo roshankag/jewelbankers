@@ -12,7 +12,7 @@ import com.jewelbankers.services.UserServices;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/jewelbankersapi/api/user")
 public class UserControllerAPI {
 
     @Autowired

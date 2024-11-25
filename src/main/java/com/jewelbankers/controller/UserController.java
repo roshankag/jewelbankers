@@ -2,6 +2,7 @@ package com.jewelbankers.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.social.ResourceNotFoundException;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.jewelbankers.entity.User;
+import com.jewelbankers.entity.users;
 import com.jewelbankers.services.UserDetailsServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -52,5 +55,19 @@ public class UserController {
    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
        User updatedUser = userService.updateUser(id, user);
        return ResponseEntity.ok(updatedUser);
+   }
+   
+   @GetMapping("/username/{username}")
+   public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {
+       try {
+           User user = userService.getUserByUsername(username);
+           if (user != null) {
+               return ResponseEntity.ok(user);
+           } else {
+               throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+           }
+       } catch (Exception e) {
+           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred", e);
+       }
    }
 }

@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,11 +187,28 @@ public class PdfRedeemService {
 
 
             // Additional bill details
+         // Define the maximum width for the text and line height
+            int maxWidth = 300; // Adjust the width to fit your PDF layout
+            int lineHeight = 15; // Adjust the line height for spacing
+
+            // Get the product description
+            String productDescription = bill.getBillDetails().get(0).getProductDescription();
+
+            // Split the text into multiple lines
+            List<String> lines = splitTextIntoLines(productDescription, maxWidth, boldFont.getBaseFont(), 13);
+
+            // Start writing text
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 13); // Bold and larger font size for the name
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, bill.getBillDetails().get(0).getProductDescription(), 50, 455, 0); // Adjust x, y coordinates as needed
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 366, 455, 0); // Adjust x, y coordinates as needed
+            content.setFontAndSize(boldFont.getBaseFont(), 13); // Set the font and size
+
+            int yCoordinate = 455; // Starting y-coordinate
+            for (String line : lines) {
+                content.showTextAligned(PdfContentByte.ALIGN_LEFT, line, 40, yCoordinate, 0); // Adjust x as needed
+                yCoordinate -= lineHeight; // Move to the next line
+            }
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 366, 455, 0); // Adjust coordinates
             content.endText();
+
             
             content.beginText();
             content.setFontAndSize(boldFont.getBaseFont(), 13); 
@@ -234,4 +253,30 @@ public class PdfRedeemService {
             }
         }
     }
+    
+    private List<String> splitTextIntoLines(String text, int maxWidth, BaseFont font, int fontSize) {
+        List<String> lines = new ArrayList<>();
+        String[] words = text.split(" ");
+        StringBuilder line = new StringBuilder();
+
+        for (String word : words) {
+            String testLine = line + (line.length() == 0 ? "" : " ") + word;
+            float width = font.getWidthPoint(testLine, fontSize);
+
+            if (width > maxWidth) {
+                lines.add(line.toString()); // Add the current line to the list
+                line = new StringBuilder(word); // Start a new line with the current word
+            } else {
+                line.append((line.length() == 0 ? "" : " ") + word);
+            }
+        }
+
+        // Add the last line
+        if (line.length() > 0) {
+            lines.add(line.toString());
+        }
+
+        return lines;
+    }
+
 }

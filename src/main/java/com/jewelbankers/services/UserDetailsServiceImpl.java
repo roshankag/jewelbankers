@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jewelbankers.entity.User;
+import com.jewelbankers.entity.users;
 import com.jewelbankers.repository.UserRepository;
 
 @Service
@@ -88,6 +89,10 @@ public void updateResetPasswordToken(String token, String email) throws Username
             }
     	
         return null;
+    }
+    
+    public User getUserByUsername(String username) {
+        return userRepository.findByname(username);
     }
     
 
