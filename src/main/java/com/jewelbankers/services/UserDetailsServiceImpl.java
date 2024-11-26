@@ -91,9 +91,9 @@ public void updateResetPasswordToken(String token, String email) throws Username
         return null;
     }
     
-    public User getUserByUsername(String username) {
-        return userRepository.findByname(username);
-    }
+//    public User getUserByUsername(String username) {
+//        return userRepository.findByname(username);
+//    }
     
 
 }

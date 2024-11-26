@@ -1,13 +1,17 @@
 package com.jewelbankers.controller;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +37,8 @@ import com.jewelbankers.response.JwtResponse;
 import com.jewelbankers.response.MessageResponse;
 import com.jewelbankers.services.UserDetailsImpl;
 
+import jakarta.validation.Valid;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/jewelbankersapi/api/auth")
@@ -54,8 +60,53 @@ public class AuthController {
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-	  System.out.println(loginRequest.getUsername()+
+	System.out.println(loginRequest.getUsername()+
 	  ":"+loginRequest.getPassword());
+	  
+    Optional<User> optionalUser = userRepository.findByUsername(loginRequest.getUsername());
+	    if (optionalUser.isEmpty()) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+	    }
+	    
+    User user = optionalUser.get();
+	    LocalDate currentDate = LocalDate.now();
+	    
+	   
+	 // Check subscription and trial status
+	    if ("Not Paid".equals(user.getStatus())) {
+	        if (user.getStartDate() == null || user.getEndDate() == null) {
+	            // Start free trial
+	            user.setStartDate(currentDate);
+	            user.setEndDate(currentDate.plusWeeks(2));
+	            userRepository.save(user);
+	        } else if (currentDate.isAfter(user.getEndDate())) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+	                "Your free trial has ended. Please complete the registration fee of ₹5000 to continue.");
+	        }
+	    } else if ("Paid".equals(user.getStatus())) {
+	        LocalDate endDate = user.getEndDate();
+	        String reminderMessage = null;
+
+	        if (endDate != null) {
+	            if (currentDate.isEqual(endDate.minusDays(7))) {
+	                reminderMessage = "Your subscription is ending in 7 days. Please renew it to continue.";
+	            } else if (currentDate.isEqual(endDate.minusDays(1))) {
+	                reminderMessage = "Your subscription is ending tomorrow. Please renew it to avoid interruption.";
+	            }
+	        }
+
+	        // Check if subscription has expired
+	        if (currentDate.isAfter(endDate)) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+	                "Your yearly subscription has ended. Please renew it by paying ₹1500 to continue.");
+	        }
+
+	        // Include reminder in response if applicable
+	        if (reminderMessage != null) {
+	            return ResponseEntity.ok(reminderMessage);
+	        }
+	    }
+	  
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -77,6 +128,8 @@ public class AuthController {
   @PostMapping("/signup")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+	
+	// Check if username or email already exists
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
       return ResponseEntity
           .badRequest()
@@ -93,7 +146,8 @@ public class AuthController {
     User user = new User(signUpRequest.getUsername(), 
                signUpRequest.getEmail(),
                encoder.encode(signUpRequest.getPassword()));
-
+    
+    // Set roles for the user
     Set<String> strRoles = signUpRequest.getRole();
     Set<Role> roles = new HashSet<>();
 
@@ -125,8 +179,52 @@ public class AuthController {
     }
 
     user.setRoles(roles);
+    
+ // Handle subscription logic
+    LocalDate currentDate = LocalDate.now();
+    String message;
+
+    if ("Paid".equals(signUpRequest.getStatus())) {
+        // If the user pays, assign yearly subscription
+        user.setStatus("Paid");
+        user.setStartDate(currentDate);
+        user.setEndDate(currentDate.plusYears(1));  // Start yearly subscription immediately
+        message = "User registered successfully! Yearly subscription activated. Reminders will be sent.";
+
+        // Schedule reminders
+        scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(7), "Reminder: Your subscription is ending in 7 days. Please renew.");
+        scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(1), "Reminder: Your subscription is ending tomorrow. Please renew.");
+    } else {
+        // If the user doesn't pay, start a free trial for 2 weeks
+        user.setStatus("Not Paid");
+        user.setStartDate(currentDate);
+        user.setEndDate(currentDate.plusWeeks(2));  // 2-week free trial
+        message = "User registered successfully! Free trial for 2 weeks started. Subscription will begin after the trial.";
+
+        // Schedule reminder at the end of the trial
+        scheduleReminder(user.getEmail(), currentDate.plusWeeks(2), "Your free trial has ended. Yearly subscription has been activated.");
+    }
+    
     userRepository.save(user);
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
+  
+  private void scheduleReminder(String email, LocalDate reminderDate, String message) {
+	    // Check if the reminder date is in the future
+	    if (reminderDate.isAfter(LocalDate.now())) {
+	        long delay = Duration.between(LocalDate.now().atStartOfDay(), reminderDate.atStartOfDay()).toMillis();
+
+	        // Use a single-threaded executor to schedule tasks
+	        Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+	            sendMessage(email, message);
+	        }, delay, TimeUnit.MILLISECONDS);
+	    }
+	}
+
+	private void sendMessage(String email, String message) {
+	    // Logic to send email or notification
+	    System.out.println("Sending to " + email + ": " + message);
+	}
+  
 }

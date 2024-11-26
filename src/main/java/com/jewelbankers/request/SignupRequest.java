@@ -13,8 +13,18 @@ public class SignupRequest {
   @Size(max = 50)
   @Email
   private String email;
+  
+  private String status;
 
-  private Set<String> role;
+  public String getStatus() {
+	return status;
+}
+
+public void setStatus(String status) {
+	this.status = status;
+}
+
+private Set<String> role;
 
   @NotBlank
   @Size(min = 6, max = 40)

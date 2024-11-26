@@ -1,9 +1,20 @@
 package com.jewelbankers.entity;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -30,6 +41,40 @@ public class User {
 
   @Column(name = "reset_password_token")
     private String resetPasswordToken;
+  
+//New fields
+  @Column(name = "startDate")
+  private LocalDate startDate;
+  
+  @Column(name = "endDate")
+  private LocalDate endDate;
+
+  public LocalDate getStartDate() {
+	return startDate;
+}
+
+public void setStartDate(LocalDate startDate) {
+	this.startDate = startDate;
+}
+
+public LocalDate getEndDate() {
+	return endDate;
+}
+
+public void setEndDate(LocalDate endDate) {
+	this.endDate = endDate;
+}
+
+public String getStatus() {
+	return status;
+}
+
+public void setStatus(String status) {
+	this.status = status;
+}
+
+@Column(name = "status")
+  private String status; // "Paid" or "Not Paid"
 
   @NotBlank
   @Size(max = 120)

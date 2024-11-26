@@ -57,17 +57,17 @@ public class UserController {
        return ResponseEntity.ok(updatedUser);
    }
    
-   @GetMapping("/username/{username}")
-   public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {
-       try {
-           User user = userService.getUserByUsername(username);
-           if (user != null) {
-               return ResponseEntity.ok(user);
-           } else {
-               throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-           }
-       } catch (Exception e) {
-           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred", e);
-       }
-   }
+//   @GetMapping("/username/{username}")
+//   public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {
+//       try {
+//           User user = userService.getUserByUsername(username);
+//           if (user != null) {
+//               return ResponseEntity.ok(user);
+//           } else {
+//               throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+//           }
+//       } catch (Exception e) {
+//           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred", e);
+//       }
+//   }
 }
