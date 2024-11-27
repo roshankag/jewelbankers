@@ -1,5 +1,6 @@
 package com.jewelbankers.services;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jewelbankers.entity.User;
-import com.jewelbankers.entity.users;
 import com.jewelbankers.repository.UserRepository;
 
 @Service
@@ -76,24 +76,76 @@ public void updateResetPasswordToken(String token, String email) throws Username
 
         return users;
     }
+    
     public User updateUser(Long id, User user) {
-    	System.out.println("update user id"+id);
-    	try {
-    		User updateUser = userRepository.findById(id).orElse(null);
-            if (user != null) {
-            	updateUser.setUsername(user.getUsername());
-            	updateUser.setPassword(user.getPassword());
-                return userRepository.save(updateUser);
-            }}catch(Exception e) {
-            	e.printStackTrace();
+        System.out.println("Updating user with ID: " + id);
+        try {
+            User existingUser = userRepository.findById(id).orElse(null);
+            if (existingUser != null) {
+                // Update user details
+                existingUser.setUsername(user.getUsername());
+                existingUser.setPassword(user.getPassword());
+
+                // Handle transitions from "Not Paid" to "Paid"
+                if ("Not Paid".equals(existingUser.getStatus()) && "Paid".equals(user.getStatus())) {
+                    LocalDate currentDate = LocalDate.now();
+
+                    // Update status and subscription dates
+                    existingUser.setStatus("Paid");
+                    existingUser.setStartDate(currentDate);
+                    existingUser.setEndDate(currentDate.plusYears(1)); // Start yearly subscription
+
+                    // Send confirmation message
+                    sendMessage(existingUser.getEmail(),
+                        "Thank you for your payment! Your yearly subscription has started and will end on "
+                        + currentDate.plusYears(1) + ".");
+                }
+
+                // Handle transitions from "Paid" to "Not Paid"
+                else if ("Paid".equals(existingUser.getStatus()) && "Not Paid".equals(user.getStatus())) {
+                    LocalDate currentDate = LocalDate.now();
+
+                    // Update status
+                    existingUser.setStatus("Not Paid");
+                    existingUser.setStartDate(currentDate);
+                    existingUser.setEndDate(currentDate.plusWeeks(2)); // Start 2-week free trial
+
+                    // Send notification about the free trial
+                    sendMessage(existingUser.getEmail(),
+                        "Your subscription has been updated to 'Not Paid'. Your free trial has started and will end on "
+                        + currentDate.plusWeeks(2) + ". Please make the payment to continue after the trial period.");
+                }
+
+                // Handle end of free trial (manual check or cron job required)
+                if ("Not Paid".equals(existingUser.getStatus())) {
+                    LocalDate currentDate = LocalDate.now();
+                    if (currentDate.isEqual(existingUser.getEndDate())) {
+                        // Free trial has ended
+                        sendMessage(existingUser.getEmail(),
+                            "Your free trial has ended. Please make the payment to continue using the service.");
+                        existingUser.setStatus("Inactive"); // Set to inactive if payment is not made
+                    }
+                }
+
+                // Save and return updated user
+                return userRepository.save(existingUser);
+            } else {
+                System.out.println("User with ID " + id + " not found.");
             }
-    	
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
-    
+
 //    public User getUserByUsername(String username) {
 //        return userRepository.findByname(username);
 //    }
+    
+    private void sendMessage(String email, String message) {
+        // Logic to send email or notification
+        System.out.println("Sending to " + email + ": " + message);
+    }
     
 
 }
