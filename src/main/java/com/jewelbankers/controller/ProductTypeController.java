@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import com.jewelbankers.entity.ProductType;
 import com.jewelbankers.services.ProductTypeService;
 import com.jewelbankers.Utility.ErrorResponse;
+import com.jewelbankers.aop.SwitchDatabase;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/jewelbankersapi/product_types")
 @CrossOrigin(origins = "http://localhost:4200")
+@SwitchDatabase
 public class ProductTypeController {
 
     @Autowired

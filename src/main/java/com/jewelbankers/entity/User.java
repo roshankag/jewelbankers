@@ -39,9 +39,7 @@ public class User {
   @Email
   private String email;
   
-  @Column(name = "USER_DATABASE_NAME")
-  @NotBlank
-  @Size(max = 50)
+  @Column(name = "user_database_name")
   private String userDatabaseName;
 
   public String getUserDatabaseName() {
@@ -102,10 +100,11 @@ public void setStatus(String status) {
   public User() {
   }
 
-  public User(String username, String email, String password) {
+  public User(String username, String email, String password, String userDatabaseName) {
     this.username = username;
     this.email = email;
     this.password = password;
+    this.userDatabaseName = userDatabaseName;
   }
 
   public Long getId() {

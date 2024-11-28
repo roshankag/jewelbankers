@@ -2,7 +2,9 @@ package com.jewelbankers.request;
 
 import java.util.Set;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class SignupRequest {
   @NotBlank
@@ -15,6 +17,16 @@ public class SignupRequest {
   private String email;
   
   private String status;
+  
+  public String getUserDatabaseName() {
+	return userDatabaseName;
+}
+
+public void setUserDatabaseName(String userDatabaseName) {
+	this.userDatabaseName = userDatabaseName;
+}
+
+private String userDatabaseName;
 
   public String getStatus() {
 	return status;

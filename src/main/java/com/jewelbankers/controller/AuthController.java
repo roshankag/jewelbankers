@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -136,6 +137,7 @@ public class AuthController {
 
   @PostMapping("/signup")
   @PreAuthorize("hasRole('ADMIN')")
+  @CacheEvict(value = "usersListCache", allEntries = true)
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 	
 	// Check if username or email already exists
@@ -150,11 +152,21 @@ public class AuthController {
           .badRequest()
           .body(new MessageResponse("Error: Email is already in use!"));
     }
+    
+ // Check if userDatabaseName is already in use
+    if (userRepository.existsByUserDatabaseName(signUpRequest.getUserDatabaseName())) {
+        return ResponseEntity
+            .badRequest()
+            .body(new MessageResponse("Error: Database name is already in use!"));
+    }
 
-    // Create new user's account
-    User user = new User(signUpRequest.getUsername(), 
-               signUpRequest.getEmail(),
-               encoder.encode(signUpRequest.getPassword()));
+ // Create new user's account
+    User user = new User(
+        signUpRequest.getUsername(), 
+        signUpRequest.getEmail(),
+        encoder.encode(signUpRequest.getPassword()),
+        signUpRequest.getUserDatabaseName() // Include userDatabaseName here
+    );
     
     // Set roles for the user
     Set<String> strRoles = signUpRequest.getRole();

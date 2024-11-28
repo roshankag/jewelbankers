@@ -34,7 +34,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   
   @Transactional
   public UserDetails loadUserByDataBase(String userDateBaseName) throws UsernameNotFoundException {
-      System.out.println("User Database Name: " + userDateBaseName);
+      //System.out.println("User Database Name: " + userDateBaseName);
       User user = userRepository.findByUserDatabaseName(userDateBaseName);
       if (user == null) {
           throw new UsernameNotFoundException("User Not Found with username: " + userDateBaseName);
@@ -109,6 +109,7 @@ public void updateResetPasswordToken(String token, String email) throws Username
                 // Update user details
                 existingUser.setUsername(user.getUsername());
                 existingUser.setPassword(user.getPassword());
+                existingUser.setUserDatabaseName(user.getUserDatabaseName());
 
                 // Handle transitions from "Not Paid" to "Paid"
                 if ("Not Paid".equals(existingUser.getStatus()) && "Paid".equals(user.getStatus())) {

@@ -3,6 +3,7 @@ package com.jewelbankers.application;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = {"com.jewelbankers.repository"}) 
 @EntityScan(basePackages = {"com.jewelbankers.entity"})
+@EnableCaching
 @ComponentScan({ "com" })
 //@OpenAPIDefinition(info = @Info(title = "Jewel Bankers Api",version = "V.1.0",description = "Documentation for Jewel Bankers APIs"))
 

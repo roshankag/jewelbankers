@@ -25,7 +25,7 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
     protected Object determineCurrentLookupKey() {
         // Get the schema or database identifier from context holder
         String dataSourceKey = contextHolder.get();
-        System.out.println("Current data source key: " + dataSourceKey); // Debugging
+        //System.out.println("Current data source key: " + dataSourceKey); // Debugging
         return dataSourceKey;
     }
 
