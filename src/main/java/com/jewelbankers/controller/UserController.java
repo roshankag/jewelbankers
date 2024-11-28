@@ -54,8 +54,13 @@ public class UserController {
    @PreAuthorize("hasRole('ADMIN')")
    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
        User updatedUser = userService.updateUser(id, user);
-       return ResponseEntity.ok(updatedUser);
+       if (updatedUser != null) {
+           return ResponseEntity.ok(updatedUser);
+       } else {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+       }
    }
+
    
 //   @GetMapping("/username/{username}")
 //   public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {

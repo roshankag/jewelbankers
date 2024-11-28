@@ -80,6 +80,9 @@ public class AuthController {
 	            user.setEndDate(currentDate.plusWeeks(2));
 	            userRepository.save(user);
 	        } else if (currentDate.isAfter(user.getEndDate())) {
+	            // Trial has ended, transition to Inactive
+	            user.setStatus("Inactive");
+	            userRepository.save(user);
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
 	                "Your free trial has ended. Please complete the registration fee of ₹5000 to continue.");
 	        }
@@ -97,6 +100,8 @@ public class AuthController {
 
 	        // Check if subscription has expired
 	        if (currentDate.isAfter(endDate)) {
+	            user.setStatus("Inactive");
+	            userRepository.save(user);
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
 	                "Your yearly subscription has ended. Please renew it by paying ₹1500 to continue.");
 	        }
@@ -105,8 +110,11 @@ public class AuthController {
 	        if (reminderMessage != null) {
 	            return ResponseEntity.ok(reminderMessage);
 	        }
+	    } else if ("Inactive".equals(user.getStatus())) {
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+	            "Your subscription is inactive. Please make the payment to reactivate your subscription.");
 	    }
-	  
+  
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -188,23 +196,40 @@ public class AuthController {
         // If the user pays, assign yearly subscription
         user.setStatus("Paid");
         user.setStartDate(currentDate);
-        user.setEndDate(currentDate.plusYears(1));  // Start yearly subscription immediately
+        user.setEndDate(currentDate.plusYears(1)); // Start yearly subscription immediately
         message = "User registered successfully! Yearly subscription activated. Reminders will be sent.";
 
         // Schedule reminders
-        scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(7), "Reminder: Your subscription is ending in 7 days. Please renew.");
-        scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(1), "Reminder: Your subscription is ending tomorrow. Please renew.");
-    } else {
+        scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(7), 
+            "Reminder: Your subscription is ending in 7 days. Please renew.");
+        
+        scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(1), 
+            "Reminder: Your subscription is ending tomorrow. Please renew.");
+        
+    } else if ("Not Paid".equals(signUpRequest.getStatus())) {
         // If the user doesn't pay, start a free trial for 2 weeks
         user.setStatus("Not Paid");
         user.setStartDate(currentDate);
-        user.setEndDate(currentDate.plusWeeks(2));  // 2-week free trial
-        message = "User registered successfully! Free trial for 2 weeks started. Subscription will begin after the trial.";
+        user.setEndDate(currentDate.plusWeeks(2)); // 2-week free trial
+        message = "User registered successfully! "
+        		+ "Free trial for 2 weeks started. Please make the payment to activate your yearly subscription.";
 
         // Schedule reminder at the end of the trial
-        scheduleReminder(user.getEmail(), currentDate.plusWeeks(2), "Your free trial has ended. Yearly subscription has been activated.");
+        scheduleReminder(user.getEmail(), currentDate.plusWeeks(2), 
+            "Your free trial has ended. Please complete the payment to activate your yearly subscription.");
+        
+    } else if ("Inactive".equals(signUpRequest.getStatus())) {
+        // Handle inactive users who have not paid
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            new MessageResponse("Your account is inactive. "
+            		+ "Please complete the payment to reactivate your subscription."));
+        
+    } else {
+        // Handle unexpected statuses
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            new MessageResponse("Invalid status provided. Please check and try again."));
+        
     }
-    
     userRepository.save(user);
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
