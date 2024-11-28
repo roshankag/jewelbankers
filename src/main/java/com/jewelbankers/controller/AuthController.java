@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -63,12 +62,14 @@ public class AuthController {
 	System.out.println(loginRequest.getUsername()+
 	  ":"+loginRequest.getPassword());
 	  
-    Optional<User> optionalUser = userRepository.findByUsername(loginRequest.getUsername());
-	    if (optionalUser.isEmpty()) {
+	 User user = userRepository.findByUsername(loginRequest.getUsername());
+	    
+	    // Check if user is null (no user found with the provided username)
+	    if (user == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
 	    }
 	    
-    User user = optionalUser.get();
+  
 	    LocalDate currentDate = LocalDate.now();
 	    
 	   

@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.Utility.ErrorResponse;
+import com.jewelbankers.aop.SwitchDatabase;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.services.BillService;
 //import com.jewelbankers.services.FileStorageService;
@@ -40,6 +41,7 @@ import jakarta.persistence.EntityNotFoundException;
 @RestController
 @RequestMapping("/jewelbankersapi/bills")
 @CrossOrigin(origins = "http://localhost:4200")
+@SwitchDatabase
 public class BillController {
 
     @Autowired

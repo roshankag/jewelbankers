@@ -25,10 +25,12 @@ import com.jewelbankers.entity.Settings;
 
 import com.jewelbankers.services.SettingsService;
 import com.jewelbankers.Utility.ErrorResponse;
+import com.jewelbankers.aop.SwitchDatabase;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/jewelbankersapi/settings")
+@SwitchDatabase
 public class SettingsController {
 
     @Autowired

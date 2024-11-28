@@ -1,16 +1,15 @@
 package com.jewelbankers.repository;
 
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.jewelbankers.entity.User;
-import com.jewelbankers.entity.users;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-  Optional<User> findByUsername(String username);
+  public User findByUsername(String username);
+  
+  public User findByUserDatabaseName(String userDatabaseName);
 
   Boolean existsByUsername(String username);
 

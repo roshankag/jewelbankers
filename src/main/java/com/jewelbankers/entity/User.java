@@ -38,8 +38,21 @@ public class User {
   @Size(max = 50)
   @Email
   private String email;
+  
+  @Column(name = "USER_DATABASE_NAME")
+  @NotBlank
+  @Size(max = 50)
+  private String userDatabaseName;
 
-  @Column(name = "reset_password_token")
+  public String getUserDatabaseName() {
+	return userDatabaseName;
+}
+
+public void setUserDatabaseName(String userDatabaseName) {
+	this.userDatabaseName = userDatabaseName;
+}
+
+@Column(name = "reset_password_token")
     private String resetPasswordToken;
   
 //New fields

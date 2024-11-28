@@ -17,21 +17,38 @@ import com.jewelbankers.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
+	
   @Autowired
   UserRepository userRepository;
 
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
-
-    return UserDetailsImpl.build(user);
+      System.out.println("Username: " + username);
+      User user = userRepository.findByUsername(username);
+      if (user == null) {
+          throw new UsernameNotFoundException("User Not Found with username: " + username);
+      }
+      return UserDetailsImpl.build(user);
   }
+  
+  @Transactional
+  public UserDetails loadUserByDataBase(String userDateBaseName) throws UsernameNotFoundException {
+      System.out.println("User Database Name: " + userDateBaseName);
+      User user = userRepository.findByUserDatabaseName(userDateBaseName);
+      if (user == null) {
+          throw new UsernameNotFoundException("User Not Found with username: " + userDateBaseName);
+      }
+      return UserDetailsImpl.build(user);
+  }
+  
+  
 
   @Transactional
-  public UserDetails loadUserByEmail(String username) throws UsernameNotFoundException {
+  public UserDetailsImpl loadUserByEmail(String username) throws UsernameNotFoundException {
     User user = userRepository.findByEmail(username);
+    //user.getUserDatabaseName();
+    System.out.println("DataBase:"+ user.getUserDatabaseName());
 
     return UserDetailsImpl.build(user);
   }
@@ -73,6 +90,13 @@ public void updateResetPasswordToken(String token, String email) throws Username
         List<User> users = new ArrayList<>();
 
         userRepository.findAll().forEach(users::add);
+        
+        for (User user : users) {
+            // Set unwanted fields to null
+            user.setPassword(null);  // Assuming you don't want to expose the password
+            user.setResetPasswordToken(null);  // Set other unwanted fields to null
+            // Keep the fields you need exposed, like id, username, email, etc.
+        }
 
         return users;
     }

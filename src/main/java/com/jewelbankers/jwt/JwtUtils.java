@@ -2,7 +2,9 @@ package com.jewelbankers.jwt;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,20 +13,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.jewelbankers.dto.JwtLogin;
 import com.jewelbankers.dto.LoginResponse;
 import com.jewelbankers.entity.User;
-import com.jewelbankers.entity.UserPrincipal;
-import com.jewelbankers.repository.UserRepository;
 import com.jewelbankers.services.UserDetailsImpl;
 import com.jewelbankers.services.UserDetailsServiceImpl;
-import com.jewelbankers.services.UserService;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
@@ -44,15 +47,24 @@ public class JwtUtils {
   @Autowired
   private UserDetailsServiceImpl userDetailsService;
 
-  public String generateJwtToken(String email) {
+  public String generateJwtToken(User user) {
 
 
-      UserDetails userPrincaple = userDetailsService.loadUserByEmail(email);
+      UserDetailsImpl userPrincaple = userDetailsService.loadUserByEmail(user.getEmail());
 
-      System.out.println(email);
+      System.out.println(user.getEmail());
+   // Adding claims to the token
+      Map<String, Object> claims = new HashMap<>();
+      claims.put("id", user.getId());
+      claims.put("username", user.getUsername());
+      claims.put("email", user.getEmail());
+      claims.put("roles", user.getRoles());
+      claims.put("databasename", user.getUserDatabaseName().toLowerCase());
+     // System.out.println("Dta:"+userPrincaple.getUserDatabaseName());
     System.out.println(userPrincaple.getUsername());
     return Jwts.builder()
             .setSubject(userPrincaple.getUsername())
+            .setClaims(claims)
             .setIssuedAt(new Date())
             .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
             .signWith(key(), SignatureAlgorithm.HS256)
@@ -62,8 +74,18 @@ public class JwtUtils {
   public String generateJwtToken(Authentication authentication) {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+    
+ // Adding claims to the token
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("id", userPrincipal.getId());
+    claims.put("username", userPrincipal.getUsername());
+    claims.put("email", userPrincipal.getEmail());
+    claims.put("roles", userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
 
     return Jwts.builder()
+    	.setClaims(claims)
         .setSubject((userPrincipal.getUsername()))
         .setIssuedAt(new Date())
         .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
@@ -80,6 +102,15 @@ public class JwtUtils {
                .parseClaimsJws(token).getBody().getSubject();
   }
 
+  public String getRequestUserdatabaseFromJwtToken(String token) {
+	  return Jwts.parserBuilder()
+	            .setSigningKey(key())
+	            .build()
+	            .parseClaimsJws(token)
+	            .getBody()
+	            .get("databasename", String.class); // Extract the "databasename" claim
+  }
+  
   public boolean validateJwtToken(String authToken) {
     try {
       Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
