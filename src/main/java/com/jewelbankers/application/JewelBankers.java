@@ -8,12 +8,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-//import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-//import io.swagger.v3.oas.annotations.info.Info;
 
 @RestController
 @SpringBootApplication
-//@EnableJpaRepositories
 @EnableJpaRepositories(basePackages = {"com.jewelbankers.repository"}) 
 @EntityScan(basePackages = {"com.jewelbankers.entity"})
 @ComponentScan({ "com" })
