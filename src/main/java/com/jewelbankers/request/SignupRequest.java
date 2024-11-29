@@ -16,7 +16,7 @@ public class SignupRequest {
   @Email
   private String email;
   
-  private String status;
+  private boolean isPaid;
   
   public String getUserDatabaseName() {
 	return userDatabaseName;
@@ -28,12 +28,13 @@ public void setUserDatabaseName(String userDatabaseName) {
 
 private String userDatabaseName;
 
-  public String getStatus() {
-	return status;
+  
+public boolean isPaid() {
+	return isPaid;
 }
 
-public void setStatus(String status) {
-	this.status = status;
+public void setPaid(boolean isPaid) {
+	this.isPaid = isPaid;
 }
 
 private Set<String> role;

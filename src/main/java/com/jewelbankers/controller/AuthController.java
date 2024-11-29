@@ -72,50 +72,52 @@ public class AuthController {
 	    
   
 	    LocalDate currentDate = LocalDate.now();
-	    
-	   
+
 	 // Check subscription and trial status
-	    if ("Not Paid".equals(user.getStatus())) {
-	        if (user.getStartDate() == null || user.getEndDate() == null) {
-	            // Start free trial
-	            user.setStartDate(currentDate);
-	            user.setEndDate(currentDate.plusWeeks(2));
-	            userRepository.save(user);
-	        } else if (currentDate.isAfter(user.getEndDate())) {
-	            // Trial has ended, transition to Inactive
-	            user.setStatus("Inactive");
-	            userRepository.save(user);
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-	                "Your free trial has ended. Please complete the registration fee of ₹5000 to continue.");
-	        }
-	    } else if ("Paid".equals(user.getStatus())) {
-	        LocalDate endDate = user.getEndDate();
-	        String reminderMessage = null;
+	 if (!user.isPaid()) {
+	     if (user.getStartDate() == null || user.getEndDate() == null) {
+	         // Start free trial
+	         user.setStartDate(currentDate);
+	         user.setEndDate(currentDate.plusWeeks(2));
+	         userRepository.save(user);
+	     } else if (currentDate.isAfter(user.getEndDate())) {
+	         // Trial has ended, transition to Inactive
+	         user.setPaid(false); // Ensure the user is marked as unpaid
+	         userRepository.save(user);
+	         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+	             "Your free trial has ended. Please complete the registration fee of ₹5000 to continue.");
+	     }
+	 } else {
+	     LocalDate endDate = user.getEndDate();
+	     String reminderMessage = null;
 
-	        if (endDate != null) {
-	            if (currentDate.isEqual(endDate.minusDays(7))) {
-	                reminderMessage = "Your subscription is ending in 7 days. Please renew it to continue.";
-	            } else if (currentDate.isEqual(endDate.minusDays(1))) {
-	                reminderMessage = "Your subscription is ending tomorrow. Please renew it to avoid interruption.";
-	            }
-	        }
+	     if (endDate != null) {
+	         if (currentDate.isEqual(endDate.minusDays(7))) {
+	             reminderMessage = "Your subscription is ending in 7 days. Please renew it to continue.";
+	         } else if (currentDate.isEqual(endDate.minusDays(1))) {
+	             reminderMessage = "Your subscription is ending tomorrow. Please renew it to avoid interruption.";
+	         }
+	     }
 
-	        // Check if subscription has expired
-	        if (currentDate.isAfter(endDate)) {
-	            user.setStatus("Inactive");
-	            userRepository.save(user);
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-	                "Your yearly subscription has ended. Please renew it by paying ₹1500 to continue.");
-	        }
+	     // Check if subscription has expired
+	     if (currentDate.isAfter(endDate)) {
+	         user.setPaid(false); // Mark as unpaid
+	         userRepository.save(user);
+	         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+	             "Your yearly subscription has ended. Please renew it by paying ₹1500 to continue.");
+	     }
 
-	        // Include reminder in response if applicable
-	        if (reminderMessage != null) {
-	            return ResponseEntity.ok(reminderMessage);
-	        }
-	    } else if ("Inactive".equals(user.getStatus())) {
-	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-	            "Your subscription is inactive. Please make the payment to reactivate your subscription.");
-	    }
+	     // Include reminder in response if applicable
+	     if (reminderMessage != null) {
+	         return ResponseEntity.ok(reminderMessage);
+	     }
+	 }
+
+	 // Handle the case where the subscription is inactive
+	 if (!user.isPaid()) {
+	     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+	         "Your subscription is inactive. Please make the payment to reactivate your subscription.");
+	 }
   
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -205,9 +207,9 @@ public class AuthController {
     LocalDate currentDate = LocalDate.now();
     String message;
 
-    if ("Paid".equals(signUpRequest.getStatus())) {
-        // If the user pays, assign yearly subscription
-        user.setStatus("Paid");
+    if (signUpRequest.isPaid()) { // Check if the user has paid
+        // If the user pays, assign a yearly subscription
+        user.setPaid(true);
         user.setStartDate(currentDate);
         user.setEndDate(currentDate.plusYears(1)); // Start yearly subscription immediately
         message = "User registered successfully! Yearly subscription activated. Reminders will be sent.";
@@ -215,37 +217,28 @@ public class AuthController {
         // Schedule reminders
         scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(7), 
             "Reminder: Your subscription is ending in 7 days. Please renew.");
-        
+
         scheduleReminder(user.getEmail(), currentDate.plusYears(1).minusDays(1), 
             "Reminder: Your subscription is ending tomorrow. Please renew.");
         
-    } else if ("Not Paid".equals(signUpRequest.getStatus())) {
-        // If the user doesn't pay, start a free trial for 2 weeks
-        user.setStatus("Not Paid");
+    } else { // If the user has not paid
+        // Start a free trial for 2 weeks
+        user.setPaid(false);
         user.setStartDate(currentDate);
         user.setEndDate(currentDate.plusWeeks(2)); // 2-week free trial
-        message = "User registered successfully! "
-        		+ "Free trial for 2 weeks started. Please make the payment to activate your yearly subscription.";
+        message = "User registered successfully! Free trial for 2 weeks started. "
+                + "Please make the payment to activate your yearly subscription.";
 
         // Schedule reminder at the end of the trial
         scheduleReminder(user.getEmail(), currentDate.plusWeeks(2), 
             "Your free trial has ended. Please complete the payment to activate your yearly subscription.");
-        
-    } else if ("Inactive".equals(signUpRequest.getStatus())) {
-        // Handle inactive users who have not paid
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-            new MessageResponse("Your account is inactive. "
-            		+ "Please complete the payment to reactivate your subscription."));
-        
-    } else {
-        // Handle unexpected statuses
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-            new MessageResponse("Invalid status provided. Please check and try again."));
-        
     }
+
+    // Save the user details
     userRepository.save(user);
 
-    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    // Return success message
+    return ResponseEntity.ok(new MessageResponse(message));
   }
   
   private void scheduleReminder(String email, LocalDate reminderDate, String message) {

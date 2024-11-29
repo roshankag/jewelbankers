@@ -76,16 +76,16 @@ public void setEndDate(LocalDate endDate) {
 	this.endDate = endDate;
 }
 
-public String getStatus() {
-	return status;
+public boolean isPaid() {
+	return isPaid;
 }
 
-public void setStatus(String status) {
-	this.status = status;
+public void setPaid(boolean isPaid) {
+	this.isPaid = isPaid;
 }
 
 @Column(name = "status")
-  private String status; // "Paid" or "Not Paid"
+private boolean isPaid; // true = Paid, false = Not Paid
 
   @NotBlank
   @Size(max = 120)

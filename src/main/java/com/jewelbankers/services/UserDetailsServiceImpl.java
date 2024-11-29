@@ -111,12 +111,12 @@ public void updateResetPasswordToken(String token, String email) throws Username
                 existingUser.setPassword(user.getPassword());
                 existingUser.setUserDatabaseName(user.getUserDatabaseName());
 
-                // Handle transitions from "Not Paid" to "Paid"
-                if ("Not Paid".equals(existingUser.getStatus()) && "Paid".equals(user.getStatus())) {
-                    LocalDate currentDate = LocalDate.now();
+                LocalDate currentDate = LocalDate.now();
 
-                    // Update status and subscription dates
-                    existingUser.setStatus("Paid");
+                // Handle transitions from "Not Paid" to "Paid"
+                if (!existingUser.isPaid() && user.isPaid()) {
+                    // Update payment status and subscription dates
+                    existingUser.setPaid(true);
                     existingUser.setStartDate(currentDate);
                     existingUser.setEndDate(currentDate.plusYears(1)); // Start yearly subscription
 
@@ -125,13 +125,11 @@ public void updateResetPasswordToken(String token, String email) throws Username
                         "Thank you for your payment! Your yearly subscription has started and will end on "
                         + currentDate.plusYears(1) + ".");
                 }
-
-                // Handle transitions from "Paid" to "Not Paid"
-                else if ("Paid".equals(existingUser.getStatus()) && "Not Paid".equals(user.getStatus())) {
-                    LocalDate currentDate = LocalDate.now();
-
-                    // Update status
-                    existingUser.setStatus("Not Paid");
+                
+             // Handle transitions from "Paid" to "Not Paid"
+                else if (existingUser.isPaid() && !user.isPaid()) {
+                    // Update payment status and start a free trial
+                    existingUser.setPaid(false);
                     existingUser.setStartDate(currentDate);
                     existingUser.setEndDate(currentDate.plusWeeks(2)); // Start 2-week free trial
 
@@ -140,16 +138,13 @@ public void updateResetPasswordToken(String token, String email) throws Username
                         "Your subscription has been updated to 'Not Paid'. Your free trial has started and will end on "
                         + currentDate.plusWeeks(2) + ". Please make the payment to continue after the trial period.");
                 }
-
-                // Handle end of free trial (manual check or cron job required)
-                if ("Not Paid".equals(existingUser.getStatus())) {
-                    LocalDate currentDate = LocalDate.now();
-                    if (currentDate.isEqual(existingUser.getEndDate())) {
-                        // Free trial has ended
-                        sendMessage(existingUser.getEmail(),
-                            "Your free trial has ended. Please make the payment to continue using the service.");
-                        existingUser.setStatus("Inactive"); // Set to inactive if payment is not made
-                    }
+                
+                // Handle end of free trial
+                if (!existingUser.isPaid() && currentDate.isEqual(existingUser.getEndDate())) {
+                    // Free trial has ended
+                    sendMessage(existingUser.getEmail(),
+                        "Your free trial has ended. Please make the payment to continue using the service.");
+                    existingUser.setPaid(false); // User remains unpaid
                 }
 
                 // Save and return updated user
