@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +20,8 @@ import com.jewelbankers.repository.UserRepository;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 	
+	private static final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
+	
   @Autowired
   UserRepository userRepository;
 
@@ -31,16 +35,22 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       }
       return UserDetailsImpl.build(user);
   }
+  	
+// 
   
   @Transactional
-  public UserDetails loadUserByDataBase(String userDateBaseName) throws UsernameNotFoundException {
-      //System.out.println("User Database Name: " + userDateBaseName);
-      User user = userRepository.findByUserDatabaseName(userDateBaseName);
+  public UserDetails loadUserByDataBase(String userDatabaseName) throws UsernameNotFoundException {
+      log.debug("Attempting to find user with database name: {}", userDatabaseName);
+      User user = userRepository.findByUserDatabaseName(userDatabaseName);
       if (user == null) {
-          throw new UsernameNotFoundException("User Not Found with username: " + userDateBaseName);
+          log.error("User not found with database name: {}", userDatabaseName);
+          throw new UsernameNotFoundException(
+              "UserDetailsServiceImpl loadUserByDataBase -> User Not Found with DataBaseName: " + userDatabaseName);
       }
+      log.debug("User found: {}", user);
       return UserDetailsImpl.build(user);
   }
+
   
   
 

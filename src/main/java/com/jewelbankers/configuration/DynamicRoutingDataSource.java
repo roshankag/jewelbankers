@@ -2,6 +2,7 @@ package com.jewelbankers.configuration;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
@@ -9,7 +10,9 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
 
-    private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
+    //private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
+    private static final ThreadLocal<AtomicReference<String>> contextHolder = ThreadLocal.withInitial(() -> new AtomicReference<>());
+
 
     // Store target data sources in a thread-safe map
     private final Map<Object, Object> targetDataSources = new ConcurrentHashMap<>();
@@ -24,27 +27,26 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
     @Override
     protected Object determineCurrentLookupKey() {
         // Get the schema or database identifier from context holder
-        String dataSourceKey = contextHolder.get();
+        String dataSourceKey = contextHolder.get().get();
         //System.out.println("Current data source key: " + dataSourceKey); // Debugging
         return dataSourceKey;
     }
 
-    public String getDataSourceKey() {
-        return contextHolder.get();
-    }
-    
     public void setDataSourceKey(String key) {
-        contextHolder.set(key);
-        //System.out.println("Data source key set to: " + key); // Debugging
+        contextHolder.get().set(key);
     }
 
+    public String getDataSourceKey() {
+        return contextHolder.get().get();
+    }
+    
     public void clearDataSourceKey() {
         contextHolder.remove();
         //System.out.println("Data source key cleared."); // Debugging
     }
 
     // Method to add or update a target data source dynamically based on schema/database
-    public void addTargetDataSource(String key, DataSource dataSource) {
+    public synchronized void addTargetDataSource(String key, DataSource dataSource) {
         this.targetDataSources.put(key, dataSource);
         // Refresh the resolved data sources
         super.setTargetDataSources(this.targetDataSources);
