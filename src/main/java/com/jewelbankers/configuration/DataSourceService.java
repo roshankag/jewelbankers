@@ -11,21 +11,11 @@ public class DataSourceService {
 
 	private final ReentrantLock lock = new ReentrantLock();
 
-    // private final DynamicRoutingDataSource dynamicRoutingDataSource;
-    //private final Map<String, DataSource> userDataSources = new ConcurrentHashMap<>();
-    
-//    public Map<String, DataSource> getUserDataSources() {
-//		return userDataSources;
-//	}
-
 	@Autowired
     @Lazy
     private DynamicRoutingDataSource dynamicRoutingDataSource;
 
-//    @Autowired
-//    public DataSourceService(@Qualifier("dynamicRoutingDataSource") DynamicRoutingDataSource dynamicRoutingDataSource) {
-//        this.dynamicRoutingDataSource = dynamicRoutingDataSource;
-//    }
+
 
     /**
      * Switch the data source based on userId or databaseName.
@@ -43,27 +33,11 @@ public class DataSourceService {
         }
     }
 
-//    public int getDataSourceCount() {
-//        return userDataSources.size();
-//    }
-//    
+
     public void checkDataSources() {
        
     }
-    
-   
-    
-    /**
-     * Create a new data source based on the database name or user ID.
-     */
-//    private DataSource createDataSourceForUser(String databaseName) {
-//        // Example code for creating a DataSource dynamically
-//        return DataSourceBuilder.create()
-//                .url("jdbc:mysql://localhost:3306/" + databaseName)
-//                .username("root")
-//                .password("admin")
-//                .build();
-//    }
+  
 
     /**
      * Clear the current data source after the user logs out or if necessary.

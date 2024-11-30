@@ -37,6 +37,21 @@ public class UserController {
 		List<User> users = userService.allUsers();
 		return ResponseEntity.ok(users);
 	}
+	
+	@GetMapping("/{id}")
+//	@PreAuthorize("hasRole('ADMIN')")
+	// @Cacheable(value = "userByIdCache", key = "#id")
+	public ResponseEntity<User> getUserById(@PathVariable Long id) {
+	    User user = userService.getUserById(id);
+	    if (user == null) {
+	        return ResponseEntity.notFound().build();
+	    }
+	    // Set unwanted fields to null before returning the response
+	    user.setPassword(null);
+	    user.setResetPasswordToken(null);
+	    return ResponseEntity.ok(user);
+	}
+
 
 	@DeleteMapping("/delete/{id}")
 	@PreAuthorize("hasRole('ADMIN')")

@@ -76,16 +76,17 @@ public void setEndDate(LocalDate endDate) {
 	this.endDate = endDate;
 }
 
-public boolean isPaid() {
-	return isPaid;
+
+public boolean isStatus() {
+	return status;
 }
 
-public void setPaid(boolean isPaid) {
-	this.isPaid = isPaid;
+public void setStatus(boolean status) {
+	this.status = status;
 }
 
 @Column(name = "status")
-private boolean isPaid; // true = Paid, false = Not Paid
+private boolean status; // true = Paid, false = Not Paid
 
   @NotBlank
   @Size(max = 120)
@@ -100,9 +101,10 @@ private boolean isPaid; // true = Paid, false = Not Paid
   public User() {
   }
 
-  public User(String username, String email, String password, String userDatabaseName) {
+  public User(String username, String email, Boolean status, String password, String userDatabaseName) {
     this.username = username;
     this.email = email;
+    this.status = status;
     this.password = password;
     this.userDatabaseName = userDatabaseName;
   }

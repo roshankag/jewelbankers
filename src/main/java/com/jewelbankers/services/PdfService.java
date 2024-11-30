@@ -248,7 +248,7 @@ public class PdfService {
         content.beginText();
         content.setFontAndSize(boldFont.getBaseFont(), 12);
     	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-        content.showTextAligned(Element.ALIGN_LEFT, "To,", 260, 710, 0);
+        content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 710, 0);
         content.endText();
 
         if (bill.getCustomer() != null) {
@@ -269,7 +269,7 @@ public class PdfService {
             content.setLineWidth(0.5f);                                    // Set line width for stroke effect
             
             // Display the concatenated customer name and phone number
-            content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 270, 695, 0); // Adjust Y-coordinate as needed
+            content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 695, 0); // Adjust Y-coordinate as needed
             content.endText();
         
 
@@ -282,19 +282,19 @@ public class PdfService {
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 270, 680, 0);  // First line of address
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 250, 680, 0);  // First line of address
                 content.endText();
 
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 270, 665, 0);  // Second line of address
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 250, 665, 0);  // Second line of address
                 content.endText();
 
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 270, 650, 0);  // Third line of address
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 250, 650, 0);  // Third line of address
                 content.endText();
                 
              // Check if the customer has a photo and retrieve it as byte array
@@ -356,7 +356,7 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 690, 0);  // Date aligned to left with label
+        content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 680, 0);  // Date aligned to left with label
         content.endText();
 
      // Display Pledge No
@@ -369,7 +369,7 @@ public class PdfService {
         // Format Pledge No with space between serial and number
         String pledgeNo = bill.getBillSerial() + " " + bill.getBillNo(); 
 
-        content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 670, 0);  // Pledge No aligned to left with label
+        content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 660, 0);  // Pledge No aligned to left with label
         content.endText();
 
 
@@ -683,7 +683,7 @@ public class PdfService {
            content.beginText();
            content.setFontAndSize(boldFont.getBaseFont(), 12);
        	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-           content.showTextAligned(Element.ALIGN_LEFT, "To,", 260, 330, 0);
+           content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 330, 0);
            content.endText();
 
            if (bill.getCustomer() != null) {
@@ -702,7 +702,7 @@ public class PdfService {
         	    content.setLineWidth(0.5f);                        // Set line width for stroke effect
 
         	    // Display the concatenated customer details
-        	    content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 270, 315, 0);
+        	    content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 315, 0);
         	    content.endText();
 
                // Customer Address (Split into lines and ensure it's not null)
@@ -712,19 +712,19 @@ public class PdfService {
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 270, 300, 0);  // First line of address
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 250, 300, 0);  // First line of address
                    content.endText();
 
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 270, 285, 0);  // Second line of address
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 250, 285, 0);  // Second line of address
                    content.endText();
 
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 270, 270, 0);  // Third line of address
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 250, 270, 0);  // Third line of address
                    content.endText();
                    
                 // Check if the customer has a photo and retrieve it as byte array
@@ -786,7 +786,7 @@ public class PdfService {
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 330, 0);  // Date aligned to left with label
+           content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 340, 0);  // Date aligned to left with label
            content.endText();
 
         // Display Pledge No
@@ -799,7 +799,7 @@ public class PdfService {
            // Format Pledge No with space between serial and number
            String pledgeNo = bill.getBillSerial() + " " + bill.getBillNo(); 
 
-           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 310, 0);  // Pledge No aligned to left with label
+           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 300, 0);  // Pledge No aligned to left with label
            content.endText();
 
 

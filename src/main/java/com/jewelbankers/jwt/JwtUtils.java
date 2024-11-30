@@ -59,8 +59,8 @@ public class JwtUtils {
       claims.put("username", user.getUsername());
       claims.put("email", user.getEmail());
       claims.put("roles", user.getRoles());
-      claims.put("databasename", user.getUserDatabaseName().toLowerCase());
-     // System.out.println("Dta:"+userPrincaple.getUserDatabaseName());
+      claims.put("userDatabaseName", user.getUserDatabaseName().toLowerCase());
+      System.out.println("Dta:"+userPrincaple.getUserDatabaseName());
     System.out.println(userPrincaple.getUsername());
     return Jwts.builder()
             .setSubject(userPrincaple.getUsername())
@@ -80,6 +80,7 @@ public class JwtUtils {
     claims.put("id", userPrincipal.getId());
     claims.put("username", userPrincipal.getUsername());
     claims.put("email", userPrincipal.getEmail());
+    claims.put("userDatabaseName", userPrincipal.getUserDatabaseName());
     claims.put("roles", userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
@@ -108,7 +109,7 @@ public class JwtUtils {
 	            .build()
 	            .parseClaimsJws(token)
 	            .getBody()
-	            .get("databasename", String.class); // Extract the "databasename" claim
+	            .get("userDatabaseName", String.class); // Extract the "databasename" claim
   }
   
   public boolean validateJwtToken(String authToken) {

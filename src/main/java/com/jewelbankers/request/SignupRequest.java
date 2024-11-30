@@ -16,9 +16,19 @@ public class SignupRequest {
   @Email
   private String email;
   
-  private boolean isPaid;
+  private boolean status;
   
-  public String getUserDatabaseName() {
+  
+
+public boolean isStatus() {
+	return status;
+}
+
+public void setStatus(boolean status) {
+	this.status = status;
+}
+
+public String getUserDatabaseName() {
 	return userDatabaseName;
 }
 
@@ -29,14 +39,6 @@ public void setUserDatabaseName(String userDatabaseName) {
 private String userDatabaseName;
 
   
-public boolean isPaid() {
-	return isPaid;
-}
-
-public void setPaid(boolean isPaid) {
-	this.isPaid = isPaid;
-}
-
 private Set<String> role;
 
   @NotBlank

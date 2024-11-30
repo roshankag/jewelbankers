@@ -13,25 +13,29 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jewelbankers.entity.User;
 
 public class UserDetailsImpl implements UserDetails {
-  private static final long serialVersionUID = 1L;
+
+private static final long serialVersionUID = 1L;
 
   private Long id;
 
   private String username;
 
   private String email;
+  
+  private String userDatabaseName;
 
   @JsonIgnore
   private String password;
 
   private Collection<? extends GrantedAuthority> authorities;
 
-  public UserDetailsImpl(Long id, String username, String email, String password,
+  public UserDetailsImpl(Long id, String username, String email, String password, String userDatabaseName,
       Collection<? extends GrantedAuthority> authorities) {
     this.id = id;
     this.username = username;
     this.email = email;
     this.password = password;
+    this.userDatabaseName = userDatabaseName;
     this.authorities = authorities;
   }
 
@@ -45,6 +49,7 @@ public class UserDetailsImpl implements UserDetails {
         user.getUsername(), 
         user.getEmail(),
         user.getPassword(), 
+        user.getUserDatabaseName(),
         authorities);
   }
 
@@ -52,6 +57,10 @@ public class UserDetailsImpl implements UserDetails {
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return authorities;
   }
+  
+  public String getUserDatabaseName() {
+		return userDatabaseName;
+	}
 
   public Long getId() {
     return id;

@@ -366,6 +366,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jewelbankers.aop.SwitchDatabase;
+import com.jewelbankers.aop.SwitchUserDatabase;
 import com.jewelbankers.configuration.DataSourceService;
 import com.jewelbankers.entity.User;
 import com.jewelbankers.jwt.JwtUtils;
@@ -385,7 +386,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/jewelbankersapi/social")
 @CrossOrigin(origins = {"http://localhost:4200", "http://localhost"})
-@SwitchDatabase
+@SwitchUserDatabase
 public class SocialController {
 
     @Autowired

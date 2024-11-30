@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   @Autowired
   UserRepository userRepository;
 
+//  @Autowired
+//  PasswordEncoder encoder;
+  
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -111,22 +115,27 @@ public void updateResetPasswordToken(String token, String email) throws Username
         return users;
     }
     
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    
     public User updateUser(Long id, User user) {
         System.out.println("Updating user with ID: " + id);
         try {
             User existingUser = userRepository.findById(id).orElse(null);
             if (existingUser != null) {
                 // Update user details
-                existingUser.setUsername(user.getUsername());
-                existingUser.setPassword(user.getPassword());
+                existingUser.setUsername(user.getUsername());                
+                //existingUser.setPassword(encoder.encode(user.getPassword()));
                 existingUser.setUserDatabaseName(user.getUserDatabaseName());
 
                 LocalDate currentDate = LocalDate.now();
 
                 // Handle transitions from "Not Paid" to "Paid"
-                if (!existingUser.isPaid() && user.isPaid()) {
+                if (!existingUser.isStatus() && user.isStatus()) {
                     // Update payment status and subscription dates
-                    existingUser.setPaid(true);
+                    existingUser.setStatus(true);
                     existingUser.setStartDate(currentDate);
                     existingUser.setEndDate(currentDate.plusYears(1)); // Start yearly subscription
 
@@ -137,9 +146,9 @@ public void updateResetPasswordToken(String token, String email) throws Username
                 }
                 
              // Handle transitions from "Paid" to "Not Paid"
-                else if (existingUser.isPaid() && !user.isPaid()) {
+                else if (existingUser.isStatus() && !user.isStatus()) {
                     // Update payment status and start a free trial
-                    existingUser.setPaid(false);
+                    existingUser.setStatus(false);
                     existingUser.setStartDate(currentDate);
                     existingUser.setEndDate(currentDate.plusWeeks(2)); // Start 2-week free trial
 
@@ -150,11 +159,11 @@ public void updateResetPasswordToken(String token, String email) throws Username
                 }
                 
                 // Handle end of free trial
-                if (!existingUser.isPaid() && currentDate.isEqual(existingUser.getEndDate())) {
+                if (!existingUser.isStatus() && currentDate.isEqual(existingUser.getEndDate())) {
                     // Free trial has ended
                     sendMessage(existingUser.getEmail(),
                         "Your free trial has ended. Please make the payment to continue using the service.");
-                    existingUser.setPaid(false); // User remains unpaid
+                    existingUser.setStatus(false); // User remains unpaid
                 }
 
                 // Save and return updated user

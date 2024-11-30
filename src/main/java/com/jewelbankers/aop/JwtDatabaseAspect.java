@@ -27,54 +27,49 @@ public class JwtDatabaseAspect {
     @Autowired
     private DataSourceService dataSourceService;
 
-    //@Before("@annotation(com.jewelbankers.aop.SwitchDatabase)")
-    
+    // Pointcut for methods in classes annotated with @SwitchDatabase
     @Pointcut("@within(com.jewelbankers.aop.SwitchDatabase)") 
-    public void switchDatabaseClassMethods() {
-        // This pointcut matches all methods within classes annotated with @SwitchDatabase
+    public void switchDatabase() {
+        // This pointcut matches methods within classes annotated with @SwitchDatabase
     }
 
+    // Pointcut for methods in classes or methods annotated with @SwitchUserDatabase
     @Pointcut("@within(com.jewelbankers.aop.SwitchUserDatabase) || @annotation(com.jewelbankers.aop.SwitchUserDatabase)")
     public void switchUserDatabasePointcut() {
-        // This pointcut matches all methods in classes annotated with @SwitchUserDatabase
-        // and also methods directly annotated with @SwitchUserDatabase
+        // This pointcut matches methods in classes or methods annotated with @SwitchUserDatabase
     }
 
+    // Advice for switching the database based on @SwitchUserDatabase annotation
     @Before("switchUserDatabasePointcut()")
-    public void switchUserDatabase() {
-        // This advice is triggered when methods in classes annotated with @SwitchUserDatabase
-        // or methods directly annotated with @SwitchUserDatabase are executed.
-        System.out.println("JwtDatabaseAspect.switchUserDatabase -> Switching to DataBase Name: " + DataSourceConfig.JEWEL_BANKERS);
+    public void switchToUserDatabase() {
+        System.out.println("Switching to default user database: " + DataSourceConfig.JEWEL_BANKERS);
         dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS);
     }
-    
-    // Before advice that runs when the pointcut is matched
-    @Before("switchDatabaseClassMethods()")    
-    //@Pointcut("@within(com.jewelbankers.aop.SwitchDatabase)") 
-    public void switchDatabase() {
-    	
-        // Get Authorization header
+
+    // Advice for switching the database based on JWT token
+    @Before("switchDatabase()")
+    public void switchToDatabaseFromJwt() {
         String authHeader = httpServletRequest.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
 
-            // Validate the token and extract the database name
             if (jwtUtils.validateJwtToken(token)) {
                 String databaseName = jwtUtils.getRequestUserdatabaseFromJwtToken(token);
-
-                // Log or switch the data source
-                //System.out.println("Switching to Database: " + databaseName);
-
-                System.out.println("JwtDatabaseAspect.switchDatabase -> Switching to Database:: " + databaseName);
-dataSourceService.switchDataSource(databaseName); // Dynamically switch the database
+                System.out.println("Switching to database: " + databaseName);
+                dataSourceService.switchDataSource(databaseName); // Dynamically switch the database
             } else {
-                dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS); // Dynamically switch the database
-                throw new IllegalArgumentException("Invalid JWT Token");
+                handleInvalidToken();
             }
         } else {
-            dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS); // Dynamically switch the database
-            //throw new IllegalArgumentException("Authorization header missing or invalid");
+            handleInvalidToken();
         }
+    }
+
+    // Helper method to handle invalid or missing token scenario
+    private void handleInvalidToken() {
+        System.out.println("Invalid or missing JWT token, switching to default database.");
+        dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS);
+        throw new IllegalArgumentException("Invalid JWT Token or missing Authorization header");
     }
 }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jewelbankers.aop.SwitchUserDatabase;
 import com.jewelbankers.entity.ERole;
 import com.jewelbankers.entity.Role;
 import com.jewelbankers.entity.User;
@@ -42,6 +43,7 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/jewelbankersapi/api/auth")
+@SwitchUserDatabase
 public class AuthController {
   @Autowired
   AuthenticationManager authenticationManager;
@@ -74,7 +76,7 @@ public class AuthController {
 	    LocalDate currentDate = LocalDate.now();
 
 	 // Check subscription and trial status
-	 if (!user.isPaid()) {
+	 if (!user.isStatus()) {
 	     if (user.getStartDate() == null || user.getEndDate() == null) {
 	         // Start free trial
 	         user.setStartDate(currentDate);
@@ -82,7 +84,7 @@ public class AuthController {
 	         userRepository.save(user);
 	     } else if (currentDate.isAfter(user.getEndDate())) {
 	         // Trial has ended, transition to Inactive
-	         user.setPaid(false); // Ensure the user is marked as unpaid
+	         user.setStatus(false); // Ensure the user is marked as unpaid
 	         userRepository.save(user);
 	         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
 	             "Your free trial has ended. Please complete the registration fee of ₹5000 to continue.");
@@ -101,7 +103,7 @@ public class AuthController {
 
 	     // Check if subscription has expired
 	     if (currentDate.isAfter(endDate)) {
-	         user.setPaid(false); // Mark as unpaid
+	         user.setStatus(false); // Mark as unpaid
 	         userRepository.save(user);
 	         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
 	             "Your yearly subscription has ended. Please renew it by paying ₹1500 to continue.");
@@ -114,7 +116,7 @@ public class AuthController {
 	 }
 
 	 // Handle the case where the subscription is inactive
-	 if (!user.isPaid()) {
+	 if (!user.isStatus()) {
 	     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
 	         "Your subscription is inactive. Please make the payment to reactivate your subscription.");
 	 }
@@ -139,7 +141,7 @@ public class AuthController {
 
   @PostMapping("/signup")
   @PreAuthorize("hasRole('ADMIN')")
-  @CacheEvict(value = "usersListCache", allEntries = true)
+  //@CacheEvict(value = "usersListCache", allEntries = true)
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 	
 	// Check if username or email already exists
@@ -166,6 +168,7 @@ public class AuthController {
     User user = new User(
         signUpRequest.getUsername(), 
         signUpRequest.getEmail(),
+        signUpRequest.isStatus(),
         encoder.encode(signUpRequest.getPassword()),
         signUpRequest.getUserDatabaseName() // Include userDatabaseName here
     );
@@ -207,9 +210,10 @@ public class AuthController {
     LocalDate currentDate = LocalDate.now();
     String message;
 
-    if (signUpRequest.isPaid()) { // Check if the user has paid
+    if (signUpRequest.isStatus()) { // Check if the user has paid
         // If the user pays, assign a yearly subscription
-        user.setPaid(true);
+        user.setStatus(true);
+        System.out.println("status:" + signUpRequest.isStatus());
         user.setStartDate(currentDate);
         user.setEndDate(currentDate.plusYears(1)); // Start yearly subscription immediately
         message = "User registered successfully! Yearly subscription activated. Reminders will be sent.";
@@ -223,7 +227,7 @@ public class AuthController {
         
     } else { // If the user has not paid
         // Start a free trial for 2 weeks
-        user.setPaid(false);
+        user.setStatus(false);
         user.setStartDate(currentDate);
         user.setEndDate(currentDate.plusWeeks(2)); // 2-week free trial
         message = "User registered successfully! Free trial for 2 weeks started. "

@@ -18,6 +18,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.jewelbankers.services.UserDetailsServiceImpl;
+import com.jewelbankers.configuration.DataSourceConfig;
+import com.jewelbankers.configuration.DataSourceService;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
@@ -25,6 +27,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    private DataSourceService dataSourceService;  // Inject DataSourceService
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
@@ -41,9 +46,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             // Authentication logic
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-//                String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                String userdatabase = jwtUtils.getRequestUserdatabaseFromJwtToken(jwt);
-                UserDetails userDetails = userDetailsService.loadUserByDataBase(userdatabase);
+                String userdatabase = jwtUtils.getRequestUserdatabaseFromJwtToken(jwt); // Get database name from token
+                // Switch the data source based on the JWT token
+                dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS);  // Switch to the corresponding user database
+
+                UserDetails userDetails = userDetailsService.loadUserByDataBase(userdatabase);  // Load user details from the specific database
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -57,7 +64,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             logger.error("Cannot set user authentication: {}", e);
         }
 
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);  // Proceed with the filter chain
     }
 
     private boolean isStaticResource(HttpServletRequest request) {
@@ -69,9 +76,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String headerAuth = request.getHeader("Authorization");
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
+            return headerAuth.substring(7);  // Return the JWT token (after "Bearer ")
         }
 
-        return null;
+        return null;  // Return null if the token is missing or invalid
     }
 }
