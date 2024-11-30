@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jewelbankers.aop.SwitchDatabase;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.repository.SettingsRepository;
 import com.jewelbankers.services.BillPdfService;
@@ -25,6 +26,7 @@ import com.jewelbankers.services.BillService;
 
 @RequestMapping("/jewelbankersapi")
 @RestController
+@SwitchDatabase
 public class BillPdfController {
 
     @Autowired
