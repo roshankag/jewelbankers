@@ -386,6 +386,28 @@ public class Bill {
 
     @Transient
     private BigDecimal total;
+    
+    @Transient
+    private Integer amountpaid;
+    
+    @Transient
+    private Integer balance;
+
+	public Integer getBalance() {
+		return balance;
+	}
+
+	public void setBalance(Integer balance) {
+		this.balance = balance;
+	}
+
+	public Integer getAmountpaid() {
+		return amountpaid;
+	}
+
+	public void setAmountpaid(Integer amountpaid) {
+		this.amountpaid = amountpaid;
+	}
 
 	public Double getReceivedinterest() {
 		return receivedinterest;

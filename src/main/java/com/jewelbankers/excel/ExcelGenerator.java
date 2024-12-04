@@ -4,10 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
@@ -26,12 +28,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.BillDetail;
+import com.jewelbankers.repository.ProductTypeRepository;
 
 public class ExcelGenerator {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    public static ByteArrayInputStream generateBillExcel(List<Bill> bills, String password) throws IOException {
+    public static ByteArrayInputStream generateBillExcel(List<Bill> bills, String password, ProductTypeRepository productTypeRepository) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Bills");
 
@@ -52,6 +55,8 @@ public class ExcelGenerator {
 
         int rowIdx = 1;
         double totalAmount = 0.0; // Variable to keep track of the total amount
+        AtomicReference<BigDecimal> totalGoldWeight = new AtomicReference<>(BigDecimal.ZERO);
+        AtomicReference<BigDecimal> totalSilverWeight = new AtomicReference<>(BigDecimal.ZERO);
 
         // Populate data rows
         for (Bill bill : bills) {
@@ -80,8 +85,20 @@ public class ExcelGenerator {
             // Add BillDetail rows below each Bill row
             for (BillDetail detail : bill.getBillDetails()) {
                 createContentCell(row, 5, detail.getProductDescription(), contentStyle);
+                
+                productTypeRepository.findByProductTypeNo(bill.getProductTypeNo()).ifPresent(productType -> {
+                    // Use the correct method to get the name of the product type
+                    String productName = productType.getProductTypeCode(); // Replace 'getName' with the actual method
+
+                    if ("Gold".equalsIgnoreCase(productName)) {
+                        totalGoldWeight.set(totalGoldWeight.get().add(bill.getGrams() != null ? bill.getGrams() : BigDecimal.ZERO));
+                    } else if ("Silver".equalsIgnoreCase(productName)) {
+                        totalSilverWeight.set(totalSilverWeight.get().add(bill.getGrams() != null ? bill.getGrams() : BigDecimal.ZERO));
+                    }
+                });
             }
         }
+        
 
         // Add the total amount row
         Row totalRow = sheet.createRow(rowIdx++);  // Increment rowIdx
@@ -91,6 +108,18 @@ public class ExcelGenerator {
         DecimalFormat formatter = new DecimalFormat("##,##,##,###");
         String formattedTotalAmount = formatter.format(totalAmount);
         createContentCell(totalRow, 4, formattedTotalAmount, totalStyle);
+        
+        
+     // Add total gold weight row
+        Row goldWeightRow = sheet.createRow(rowIdx++);
+        createContentCell(goldWeightRow, 3, "Total Gold Weight", createGoldWeightStyle(workbook));
+        createContentCell(goldWeightRow, 4, String.valueOf(totalGoldWeight), createGoldWeightStyle(workbook));
+
+        // Add total silver weight row
+        Row silverWeightRow = sheet.createRow(rowIdx++);
+        createContentCell(silverWeightRow, 3, "Total Silver Weight", createSilverWeightStyle(workbook));
+        createContentCell(silverWeightRow, 4, String.valueOf(totalSilverWeight), createSilverWeightStyle(workbook));
+        
 
         // Auto-size columns for better alignment
         for (int i = 0; i <= 6; i++) {
@@ -183,4 +212,39 @@ public class ExcelGenerator {
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         return style;
     }
+    
+ // Create style for the total gold weight row
+    private static CellStyle createGoldWeightStyle(XSSFWorkbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.DARK_GREEN.getIndex()); // Green font for gold weight
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.RIGHT);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex()); // Light green background
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        return style;
+    }
+
+    // Create style for the total silver weight row
+    private static CellStyle createSilverWeightStyle(XSSFWorkbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.DARK_BLUE.getIndex()); // Blue font for silver weight
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.RIGHT);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex()); // Light blue background
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        return style;
+    }
+
 }

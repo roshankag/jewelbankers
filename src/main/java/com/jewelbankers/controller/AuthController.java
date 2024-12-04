@@ -82,13 +82,17 @@ public class AuthController {
 	         user.setStartDate(currentDate);
 	         user.setEndDate(currentDate.plusWeeks(2));
 	         userRepository.save(user);
-	     } else if (currentDate.isAfter(user.getEndDate())) {
-	         // Trial has ended, transition to Inactive
-	         user.setStatus(false); // Ensure the user is marked as unpaid
-	         userRepository.save(user);
-	         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-	             "Your free trial has ended. Please complete the registration fee of ₹5000 to continue.");
-	     }
+			} /*
+				 * else if (currentDate.isAfter(user.getEndDate())) { // Trial has ended,
+				 * transition to Inactive user.setStatus(false); // Ensure the user is marked as
+				 * unpaid userRepository.save(user); return ResponseEntity.
+				 * ok("Your free trial has ended. Please complete the registration fee of ₹5000 to continue."
+				 * );
+				 * 
+				 * // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body( //
+				 * "Your free trial has ended. Please complete the registration fee of ₹5000 to continue."
+				 * ); }
+				 */
 	 } else {
 	     LocalDate endDate = user.getEndDate();
 	     String reminderMessage = null;
@@ -116,10 +120,12 @@ public class AuthController {
 	 }
 
 	 // Handle the case where the subscription is inactive
-	 if (!user.isStatus()) {
-	     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-	         "Your subscription is inactive. Please make the payment to reactivate your subscription.");
-	 }
+		/*
+		 * if (!user.isStatus()) { return
+		 * ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+		 * "Your subscription is inactive. Please make the payment to reactivate your subscription."
+		 * ); }
+		 */
   
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
