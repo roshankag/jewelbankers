@@ -20,10 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 //@OpenAPIDefinition(info = @Info(title = "Jewel Bankers Api",version = "V.1.0",description = "Documentation for Jewel Bankers APIs"))
 
 public class JewelBankers {	
-	
-	/**
-	 * @return	
-	 */
+
 	@RequestMapping("/hell") 
 	String home() { 
 		return "Hello World!";	
