@@ -4,15 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.jewelbankers.entity.SupplierWeight;
 import com.jewelbankers.services.SupplierWeightService;
@@ -26,27 +20,68 @@ public class SupplierWeightController {
     private SupplierWeightService supplierWeightService;
 
     @GetMapping
-    public List<SupplierWeight> getAllSupplierWeights() {
-        return supplierWeightService.getAllSupplierWeights();
+    public ResponseEntity<?> getAllSupplierWeights() {
+        try {
+            List<SupplierWeight> supplierWeights = supplierWeightService.getAllSupplierWeights();
+            if (supplierWeights.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No supplier weights found.");
+            }
+            return ResponseEntity.ok(supplierWeights);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error retrieving supplier weights: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
-    public SupplierWeight getSupplierWeightById(@PathVariable Long id) {
-        return supplierWeightService.getSupplierWeightById(id);
+    public ResponseEntity<?> getSupplierWeightById(@PathVariable Long id) {
+        try {
+            SupplierWeight supplierWeight = supplierWeightService.getSupplierWeightById(id);
+            if (supplierWeight != null) {
+                return ResponseEntity.ok(supplierWeight);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body("Supplier weight not found with ID: " + id);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error retrieving supplier weight: " + e.getMessage());
+        }
     }
 
     @PostMapping
-    public SupplierWeight createSupplierWeight(@RequestBody SupplierWeight supplierWeight) {
-        return supplierWeightService.saveSupplierWeight(supplierWeight);
+    public ResponseEntity<?> createSupplierWeight(@RequestBody SupplierWeight supplierWeight) {
+        try {
+            SupplierWeight createdSupplierWeight = supplierWeightService.saveSupplierWeight(supplierWeight);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdSupplierWeight);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Error creating supplier weight: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteSupplierWeight(@PathVariable Long id) {
-        supplierWeightService.deleteSupplierWeight(id);
+    public ResponseEntity<?> deleteSupplierWeight(@PathVariable Long id) {
+        try {
+            supplierWeightService.deleteSupplierWeight(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Supplier weight deleted successfully with ID: " + id);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error deleting supplier weight: " + e.getMessage());
+        }
     }
-    
+
     @GetMapping("/search")
-    public List<SupplierWeight> searchSupplierWeights(@RequestParam Map<String, String> searchParams) {
-        return supplierWeightService.searchSupplierWeights(searchParams);
+    public ResponseEntity<?> searchSupplierWeights(@RequestParam Map<String, String> search) {
+        try {
+            List<SupplierWeight> supplierWeights = supplierWeightService.searchSupplierWeights(search);
+            if (supplierWeights.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No supplier weights match the search criteria.");
+            }
+            return ResponseEntity.ok(supplierWeights);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error searching supplier weights: " + e.getMessage());
+        }
     }
 }

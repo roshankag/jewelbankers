@@ -33,9 +33,9 @@ public class SupplierService {
         supplierRepository.deleteById(id);
     }
     
-    public List<Supplier> searchSuppliers(Map<String, String> searchParams) {
+    public List<Supplier> searchSuppliers(Map<String, String> search) {
         SearchSpecification<Supplier> specification = new SearchSpecification<>();
-        Specification<Supplier> spec = specification.getSearchSpecification(searchParams);
+        Specification<Supplier> spec = specification.getSearchSpecification(search);
         return supplierRepository.findAll(spec);
     }
 }

@@ -33,9 +33,9 @@ public class SupplierWeightService {
         supplierWeightRepository.deleteById(id);
     }
     
-    public List<SupplierWeight> searchSupplierWeights(Map<String, String> searchParams) {
+    public List<SupplierWeight> searchSupplierWeights(Map<String, String> search) {
         SearchSpecification<SupplierWeight> specification = new SearchSpecification<>();
-        Specification<SupplierWeight> spec = specification.getSearchSpecification(searchParams);
+        Specification<SupplierWeight> spec = specification.getSearchSpecification(search);
         return supplierWeightRepository.findAll(spec);
     }
 }

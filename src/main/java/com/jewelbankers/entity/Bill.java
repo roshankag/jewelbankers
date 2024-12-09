@@ -2,6 +2,7 @@ package com.jewelbankers.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -356,6 +357,28 @@ public class Bill {
  // Computed fields
     @Transient
     private Integer noOfMonths;
+    
+    @Transient
+    private LocalTime pledgeTime;
+
+    public LocalTime getPledgeTime() {
+		return pledgeTime;
+	}
+
+	public void setPledgeTime(LocalTime pledgeTime) {
+		this.pledgeTime = pledgeTime;
+	}
+
+	public LocalTime getRedeemTime() {
+		return redeemTime;
+	}
+
+	public void setRedeemTime(LocalTime redeemTime) {
+		this.redeemTime = redeemTime;
+	}
+
+	@Transient
+    private LocalTime redeemTime;
 
     public Integer getNoOfMonths() {
 		return noOfMonths;

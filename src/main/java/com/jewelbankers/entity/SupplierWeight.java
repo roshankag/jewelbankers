@@ -29,7 +29,7 @@ public class SupplierWeight {
 
     @ManyToOne
     @JoinColumn(name = "item_type_no", nullable = false)
-    private ItemType itemType; // Changed from String to ItemType reference
+    private ItemType itemtypeno; // Changed from String to ItemType reference
 
     @Column(name = "weight")
     private BigDecimal weight;
@@ -54,14 +54,13 @@ public class SupplierWeight {
 		this.supplier = supplier;
 	}
 
-	public ItemType getItemType() {
-		return itemType;
+	public ItemType getItemtypeno() {
+		return itemtypeno;
 	}
 
-	public void setItemType(ItemType itemType) {
-		this.itemType = itemType;
+	public void setItemtypeno(ItemType itemtypeno) {
+		this.itemtypeno = itemtypeno;
 	}
-
 
 	public BigDecimal getWeight() {
 		return weight;
@@ -84,7 +83,7 @@ public class SupplierWeight {
         return "SupplierWeight{" +
                 "id=" + id +
                 ", supplier=" + supplier +
-                ", itemType=" + itemType +
+                ", itemType=" + itemtypeno +
                 ", weight=" + weight +
                 ", creditDebit=" + creditDebit +
                 '}';

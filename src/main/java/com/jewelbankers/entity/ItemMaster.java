@@ -1,8 +1,18 @@
 package com.jewelbankers.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "item_master")
@@ -14,10 +24,22 @@ public class ItemMaster {
 
     @Column(name = "item_name", nullable = false, length = 100)
     private String itemName;
-
+    
     @ManyToOne
-    @JoinColumn(name = "item_type_no", nullable = false)
-    private ItemType itemType;  // ItemType entity is already defined
+    @JoinColumn(name = "itemid")
+    private ItemGroup itemGroup;
+
+    public ItemGroup getItemGroup() {
+		return itemGroup;
+	}
+
+	public void setItemGroup(ItemGroup itemGroup) {
+		this.itemGroup = itemGroup;
+	}
+
+	@ManyToOne
+    @JoinColumn(name = "itemtypeno", nullable = false)
+    private ItemType itemtypeno;  // ItemType entity is already defined
 
     @Column(name = "purity", length = 50)
     private String purity;
@@ -42,15 +64,15 @@ public class ItemMaster {
         this.itemName = itemName;
     }
 
-    public ItemType getItemType() {
-        return itemType;
-    }
+    public ItemType getItemtypeno() {
+		return itemtypeno;
+	}
 
-    public void setItemType(ItemType itemType) {
-        this.itemType = itemType;
-    }
+	public void setItemtypeno(ItemType itemtypeno) {
+		this.itemtypeno = itemtypeno;
+	}
 
-    public String getPurity() {
+	public String getPurity() {
         return purity;
     }
 
@@ -71,7 +93,7 @@ public class ItemMaster {
         return "ItemMaster{" +
                 "id=" + id +
                 ", itemName='" + itemName + '\'' +
-                ", itemType=" + itemType +
+                ", itemType=" + itemtypeno +
                 ", purity='" + purity + '\'' +
                 ", weight=" + weight +
                 '}';

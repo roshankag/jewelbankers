@@ -54,7 +54,7 @@ public class Supplier {
     private String openingDetails;
 
     @Lob
-    @Column(name = "photo")
+    @Column(name = "photo", columnDefinition = "MEDIUMBLOB")
     private byte[] photo;
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)

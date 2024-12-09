@@ -5,12 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -25,7 +25,6 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -210,7 +209,7 @@ public class PdfService {
         String shopLine3 = settingsMap.getOrDefault("SHOP_STATE", "") + " - " + settingsMap.getOrDefault("SHOP_PINCODE", "");
 
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 14);  // Bold font for Shop Name with font size 14
+        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Bold font for Shop Name with font size 14
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -246,7 +245,7 @@ public class PdfService {
 
         // Add customer details ("To" section)
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);
+        content.setFontAndSize(boldFont.getBaseFont(), 11);
     	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 710, 0);
         content.endText();
@@ -263,7 +262,7 @@ public class PdfService {
             
             // Set up the text rendering
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 13);            // Font size 13
+            content.setFontAndSize(boldFont.getBaseFont(), 12);            // Font size 13
             content.setColorFill(BaseColor.BLACK);                         // Text color: black
             content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
             content.setLineWidth(0.5f);                                    // Set line width for stroke effect
@@ -288,13 +287,13 @@ public class PdfService {
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 250, 665, 0);  // Second line of address
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 245, 665, 0);  // Second line of address
                 content.endText();
 
                 content.beginText();
                 content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 250, 650, 0);  // Third line of address
+                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 245, 650, 0);  // Third line of address
                 content.endText();
                 
              // Check if the customer has a photo and retrieve it as byte array
@@ -306,7 +305,7 @@ public class PdfService {
                         Image photo = Image.getInstance(customerPhoto);
 
                         // Set the position of the photo below "Pledge No" with a gap
-                        photo.setAbsolutePosition(453, 555); // Adjust coordinates (x, y) as needed
+                        photo.setAbsolutePosition(453, 545); // Adjust coordinates (x, y) as needed
 
                         // Extend the width and keep the height the same
                         photo.scaleToFit(130, 130); // Set width to 150 to extend, keep height at 100
@@ -333,7 +332,7 @@ public class PdfService {
                             Image articleImage = Image.getInstance(articlePhoto);
 
                             // Set the position of the article photo below the customer photo
-                            articleImage.setAbsolutePosition(453, 435); // Adjust coordinates based on layout
+                            articleImage.setAbsolutePosition(453, 445); // Adjust coordinates based on layout
                             articleImage.scaleToFit(130, 130); // Set same dimensions as customer photo
 
                             // Add the article photo to the PDF content
@@ -350,18 +349,34 @@ public class PdfService {
             
 
         // Add date and pledge number
+                
+             // Display pledgeTime above the date
+                content.beginText();
+                content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for pledgeTime
+                content.setColorFill(BaseColor.BLACK);  // Set the text color to black
+                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+                content.setLineWidth(0.5f);  // Set line width for stroke effect
+
+                // Display only pledge time with AM/PM
+                String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+
+                // Positioning pledgeTime above the date
+                content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 730, 0);  // Adjust y-position to 700 for pledgeTime
+                content.endText();
+
+                
      // Display Date
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the date label
+        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the date label
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 680, 0);  // Date aligned to left with label
+        content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 460, 670, 0);  // Date aligned to left with label
         content.endText();
 
      // Display Pledge No
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the pledge number label
+        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the pledge number label
         content.setColorFill(BaseColor.BLACK);              // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);                         // Set line width for stroke effect
@@ -369,7 +384,7 @@ public class PdfService {
         // Format Pledge No with space between serial and number
         String pledgeNo = bill.getBillSerial() + " " + bill.getBillNo(); 
 
-        content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 660, 0);  // Pledge No aligned to left with label
+        content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 460, 650, 0);  // Pledge No aligned to left with label
         content.endText();
 
 
@@ -645,11 +660,11 @@ public class PdfService {
            String shopLine3 = settingsMap.getOrDefault("SHOP_STATE", "") + " - " + settingsMap.getOrDefault("SHOP_PINCODE", "");
 
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 14);  // Bold font for Shop Name with font size 14
+           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Bold font for Shop Name with font size 14
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 325, 0);  // Left alignment with coordinates (50, 665)
+           content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 323, 0);  // Left alignment with coordinates (50, 665)
            content.endText();
 
 
@@ -681,7 +696,7 @@ public class PdfService {
 
            // Add customer details ("To" section)
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 12);
+           content.setFontAndSize(boldFont.getBaseFont(), 11);
        	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 330, 0);
            content.endText();
@@ -696,7 +711,7 @@ public class PdfService {
         	    
         	    // Set up the text rendering
         	    content.beginText();
-        	    content.setFontAndSize(boldFont.getBaseFont(), 13); // Font size 13 for the details
+        	    content.setFontAndSize(boldFont.getBaseFont(), 12); // Font size 13 for the details
         	    content.setColorFill(BaseColor.BLACK);             // Set the text color to black
         	    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         	    content.setLineWidth(0.5f);                        // Set line width for stroke effect
@@ -718,13 +733,13 @@ public class PdfService {
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 250, 285, 0);  // Second line of address
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 245, 285, 0);  // Second line of address
                    content.endText();
 
                    content.beginText();
                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 250, 270, 0);  // Third line of address
+                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 245, 270, 0);  // Third line of address
                    content.endText();
                    
                 // Check if the customer has a photo and retrieve it as byte array
@@ -736,7 +751,7 @@ public class PdfService {
                            Image photo = Image.getInstance(customerPhoto);
 
                            // Set the position and scale of the photo as needed
-                           photo.setAbsolutePosition(453, 195); // Adjusted Y-coordinate to place below Pledge No, with some gap
+                           photo.setAbsolutePosition(453, 175); // Adjusted Y-coordinate to place below Pledge No, with some gap
                            photo.scaleToFit(130, 130); // Adjust the size to fit within 80x80 dimensions
 
                            // Add the photo to the PDF content
@@ -780,18 +795,33 @@ public class PdfService {
          
 
            // Add date and pledge number
+               
+               content.beginText();
+               content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for the pledgeTime label
+               content.setColorFill(BaseColor.BLACK);  // Set the text color to black
+               content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+               content.setLineWidth(0.5f);  // Set line width for stroke effect
+
+               // Display only pledge time with AM/PM
+               String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+               content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 350, 0);  // Adjusted Y-coordinate for pledgeTime
+
+               content.endText();
+
+
+        
         // Display Date
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the date label
+           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the date label
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 450, 340, 0);  // Date aligned to left with label
+           content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 460, 300, 0);  // Date aligned to left with label
            content.endText();
 
         // Display Pledge No
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the pledge number label
+           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the pledge number label
            content.setColorFill(BaseColor.BLACK);              // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);                         // Set line width for stroke effect
@@ -799,7 +829,7 @@ public class PdfService {
            // Format Pledge No with space between serial and number
            String pledgeNo = bill.getBillSerial() + " " + bill.getBillNo(); 
 
-           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 450, 300, 0);  // Pledge No aligned to left with label
+           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 460, 280, 0);  // Pledge No aligned to left with label
            content.endText();
 
 

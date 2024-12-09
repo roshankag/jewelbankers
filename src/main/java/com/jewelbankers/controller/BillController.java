@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jewelbankers.Utility.ErrorResponse;
+import com.jewelbankers.Utility.TimeFormatterUtil;
 import com.jewelbankers.aop.SwitchDatabase;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.services.BillService;
@@ -77,6 +78,10 @@ public class BillController {
             response.put("message", "Bill successfully pledged with customerId: " + createdBill.getCustomer()!= null && 
             		createdBill.getCustomer().getCustomerid() != null ? 
             				createdBill.getCustomer().getCustomerid() : "");
+            
+         // Add pledgeTime formatted response
+            String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(createdBill.getPledgeTime());
+            response.put("pledgeTime", formattedPledgeTime);            
             response.put("bill", createdBill);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -105,6 +110,11 @@ public class BillController {
 
             // Create a response map to hold both the message and the updated bill
             Map<String, Object> response = new HashMap<>();
+            
+         // Adding pledge time to the response
+            String pledgeTimeFormatted = TimeFormatterUtil.formatTo12Hour(updatedBill.getPledgeTime());
+            
+            response.put("pledgeTime", pledgeTimeFormatted);  
             response.put("message", "Bill updated successfully with customerId: " + updatedBill.getCustomer().getCustomerid());
             response.put("bill", updatedBill);
 
@@ -259,16 +269,32 @@ public class BillController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBillByBillNo(@PathVariable("id") Long id, @RequestBody Bill billDetails) {
         try {
+            // Call the service to update the bill
             Bill updatedBill = billService.updateBill(id, billDetails);
-            return ResponseEntity.ok(updatedBill);
+
+            // Create the response map with redeem-specific information
+            Map<String, Object> response = new HashMap<>();
+
+            // Adding redeem time to the response if available
+            String redeemTimeFormatted = TimeFormatterUtil.formatTo12Hour(updatedBill.getRedeemTime());
+            
+            // Adding the redeem-related message
+            response.put("message", "Bill updated successfully with redemption details for Bill No: " + updatedBill.getBillNo());
+            response.put("bill", updatedBill);
+            response.put("redeemTime", redeemTimeFormatted);  // Adding formatted redeem time to the response
+
+            return ResponseEntity.ok(response);
         } catch (EntityNotFoundException ex) {
+            // Handle case where the bill is not found
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Bill not found", ex.getMessage()));
         } catch (Exception ex) {
+            // Handle other exceptions
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Error updating bill", ex.getMessage()));
         }
     }
+
 
 
     @DeleteMapping("/{id}")

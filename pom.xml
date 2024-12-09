@@ -107,6 +107,21 @@
 			<scope>runtime</scope>
 		</dependency>
 		
+		<!-- ZXing Barcode generation dependency -->
+<dependency>
+    <groupId>com.google.zxing</groupId>
+    <artifactId>core</artifactId>
+    <version>3.5.0</version>
+</dependency>
+
+<!-- iText for PDF generation -->
+<dependency>
+    <groupId>com.itextpdf</groupId>
+    <artifactId>itext7-core</artifactId>
+    <version>7.2.6</version>
+    <type>pom</type>
+</dependency>
+		
 		<dependency>
     <groupId>org.slf4j</groupId>
     <artifactId>slf4j-api</artifactId>

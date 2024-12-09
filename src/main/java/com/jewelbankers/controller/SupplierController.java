@@ -4,16 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.jewelbankers.entity.Supplier;
 import com.jewelbankers.services.SupplierService;
@@ -27,33 +20,80 @@ public class SupplierController {
     private SupplierService supplierService;
 
     @GetMapping
-    public List<Supplier> getAllSuppliers() {
-        return supplierService.getAllSuppliers();
+    public ResponseEntity<?> getAllSuppliers() {
+        try {
+            List<Supplier> suppliers = supplierService.getAllSuppliers();
+            if (suppliers.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No suppliers found.");
+            }
+            return ResponseEntity.ok(suppliers);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error retrieving suppliers: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
-    public Supplier getSupplierById(@PathVariable Long id) {
-        return supplierService.getSupplierById(id);
+    public ResponseEntity<?> getSupplierById(@PathVariable Long id) {
+        try {
+            Supplier supplier = supplierService.getSupplierById(id);
+            if (supplier != null) {
+                return ResponseEntity.ok(supplier);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body("Supplier not found with ID: " + id);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error retrieving supplier: " + e.getMessage());
+        }
     }
 
     @PostMapping
-    public Supplier createSupplier(@RequestBody Supplier supplier) {
-        return supplierService.saveSupplier(supplier);
+    public ResponseEntity<?> createSupplier(@RequestBody Supplier supplier) {
+        try {
+            Supplier createdSupplier = supplierService.saveSupplier(supplier);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdSupplier);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Error creating supplier: " + e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public Supplier updateSupplier(@PathVariable Long id, @RequestBody Supplier supplier) {
-        supplier.setId(id);
-        return supplierService.saveSupplier(supplier);
+    public ResponseEntity<?> updateSupplier(@PathVariable Long id, @RequestBody Supplier supplier) {
+        try {
+            supplier.setId(id);
+            Supplier updatedSupplier = supplierService.saveSupplier(supplier);
+            return ResponseEntity.ok(updatedSupplier);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Error updating supplier: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteSupplier(@PathVariable Long id) {
-        supplierService.deleteSupplier(id);
+    public ResponseEntity<?> deleteSupplier(@PathVariable Long id) {
+        try {
+            supplierService.deleteSupplier(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Supplier deleted successfully with ID: " + id);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error deleting supplier: " + e.getMessage());
+        }
     }
-    
+
     @GetMapping("/search")
-    public List<Supplier> searchSuppliers(@RequestParam Map<String, String> searchParams) {
-        return supplierService.searchSuppliers(searchParams);
+    public ResponseEntity<?> searchSuppliers(@RequestParam Map<String, String> search) {
+        try {
+            List<Supplier> suppliers = supplierService.searchSuppliers(search);
+            if (suppliers.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No suppliers match the search criteria.");
+            }
+            return ResponseEntity.ok(suppliers);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error searching for suppliers: " + e.getMessage());
+        }
     }
 }

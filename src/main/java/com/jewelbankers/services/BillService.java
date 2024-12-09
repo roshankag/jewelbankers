@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import com.itextpdf.text.DocumentException;
 import com.jewelbankers.Utility.BillUtility;
 import com.jewelbankers.Utility.ProductTypeUtility;
 import com.jewelbankers.Utility.SettingsUtillity;
+import com.jewelbankers.Utility.TimeFormatterUtil;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.BillDetail;
 import com.jewelbankers.entity.Customer;
@@ -273,6 +275,13 @@ public class BillService {
 	              bill.getBillDetails().get(0).setArticlephoto(articlephotobytes);
 	          }
 	          
+	       // Set the current time as pledge time (this will be stored as LocalTime)
+	          bill.setPledgeTime(LocalTime.now());
+
+	          // Format the pledge time using TimeFormatterUtil (but do not save it in the database)
+	          String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(bill.getPledgeTime());
+	          System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
+	          
 	          // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
 	          //String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
 	          //customer.setPhotoBase64(photoBase64);
@@ -348,6 +357,16 @@ public class BillService {
             existingBill.setPresentValue(bill.getPresentValue());
             existingBill.setAmountInWords(bill.getAmountInWords());
             existingBill.setMonthlyIncome(bill.getMonthlyIncome());
+            
+         // If pledgeTime is updated, format it
+            if (bill.getPledgeTime() != null) {
+                // Set the new pledgeTime (no formatting here, save as LocalTime)
+                existingBill.setPledgeTime(bill.getPledgeTime());
+
+                // Format the pledgeTime to 12-hour format (for display purposes)
+                String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(existingBill.getPledgeTime());
+                System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
+            }
 
             // Update ProductDetails (productDescription and productQuantity)
             List<BillDetail> existingBillDetails = existingBill.getBillDetails(); // Get existing details
@@ -487,6 +506,16 @@ public class BillService {
 
 	    System.out.println("Bill Interst:"+billDetails.getReceivedinterest());
 	    System.out.println("Months:"+billDetails.getInterestinmonths());
+	    
+	 // If redeemTime is updated, format it
+	    if (billDetails.getRedeemTime() != null) {
+	        // Set the new redeemTime (no formatting here, save as LocalTime)
+	        existingBill.setRedeemTime(billDetails.getRedeemTime());
+
+	        // Format the redeemTime to 12-hour format (for display purposes)
+	        String formattedRedeemTime = TimeFormatterUtil.formatTo12Hour(existingBill.getRedeemTime());
+	        System.out.println("Formatted Redeem Time: " + formattedRedeemTime);
+	    }
 	    
         //calculateRedemption(existingBill);
 	    return billRepository.save(existingBill);
