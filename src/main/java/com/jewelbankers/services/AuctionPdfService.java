@@ -3,13 +3,12 @@ package com.jewelbankers.services;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.imaging.Imaging;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.itextpdf.text.BaseColor;
@@ -23,32 +22,57 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.jewelbankers.Utility.SettingsUtillity;
 import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.BillDetail;
 import com.jewelbankers.entity.Customer;
 
 @Service
 public class AuctionPdfService {
+	
+	@Autowired
+	private SettingsUtillity settingsUtillity;
+	
 	public Map<String, List<Bill>> groupBillsByCustomerName(List<Bill> bills) {
 	    return bills.stream()
 	            .filter(bill -> bill.getCustomer() != null && bill.getCustomer().getCustomerName() != null)
 	            .collect(Collectors.groupingBy(bill -> bill.getCustomer().getCustomerName()));
 	}
-    public ByteArrayInputStream generateAuctionPdf(List<Bill> bills, Map<String, String> auctionDetails, String fromAddressText, String auctionDescription, String shopName,  Map<String, String> shopAddress) {
+	
+	private Font getTamilFont() {
+	    try {
+	        // Path to the Tamil font file (example: Latha.ttf or Bamini.ttf)
+	        String fontPath = "template/latha.ttf"; // Update this with the correct path to your font file
+
+	        // Load the font and create a Font object
+	        BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+	        return new Font(baseFont, 12); // Set the font size as required
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return FontFactory.getFont(FontFactory.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK); // Fallback font if error occurs
+	    }
+	}
+
+
+	
+    public ByteArrayInputStream generateAuctionPdf(List<Bill> bills, Map<String, String> auctionDetails, String fromAddressText, String shopName,  Map<String, String> shopAddress, Map<String, String> settingsMap) {
         Document document = new Document(PageSize.A4, 50, 50, 50, 50); // A4 size with custom margins
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
             PdfWriter.getInstance(document, out);
-            document.open();            
+            document.open();     
+            
+         // Use the Tamil font for displaying Tamil text
+            Font tamilFont = getTamilFont();
 
             for (Map.Entry<String, List<Bill>> entry : groupBillsByCustomerName(bills).entrySet()) {
                 // Add the header
-                addHeader(document, auctionDescription, shopName, entry.getValue().get(0).getCustomer(), shopAddress);
+                addHeader(document, shopName, entry.getValue().get(0).getCustomer(), shopAddress, settingsMap, tamilFont);
 
                 // Add the auction details
                 addAuctionDetails(entry.getValue(), document);
@@ -68,7 +92,7 @@ public class AuctionPdfService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
-    private void addHeader(Document document, String auctionDescription, String shopName, Customer customer, Map<String, String> shopAddress) throws DocumentException {
+    private void addHeader(Document document, String shopName, Customer customer, Map<String, String> shopAddress, Map<String, String> settingsMap, Font tamilFont) throws DocumentException {
         // Header Title - Auction Notice
         Paragraph header = new Paragraph("AUCTION NOTICE",
                 FontFactory.getFont(FontFactory.HELVETICA, 20, Font.BOLD, BaseColor.BLACK));
@@ -93,7 +117,7 @@ public class AuctionPdfService {
                 FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD, BaseColor.BLACK));
         shopDetailsParagraph.setAlignment(Element.ALIGN_CENTER);
         
-        
+     // Add Customer Photo (if available)
         if (customer != null && customer.getPhoto() != null && customer.getPhoto().length > 0) {
             try {
                 // No need to decode if it's already a byte array
@@ -118,43 +142,34 @@ public class AuctionPdfService {
             System.out.println("Invalid or empty customer photo data.");
         }
 
-//        if (customer != null && customer.getPhoto() != null && customer.getPhoto().length > 0) {
-//            try {
-//                // Get the photo as a byte array
-//                byte[] photoBytes = customer.getPhoto();
-//
-//                // Try creating an iText image object directly from the byte array
-//                Image customerImage = Image.getInstance(photoBytes);
-//
-//                // Resize the image to fit the required size
-//                customerImage.scaleToFit(110, 110);
-//                
-//                // Position the image on the document (top-right corner)
-//                customerImage.setAbsolutePosition(document.right() - 100, document.top() - 110);
-//
-//                // Add the image to the document
-//                document.add(customerImage);
-//            } catch (Exception e) {
-//                System.err.println("Error processing customer photo: " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//        } else {
-//            System.out.println("Invalid or empty customer photo data.");
-//        }
-
-
         // Add the shop details paragraph
         document.add(shopDetailsParagraph);
+//
+//        // Add Auction Description (if available)
+//        if (auctionDescription != null && !auctionDescription.trim().isEmpty()) {
+//            document.add(Chunk.NEWLINE);
+//            Paragraph notice = new Paragraph(auctionDescription,
+//                    FontFactory.getFont(FontFactory.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK));
+//            notice.setAlignment(Element.ALIGN_JUSTIFIED);
+//            document.add(notice);
+//        }
+        
+        // Add some spacing before moving to the next section
+        document.add(Chunk.NEWLINE);
+        
+     // Add some spacing before moving to the next section
+        document.add(Chunk.NEWLINE);
+        
+     // Auction Description from settings
+        String auctionDetails = settingsUtillity.getAuctionDescription(settingsMap);
 
-        // Add Auction Description (if available)
-        if (auctionDescription != null && !auctionDescription.trim().isEmpty()) {
-            document.add(Chunk.NEWLINE);
-            Paragraph notice = new Paragraph(auctionDescription,
-                    FontFactory.getFont(FontFactory.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK));
-            notice.setAlignment(Element.ALIGN_JUSTIFIED);
-            document.add(notice);
+        // Add auction details (in Tamil)
+        if (auctionDetails != null && !auctionDetails.trim().isEmpty()) {
+            Paragraph auctionDetailsParagraph = new Paragraph(auctionDetails, tamilFont);
+            auctionDetailsParagraph.setAlignment(Element.ALIGN_JUSTIFIED);
+            document.add(auctionDetailsParagraph);
         }
-
+        
         // Add some spacing before moving to the next section
         document.add(Chunk.NEWLINE);
         }

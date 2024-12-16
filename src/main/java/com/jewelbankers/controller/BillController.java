@@ -164,16 +164,19 @@ public class BillController {
 
     @GetMapping("/number")
     public ResponseEntity<?> getBillsByBillNo(@RequestParam(value = "billNo", required = false) Integer billNo,
-                                               @RequestParam(value = "billSequence", required = false) Long billSequence,
-                                               @RequestParam(value = "billSerial", required = false) Character billSerial) {
-        List<Bill> bills = billService.findBillsByBillNo(billSerial, billNo, billSequence);
+                                              @RequestParam(value = "billSequence", required = false) Long billSequence,
+                                              @RequestParam(value = "billSerial", required = false) Character billSerial,
+                                              @RequestParam(value = "redemptionDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate redemptionDate) {
+        // Call the service method with the redemptionDate
+        List<Bill> bills = billService.findBillsByBillNo(billSerial, billNo, billSequence, redemptionDate);
         if (bills.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("No bills found", "No bills found with billSequence: " + billNo));
+                    .body(new ErrorResponse("No bills found", "No bills found with billNo: " + billNo));
         } else {
             return ResponseEntity.ok(bills);
         }
     }
+
 
     @GetMapping
     public ResponseEntity<Page<Bill>> getAllBills(@RequestParam(value = "page", defaultValue = "0") int page,
@@ -183,7 +186,7 @@ public class BillController {
     }
    
     
-    @GetMapping("/openbillsbyname")
+    @GetMapping("/open-by-name")
     public ResponseEntity<?> getOpenBillsByCustomer(@RequestParam String customerName) {
         // Fetch open bills for the customer based on customerId
     	 List<Map<String, Object>> bills = billService.getOpenBillsForCustomer(customerName);

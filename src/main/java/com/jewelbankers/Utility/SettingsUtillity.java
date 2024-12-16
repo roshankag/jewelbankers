@@ -37,10 +37,69 @@ public class SettingsUtillity {
 		return shopDetailsString.toString();    
 		}
     
-    public String getAuctionDescription(Map<String,String> settingsMap) {
-    	return settingsMap.get("AUCTION_DETAILS");
+    public String getAuctionDescription(Map<String, String> settingsMap) {
+        String auctionDetails = settingsMap.get("AUCTION_DETAILS");
+        if (auctionDetails != null && !auctionDetails.isEmpty()) {
+            return formatAuctionDescriptionForThreeLines(auctionDetails, 70); // Wrap lines at 70 characters for A4 size
+        }
+        return null;
     }
-    
+
+    // Helper method to format auction description into three lines for A4 paper layout
+    private String formatAuctionDescriptionForThreeLines(String text, int maxLineLength) {
+        StringBuilder formattedText = new StringBuilder();
+        String[] words = text.split(" ");
+        int lineLength = 0;
+        int lineCount = 1;  // To keep track of line numbers
+
+        // Distribute text into 3 lines
+        StringBuilder line1 = new StringBuilder();
+        StringBuilder line2 = new StringBuilder();
+        StringBuilder line3 = new StringBuilder();
+
+        // Split the text into 3 parts
+        int wordsPerLine = words.length / 3;
+        int wordCounter = 0;
+
+        for (String word : words) {
+            if (lineCount == 1) {
+                if (line1.length() + word.length() + 1 <= maxLineLength && wordCounter < wordsPerLine) {
+                    line1.append(word).append(" ");
+                    wordCounter++;
+                } else {
+                    lineCount = 2; // Move to the second line when first is filled
+                    wordCounter = 0;
+                    line2.append(word).append(" ");
+                }
+            } else if (lineCount == 2) {
+                if (line2.length() + word.length() + 1 <= maxLineLength && wordCounter < wordsPerLine) {
+                    line2.append(word).append(" ");
+                    wordCounter++;
+                } else {
+                    lineCount = 3; // Move to the third line when second is filled
+                    wordCounter = 0;
+                    line3.append(word).append(" ");
+                }
+            } else if (lineCount == 3) {
+                line3.append(word).append(" "); // Add remaining words to the third line
+            }
+        }
+
+        // Combine all lines
+        formattedText.append(line1.toString().trim()).append("\n")
+                     .append(line2.toString().trim()).append("\n")
+                     .append(line3.toString().trim());
+
+        return formattedText.toString().trim(); // Return formatted text with trimmed spaces
+    }
+
+
+    // Method to align text (e.g., center or justify lines)
+    private String formatLine(String line) {
+        return String.format("%-70s", line);  // This left-aligns the text and ensures it fits within the max line length
+    }
+
+
     public String getPledgeRules(Map<String,String> settingsMap) {
     	return settingsMap.get("PLEDGE_RULES");
     }

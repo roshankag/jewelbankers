@@ -83,10 +83,24 @@ public class AuctionPdfController {
                     settingsMap.get("SHOP_AREA"),
                     settingsMap.get("SHOP_CITY") + " - " + settingsMap.get("SHOP_PINCODE"), // Add a separator for better readability
                     settingsMap.get("SHOP_STATE"));
+            
+         // Extract shop address from settingsMap
+            Map<String, String> shopAddress = new HashMap<>();
+            shopAddress.put("SHOP_NO", settingsMap.getOrDefault("SHOP_NO", ""));
+            shopAddress.put("SHOP_STREET", settingsMap.getOrDefault("SHOP_STREET", ""));
+            shopAddress.put("SHOP_AREA", settingsMap.getOrDefault("SHOP_AREA", ""));
+            shopAddress.put("SHOP_CITY", settingsMap.getOrDefault("SHOP_CITY", ""));
+            shopAddress.put("SHOP_STATE", settingsMap.getOrDefault("SHOP_STATE", ""));
+            shopAddress.put("SHOP_PINCODE", settingsMap.getOrDefault("SHOP_PINCODE", ""));
 
 
             ByteArrayInputStream pdfStream = auctionPdfService.generateAuctionPdf(
-                    bills, auctionDetails, fromAddressText, auctionDescription, settingsMap.get("SHOP_NAME"), settingsMap);
+                    bills, 
+                    auctionDetails, 
+                    fromAddressText,
+                    settingsMap.get("SHOP_NAME"), 
+                    shopAddress,
+                    settingsMap);
 
             byte[] pdfBytes = pdfStream.readAllBytes();
 
