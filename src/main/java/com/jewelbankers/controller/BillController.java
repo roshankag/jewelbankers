@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -155,11 +158,56 @@ public class BillController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
 
+        
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(excelFile));
     }
+    
+//    @GetMapping("/export/excel")
+//    public void exportBillsToExcel(
+//            @RequestParam(required = false) String search,
+//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
+//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+//            @RequestParam(required = false) Integer amount,
+//            @RequestParam(required = false) Character status,
+//            @RequestParam(required = false) Integer productTypeNo,
+//            @RequestParam(required = false) String sortOrder,
+//            HttpServletResponse response) throws IOException {
+//
+//        // Call the service to handle the Excel export logic
+//        ByteArrayInputStream excelFile = billService.exportBillsToExcel(search, fromDate, endDate, amount, status, productTypeNo, sortOrder);
+//
+//        if (excelFile == null) {
+//            // If no data is found, set a 204 (No Content) status
+//            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+//            response.getWriter().write("No bills found with the provided search criteria or an error occurred.");
+//            return;
+//        }
+//
+//        // Set the content type and disposition for the response
+//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//        response.setHeader("Content-Disposition", "attachment; filename=bills.xlsx");
+//
+//        // Stream the file directly to the response output
+//        try (OutputStream outputStream = response.getOutputStream();
+//             InputStream inputStream = excelFile) {
+//            byte[] buffer = new byte[1024]; // Chunk size (1 KB)
+//            int bytesRead;
+//
+//            while ((bytesRead = inputStream.read(buffer)) != -1) {
+//                outputStream.write(buffer, 0, bytesRead);
+//                outputStream.flush(); // Flush the stream to ensure chunks are sent immediately
+//            }
+//        } catch (IOException e) {
+//            // Handle IOException if the client aborts or other errors occur
+//            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//            response.getWriter().write("An error occurred while streaming the file.");
+//        }
+//    }
+//
+
 
 
     @GetMapping("/number")
@@ -180,7 +228,7 @@ public class BillController {
 
     @GetMapping
     public ResponseEntity<Page<Bill>> getAllBills(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                   @RequestParam(value = "size", defaultValue = "50") int size) {
+                                                   @RequestParam(value = "size", defaultValue = "100") int size) {
         Page<Bill> bills = billService.getAllBills(page, size);
         return ResponseEntity.ok(bills);
     }
@@ -255,19 +303,28 @@ public class BillController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate toDate,
             @RequestParam(required = false) Integer amount,
             @RequestParam(required = false) Character status,
-            @RequestParam(required = false) Integer productTypeNo) {
-        
+            @RequestParam(required = false) Integer productTypeNo,
+            @RequestParam(required = false, defaultValue = "0") int page, // Default page 0
+            @RequestParam(required = false, defaultValue = "100") int size) { // Limit to 100 records
+
+        Pageable pageable = PageRequest.of(page, size); // Set page size to 100
+
+        // Fetch results from service with pagination applied
         List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, null);
-        if (bills.isEmpty()) {
-            // **Return a 200 OK response with a message indicating no bills were found**
+
+        // If you want to return only the first 100 results:
+        List<Bill> limitedBills = bills.stream().limit(100).collect(Collectors.toList());
+
+        if (limitedBills.isEmpty()) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "No bills found with the provided search criteria.");
-            return ResponseEntity.ok(response); // **Highlighted Change**
+            return ResponseEntity.ok(response);
         }
-        
-        // **Return the list of bills with a 200 OK status**
-        return ResponseEntity.ok(bills);
+
+        // Return the list of bills with pagination
+        return ResponseEntity.ok(limitedBills);
     }
+
     
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBillByBillNo(@PathVariable("id") Long id, @RequestBody Bill billDetails) {

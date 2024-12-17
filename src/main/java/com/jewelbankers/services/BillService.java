@@ -154,89 +154,89 @@ public class BillService {
 	    }    
 	}
 	
-	 public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) {
-	        try {
-	            List<Bill> bills = billRepository.findAll(new Specification<Bill>() {
-	                
-	                @Override
-	                public Predicate toPredicate(Root<Bill> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-	                    List<Predicate> predicates = new ArrayList<>();                
-	                    Predicate searchPredicate;
-	                    
-	                    // Handle search by Bill No or Customer Name
-	                    if (search != null && !search.isEmpty() && BillUtility.ValidateBillNo(search)) {
-	                        Character billSerial = search.toUpperCase().charAt(0);
-	                        Integer billNo = Integer.parseInt(search.substring(1));
-	                        
-	                        searchPredicate = cb.and(
-	                            cb.equal(root.get("billSerial"), billSerial),
-	                            cb.equal(root.get("billNo"), billNo)
-	                        );
-	                        predicates.add(searchPredicate);
-	                    } else if (search != null && !search.isEmpty()) {
-	                        searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
-	                        predicates.add(searchPredicate);
-	                    }
-	                    
-	                    // Handle date filtering
-	                    if (fromDate != null && toDate != null) {
-	                        predicates.add(cb.between(root.get("billDate"), fromDate, toDate));
-	                    } else if (fromDate != null) {
-	                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
-	                    } else if (toDate != null) {
-	                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), toDate));
-	                    }
-	                    
-	                    // Handle amount filtering
-	                    if (amount != null) {
-	                        predicates.add(cb.equal(root.get("amount"), amount));
-	                    }
-	                    
-	                    // Handle status filtering
-	                    if (status != null) {
-	                        predicates.add(cb.equal(root.get("redemptionStatus"), status));
-	                    }
-	                    
-	                    // Handle product type filtering
-	                    if (productTypeNo != null) {
-	                        predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
-	                    }
-	                    
-	                    // Apply the sorting
-	                    if(sortOrder != null && sortOrder.equalsIgnoreCase("customername")) {
-	                        //query.orderBy(cb.desc(root.get("customer").get("customerName")));
-	                    } else {
-	                        query.orderBy(cb.desc(root.get("billSequence")));
-	                    }
-	                    
-	                    return cb.and(predicates.toArray(new Predicate[0]));
-	                }
-	            });
+	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) {
+        try {
+            List<Bill> bills = billRepository.findAll(new Specification<Bill>() {
+                
+                @Override
+                public Predicate toPredicate(Root<Bill> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                    List<Predicate> predicates = new ArrayList<>();                
+                    Predicate searchPredicate;
+                    
+                    // Handle search by Bill No or Customer Name
+                    if (search != null && !search.isEmpty() && BillUtility.ValidateBillNo(search)) {
+                        Character billSerial = search.toUpperCase().charAt(0);
+                        Integer billNo = Integer.parseInt(search.substring(1));
+                        
+                        searchPredicate = cb.and(
+                            cb.equal(root.get("billSerial"), billSerial),
+                            cb.equal(root.get("billNo"), billNo)
+                        );
+                        predicates.add(searchPredicate);
+                    } else if (search != null && !search.isEmpty()) {
+                        searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
+                        predicates.add(searchPredicate);
+                    }
+                    
+                    // Handle date filtering
+                    if (fromDate != null && toDate != null) {
+                        predicates.add(cb.between(root.get("billDate"), fromDate, toDate));
+                    } else if (fromDate != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
+                    } else if (toDate != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), toDate));
+                    }
+                    
+                    // Handle amount filtering
+                    if (amount != null) {
+                        predicates.add(cb.equal(root.get("amount"), amount));
+                    }
+                    
+                    // Handle status filtering
+                    if (status != null) {
+                        predicates.add(cb.equal(root.get("redemptionStatus"), status));
+                    }
+                    
+                    // Handle product type filtering
+                    if (productTypeNo != null) {
+                        predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
+                    }
+                    
+                    // Apply the sorting
+                    if(sortOrder != null && sortOrder.equalsIgnoreCase("customername")) {
+                        //query.orderBy(cb.desc(root.get("customer").get("customerName")));
+                    } else {
+                        query.orderBy(cb.desc(root.get("billSequence")));
+                    }
+                    
+                    return cb.and(predicates.toArray(new Predicate[0]));
+                }
+            });
 
-	            // **Check if the result is empty and return an empty list if true**
-	            if (bills.isEmpty()) {
-	                System.out.println("No bills found for the given search criteria.");
-	                return Collections.emptyList(); // **Return an empty list to avoid 500 error**
-	            }
-	            
-	         // Print product descriptions for each bill found
-	            for (Bill bill : bills) {
-	                System.out.println("bill sequence: " + bill.getBillSequence()); // Adjust this to the actual method/property for description
-	                System.out.println("Product Description: " + bill.getProductDescriptions()); // Adjust this to the actual method/property for description
-	                
-//	                for (BillDetail billDetail : bill.getBillDetails()) {
+            // **Check if the result is empty and return an empty list if true**
+            if (bills.isEmpty()) {
+                System.out.println("No bills found for the given search criteria.");
+                return Collections.emptyList(); // **Return an empty list to avoid 500 error**
+            }
+            
+         // Print product descriptions for each bill found
+            for (Bill bill : bills) {
+                //System.out.println("bill sequence: " + bill.getBillSequence()); // Adjust this to the actual method/property for description
+                //System.out.println("Product Description: " + bill.getProductDescriptions()); // Adjust this to the actual method/property for description
+                
+//                for (BillDetail billDetail : bill.getBillDetails()) {
 //
-//		            }
-	            }
-	            
-	            return bills;
+//	            }
+            }
+            
+            return bills;
 
-	        } catch (Exception e) {
-	            // **Log the exception and return an empty list to prevent a 500 error**
-	            System.err.println("An error occurred while searching for bills: " + e.getMessage());
-	            return Collections.emptyList();
-	        }
-	    }
+        } catch (Exception e) {
+            // **Log the exception and return an empty list to prevent a 500 error**
+            System.err.println("An error occurred while searching for bills: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
 
 
 	public List<Bill> findBillsByCustomerStreet(String street) {
@@ -280,7 +280,7 @@ public class BillService {
 
 	          // Format the pledge time using TimeFormatterUtil (but do not save it in the database)
 	          String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(bill.getPledgeTime());
-	          System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
+	          //System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
 	          
 	          // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
 	          //String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
@@ -336,7 +336,7 @@ public class BillService {
         Optional<Bill> optionalBill = billRepository.findById(billSequence);
         
         if (optionalBill.isPresent()) {
-            System.out.println("Bill Exists **********");
+            //System.out.println("Bill Exists **********");
             Bill existingBill = optionalBill.get();
 
             // Update the fields from the provided bill object
@@ -352,7 +352,14 @@ public class BillService {
             existingBill.setAmount(bill.getAmount());
             existingBill.setGrams(bill.getGrams());
             existingBill.setComments(bill.getComments());
-            existingBill.setOldbillserialno(bill.getOldbillserialno());
+            
+            if (bill.getOldbillserialno() != null) {
+                existingBill.setOldbillserialno(bill.getOldbillserialno());
+            } else {
+                // Handle the case when oldbillserialno is null
+                existingBill.setOldbillserialno(null); // Or any default value if necessary
+            }
+
             existingBill.setRateOfInterest(bill.getRateOfInterest());
             existingBill.setPresentValue(bill.getPresentValue());
             existingBill.setAmountInWords(bill.getAmountInWords());
@@ -365,7 +372,7 @@ public class BillService {
 
                 // Format the pledgeTime to 12-hour format (for display purposes)
                 String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(existingBill.getPledgeTime());
-                System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
+                //System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
             }
 
             // Update ProductDetails (productDescription and productQuantity)
@@ -505,9 +512,10 @@ public class BillService {
 	    if (billDetails.getReceivedinterest() != null) existingBill.setReceivedinterest(billDetails.getReceivedinterest());
 	    if (billDetails.getInterestinmonths() != null) existingBill.setInterestinmonths(billDetails.getInterestinmonths());
 
-	    System.out.println("Bill Interst:"+billDetails.getReceivedinterest());
-	    System.out.println("Months:"+billDetails.getInterestinmonths());
-	    
+		/*
+		 * System.out.println("Bill Interst:"+billDetails.getReceivedinterest());
+		 * System.out.println("Months:"+billDetails.getInterestinmonths());
+		 */   
 	 // If redeemTime is updated, format it
 	    if (billDetails.getRedeemTime() != null) {
 	        // Set the new redeemTime (no formatting here, save as LocalTime)
@@ -515,7 +523,7 @@ public class BillService {
 
 	        // Format the redeemTime to 12-hour format (for display purposes)
 	        String formattedRedeemTime = TimeFormatterUtil.formatTo12Hour(existingBill.getRedeemTime());
-	        System.out.println("Formatted Redeem Time: " + formattedRedeemTime);
+	        //System.out.println("Formatted Redeem Time: " + formattedRedeemTime);
 	    }
 	    
         //calculateRedemption(existingBill);
@@ -852,7 +860,10 @@ public class BillService {
 		}
 		
 		public List<String> getAllProductDescriptions(String prefix) {
-	        return billDetailRepository.findProductDescriptionsByPrefix(prefix);
-	    }
+		    Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+		    return billDetailRepository.findProductDescriptionsByPrefix(prefix, pageable);
+		}
+
+
 
 }

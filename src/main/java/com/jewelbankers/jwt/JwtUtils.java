@@ -52,7 +52,7 @@ public class JwtUtils {
 
       UserDetailsImpl userPrincaple = userDetailsService.loadUserByEmail(user.getEmail());
 
-      System.out.println(user.getEmail());
+      //System.out.println(user.getEmail());
    // Adding claims to the token
       Map<String, Object> claims = new HashMap<>();
       claims.put("id", user.getId());
@@ -60,8 +60,10 @@ public class JwtUtils {
       claims.put("email", user.getEmail());
       claims.put("roles", user.getRoles());
       claims.put("userDatabaseName", user.getUserDatabaseName().toLowerCase());
-      System.out.println("Dta:"+userPrincaple.getUserDatabaseName());
-    System.out.println(userPrincaple.getUsername());
+		/*
+		 * System.out.println("Dta:"+userPrincaple.getUserDatabaseName());
+		 * System.out.println(userPrincaple.getUsername());
+		 */
     return Jwts.builder()
             .setSubject(userPrincaple.getUsername())
             .setClaims(claims)

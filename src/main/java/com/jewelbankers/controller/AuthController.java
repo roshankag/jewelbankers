@@ -62,9 +62,10 @@ public class AuthController {
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-	System.out.println(loginRequest.getUsername()+
-	  ":"+loginRequest.getPassword());
-	  
+		/*
+		 * System.out.println(loginRequest.getUsername()+
+		 * ":"+loginRequest.getPassword());
+		 */
 	 User user = userRepository.findByUsername(loginRequest.getUsername());
 	    
 	    // Check if user is null (no user found with the provided username)
@@ -219,7 +220,7 @@ public class AuthController {
     if (signUpRequest.isStatus()) { // Check if the user has paid
         // If the user pays, assign a yearly subscription
         user.setStatus(true);
-        System.out.println("status:" + signUpRequest.isStatus());
+        //System.out.println("status:" + signUpRequest.isStatus());
         user.setStartDate(currentDate);
         user.setEndDate(currentDate.plusYears(1)); // Start yearly subscription immediately
         message = "User registered successfully! Yearly subscription activated. Reminders will be sent.";
@@ -265,7 +266,7 @@ public class AuthController {
 
 	private void sendMessage(String email, String message) {
 	    // Logic to send email or notification
-	    System.out.println("Sending to " + email + ": " + message);
+	    //System.out.println("Sending to " + email + ": " + message);
 	}
   
 }

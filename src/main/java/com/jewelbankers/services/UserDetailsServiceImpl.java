@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-      System.out.println("Username: " + username);
+      //System.out.println("Username: " + username);
       User user = userRepository.findByUsername(username);
       if (user == null) {
           throw new UsernameNotFoundException("User Not Found with username: " + username);
@@ -62,7 +62,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   public UserDetailsImpl loadUserByEmail(String username) throws UsernameNotFoundException {
     User user = userRepository.findByEmail(username);
     //user.getUserDatabaseName();
-    System.out.println("DataBase:"+ user.getUserDatabaseName());
+    //System.out.println("DataBase:"+ user.getUserDatabaseName());
 
     return UserDetailsImpl.build(user);
   }
@@ -121,7 +121,7 @@ public void updateResetPasswordToken(String token, String email) throws Username
 
     
     public User updateUser(Long id, User user) {
-        System.out.println("Updating user with ID: " + id);
+        //System.out.println("Updating user with ID: " + id);
         try {
             User existingUser = userRepository.findById(id).orElse(null);
             if (existingUser != null) {
@@ -183,7 +183,7 @@ public void updateResetPasswordToken(String token, String email) throws Username
     
     private void sendMessage(String email, String message) {
         // Logic to send email or notification
-        System.out.println("Sending to " + email + ": " + message);
+        //System.out.println("Sending to " + email + ": " + message);
     }
     
 

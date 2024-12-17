@@ -437,21 +437,21 @@ public class SocialController {
             e.printStackTrace();
         }
 		//dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS);
-        System.out.println("Request Body: " + requestBody);
+        //System.out.println("Request Body: " + requestBody);
 
         // Parse the request body to extract parameters
         Map<String, String> params = parseRequestBody(requestBody);
         String credential = params.get("credential");
         String gCsrfToken = params.get("g_csrf_token");
 
-        System.out.println("Credential: " + credential);
-        System.out.println("g_csrf_token: " + gCsrfToken);
+        //System.out.println("Credential: " + credential);
+        //System.out.println("g_csrf_token: " + gCsrfToken);
 
         // Validate the ID token
         boolean isValid = validateGoogleIdToken(credential);
         if (isValid) {
             String userEmail = claims.get("email", String.class);
-            System.out.println(userEmail);
+            //System.out.println(userEmail);
 
             User userDetails = userRepository.findByEmail(userEmail);
             List<String> roles = userDetails.getRoles().stream()
@@ -550,11 +550,11 @@ public class SocialController {
             String name = claims.get("name", String.class);
             String pictureUrl = claims.get("picture", String.class);
 
-            System.out.println("User ID: " + userId);
-            System.out.println("Email: " + email);
-            System.out.println("Name: " + name);
-            System.out.println("Picture URL: " + pictureUrl);
-
+			/*
+			 * System.out.println("User ID: " + userId); System.out.println("Email: " +
+			 * email); System.out.println("Name: " + name);
+			 * System.out.println("Picture URL: " + pictureUrl);
+			 */
             return true;
         } catch (Exception e) {
             e.printStackTrace();

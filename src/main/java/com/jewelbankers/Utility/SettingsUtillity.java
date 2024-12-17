@@ -21,7 +21,7 @@ public class SettingsUtillity {
         }
         
      // Debug: Print the settingsMap to verify its contents
-        System.out.println("Settings Map: " + settingsMap);
+        //System.out.println("Settings Map: " + settingsMap);
         return settingsMap;
     }
 	

@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,22 +62,23 @@ public class CustomerService {
 	 */
 
     public List<Customer> findAll() {
-    	return customerRepository.findAll();
-        //return this.customers;
+        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        return customerRepository.findAll(pageable).getContent(); // Convert Page to List
     }
     
     public List<Customer> findByNameStartingWith(String customerName) {
-        return customerRepository.findByCustomerNameStartingWithIgnoreCase(customerName);
+        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        return customerRepository.findByCustomerNameStartingWithIgnoreCase(customerName, pageable);
     }
-    
-    
+
     public List<Customer> findByPhoneNo(Long phoneno) {
-        return customerRepository.findByPhonenoStartingWith(phoneno);
+        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        return customerRepository.findByPhonenoStartingWith(phoneno, pageable);
     }
-    
-    // New method to find by both customerName and phoneNo
+
     public List<Customer> findByNameAndPhone(String customerName, Long phoneno) {
-        return customerRepository.findByCustomerNameStartingWithIgnoreCaseAndPhoneno(customerName, phoneno);
+        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        return customerRepository.findByCustomerNameStartingWithIgnoreCaseAndPhoneno(customerName, phoneno, pageable);
     }
 
 	
