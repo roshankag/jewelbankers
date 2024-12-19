@@ -463,16 +463,21 @@ public class BillService {
 	        for (Bill bill2 : bills) {
 	            // Pass the chosenRedemptionDate to the monthsBetween method
 	            int monthsBetween = monthsBetween(bill2, chosenRedemptionDate != null ? chosenRedemptionDate : LocalDate.now());
-
 	            bill2.setInterestinmonths(monthsBetween);
-	            bill2.setRedemptionInterest(redemptioninterest(monthsBetween, bill2.getAmount(), settingsMap));
-	            bill2.setReceivedinterest(
-	                getReceievedInterest(
-	                    new BigDecimal(bill2.getAmount()), 
-	                    monthsBetween, 
-	                    getRateOfInterest(bill2.getProductTypeNo().intValue(), bill2.getAmount().intValue(), settingsMap)
-	                ).doubleValue()
+	            
+	            // Use user-provided rate or fallback to calculated rate
+	            double rateOfInterest = bill2.getRateOfInterest() != null
+	                ? bill2.getRateOfInterest().doubleValue()
+	                : getRateOfInterest(bill2.getProductTypeNo().intValue(), bill2.getAmount().intValue(), settingsMap);
+
+	            BigDecimal receivedInterest = getReceievedInterest(
+	                BigDecimal.valueOf(bill2.getAmount()),
+	                monthsBetween,
+	                rateOfInterest
 	            );
+	            
+	            bill2.setReceivedinterest(receivedInterest.doubleValue());
+	            bill2.setRedemptionInterest(redemptioninterest(monthsBetween, bill2.getAmount(), settingsMap));
 	        }
 	        return bills;
 	    } else {
@@ -569,6 +574,10 @@ public class BillService {
 		double interestRateBD = existingBill.getRateOfInterest() != null 
 	        ? existingBill.getRateOfInterest().doubleValue() 
 	        : getRateOfInterest(existingBill.getProductTypeNo().intValue(), existingBill.getAmount().intValue(),settingsMap);
+		
+//		double interestRateBD = existingBill.getRateOfInterest() != null
+//			    ? existingBill.getRateOfInterest().doubleValue() // Convert BigDecimal to double
+//			    : BigDecimal.ZERO.doubleValue(); // Fallback to zero as double
 
 	    LocalDate billDate = existingBill.getBillDate();
 	    LocalDate redemptionDate = existingBill.getRedemptionDate() != null ? existingBill.getRedemptionDate() : LocalDate.now();
@@ -591,7 +600,7 @@ public class BillService {
 
 	        if (balance.compareTo(BigDecimal.ZERO) > 0) {
 	            // Partial payment made
-	            existingBill.setRedemptionStatus('P'); // Partial
+	            existingBill.setRedemptionStatus('P'); // Par	tial
 	        } else {
 	            // Full payment made
 	            existingBill.setRedemptionStatus('R'); // Fully Redeemed
@@ -860,7 +869,7 @@ public class BillService {
 		}
 		
 		public List<String> getAllProductDescriptions(String prefix) {
-		    Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+		    Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
 		    return billDetailRepository.findProductDescriptionsByPrefix(prefix, pageable);
 		}
 

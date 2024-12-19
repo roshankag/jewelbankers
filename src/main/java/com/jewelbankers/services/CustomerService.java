@@ -62,22 +62,22 @@ public class CustomerService {
 	 */
 
     public List<Customer> findAll() {
-        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
         return customerRepository.findAll(pageable).getContent(); // Convert Page to List
     }
     
     public List<Customer> findByNameStartingWith(String customerName) {
-        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
         return customerRepository.findByCustomerNameStartingWithIgnoreCase(customerName, pageable);
     }
 
     public List<Customer> findByPhoneNo(Long phoneno) {
-        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
         return customerRepository.findByPhonenoStartingWith(phoneno, pageable);
     }
 
     public List<Customer> findByNameAndPhone(String customerName, Long phoneno) {
-        Pageable pageable = PageRequest.of(0, 100); // Limit to 100 records
+        Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
         return customerRepository.findByCustomerNameStartingWithIgnoreCaseAndPhoneno(customerName, phoneno, pageable);
     }
 
