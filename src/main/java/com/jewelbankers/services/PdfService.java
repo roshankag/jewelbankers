@@ -63,11 +63,16 @@ public class PdfService {
             
          // Add third section with content to the PDF
             addThirdSection(document, bill, boldFont,regularFont, writer, settingsMap);
+            writer.flush();
 
-            document.close();  // Close the document and finish writing
+            //document.close();  // Close the document and finish writing
 
         } catch (DocumentException e) {
             e.printStackTrace();
+        } finally {
+            if (document.isOpen()) {
+                document.close();
+            }
         }
 
         return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
@@ -358,7 +363,9 @@ public class PdfService {
                 content.setLineWidth(0.5f);  // Set line width for stroke effect
 
                 // Display only pledge time with AM/PM
-                String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+//                String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+                String pledgeTime = "Pledge Time: " + bill.getPledgetime(); 
+                
 
                 // Positioning pledgeTime above the date
                 content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 730, 0);  // Adjust y-position to 700 for pledgeTime

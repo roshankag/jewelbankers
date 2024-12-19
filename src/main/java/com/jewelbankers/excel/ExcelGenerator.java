@@ -128,7 +128,7 @@ public class ExcelGenerator {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
-        workbook.close();
+       
 
         // Encrypt the Excel file with the password
         POIFSFileSystem fs = new POIFSFileSystem();
@@ -153,6 +153,11 @@ public class ExcelGenerator {
             return new ByteArrayInputStream(encryptedOut.toByteArray());
         } catch (GeneralSecurityException | IOException e) {
             throw new IOException("Error during Excel file encryption", e);
+        }
+        finally {
+        	fs.close();
+        	workbook.close();
+        	out.close();
         }
     }
 

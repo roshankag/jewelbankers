@@ -83,8 +83,8 @@ public class BillController {
             				createdBill.getCustomer().getCustomerid() : "");
             
          // Add pledgeTime formatted response
-            String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(createdBill.getPledgeTime());
-            response.put("pledgeTime", formattedPledgeTime);            
+           // String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(createdBill.getPledgeTime());
+            //response.put("pledgeTime", formattedPledgeTime);            
             response.put("bill", createdBill);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -115,9 +115,9 @@ public class BillController {
             Map<String, Object> response = new HashMap<>();
             
          // Adding pledge time to the response
-            String pledgeTimeFormatted = TimeFormatterUtil.formatTo12Hour(updatedBill.getPledgeTime());
+           // String pledgeTimeFormatted = TimeFormatterUtil.formatTo12Hour(updatedBill.getPledgeTime());
             
-            response.put("pledgeTime", pledgeTimeFormatted);  
+            //response.put("pledgeTime", pledgeTimeFormatted);  
             response.put("message", "Bill updated successfully with customerId: " + updatedBill.getCustomer().getCustomerid());
             response.put("bill", updatedBill);
 

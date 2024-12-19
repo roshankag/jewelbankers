@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -178,13 +179,25 @@ public class BillService {
                         predicates.add(searchPredicate);
                     }
                     
-                    // Handle date filtering
-                    if (fromDate != null && toDate != null) {
-                        predicates.add(cb.between(root.get("billDate"), fromDate, toDate));
-                    } else if (fromDate != null) {
-                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
-                    } else if (toDate != null) {
-                        predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), toDate));
+                 // Handle date filtering based on status
+                    if (status != null && status == 'R') {
+                        // Use redemptionDate if status is "R"
+                        if (fromDate != null && toDate != null) {
+                            predicates.add(cb.between(root.get("redemptionDate"), fromDate, toDate));
+                        } else if (fromDate != null) {
+                            predicates.add(cb.greaterThanOrEqualTo(root.get("redemptionDate"), fromDate));
+                        } else if (toDate != null) {
+                            predicates.add(cb.lessThanOrEqualTo(root.get("redemptionDate"), toDate));
+                        }
+                    } else {
+                        // Use billDate for other statuses
+                        if (fromDate != null && toDate != null) {
+                            predicates.add(cb.between(root.get("billDate"), fromDate, toDate));
+                        } else if (fromDate != null) {
+                            predicates.add(cb.greaterThanOrEqualTo(root.get("billDate"), fromDate));
+                        } else if (toDate != null) {
+                            predicates.add(cb.lessThanOrEqualTo(root.get("billDate"), toDate));
+                        }
                     }
                     
                     // Handle amount filtering
@@ -202,13 +215,15 @@ public class BillService {
                         predicates.add(cb.equal(root.get("productTypeNo"), productTypeNo));
                     }
                     
-                    // Apply the sorting
-                    if(sortOrder != null && sortOrder.equalsIgnoreCase("customername")) {
-                        //query.orderBy(cb.desc(root.get("customer").get("customerName")));
+                 // Apply the sorting
+                    if (sortOrder != null && sortOrder.equalsIgnoreCase("customername")) {
+                        query.orderBy(cb.asc(root.get("customer").get("customerName")));
+                    } else if (status != null && status == 'R') {
+                        query.orderBy(cb.desc(root.get("redemptionDate")));
                     } else {
                         query.orderBy(cb.desc(root.get("billSequence")));
                     }
-                    
+
                     return cb.and(predicates.toArray(new Predicate[0]));
                 }
             });
@@ -276,10 +291,13 @@ public class BillService {
 	          }
 	          
 	       // Set the current time as pledge time (this will be stored as LocalTime)
-	          bill.setPledgeTime(LocalTime.now());
+	          //bill.setPledgeTime(LocalTime.now());
 
 	          // Format the pledge time using TimeFormatterUtil (but do not save it in the database)
-	          String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(bill.getPledgeTime());
+	          //String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(LocalTime.now());
+	          String pledgeTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+	          //System.out.println("pledgeTime"+pledgeTime);
+	          bill.setPledgetime(pledgeTime);
 	          //System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
 	          
 	          // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
@@ -343,7 +361,7 @@ public class BillService {
             existingBill.setBillSerial(bill.getBillSerial());
             existingBill.setBillNo(bill.getBillNo());
             existingBill.setBillDate(bill.getBillDate());
-           
+          
             // Set the updated customer back to the bill
             Customer updatedCustomer = setCustomer(bill, photo);
     	   existingBill.setCustomer(updatedCustomer);
@@ -365,15 +383,15 @@ public class BillService {
             existingBill.setAmountInWords(bill.getAmountInWords());
             existingBill.setMonthlyIncome(bill.getMonthlyIncome());
             
-         // If pledgeTime is updated, format it
-            if (bill.getPledgeTime() != null) {
-                // Set the new pledgeTime (no formatting here, save as LocalTime)
-                existingBill.setPledgeTime(bill.getPledgeTime());
-
-                // Format the pledgeTime to 12-hour format (for display purposes)
-                String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(existingBill.getPledgeTime());
-                //System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
-            }
+//         // If pledgeTime is updated, format it
+//            if (bill.getPledgetime() != null) {
+//                // Set the new pledgeTime (no formatting here, save as LocalTime)
+//                existingBill.setPledgeTime(bill.getPledgetime());
+//
+//                // Format the pledgeTime to 12-hour format (for display purposes)
+//                String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(existingBill.getPledgeTime());
+//                //System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
+//            }
 
             // Update ProductDetails (productDescription and productQuantity)
             List<BillDetail> existingBillDetails = existingBill.getBillDetails(); // Get existing details
@@ -561,9 +579,11 @@ public class BillService {
 	private BigDecimal getReceievedInterest(BigDecimal amountBD, int monthsBetween, double interestRateBD) {
 	BigDecimal receievedInterest = new BigDecimal(0.0);
 	if(monthsBetween>0) {
+
 	 receievedInterest = amountBD.multiply(new BigDecimal(interestRateBD))
 		        .multiply(BigDecimal.valueOf(monthsBetween))
 		        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+	 System.out.println("Recieved Interst:" + receievedInterest);
 		return receievedInterest;
 	}
 	return receievedInterest;	

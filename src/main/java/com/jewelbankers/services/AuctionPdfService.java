@@ -2,6 +2,7 @@ package com.jewelbankers.services;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -83,10 +84,19 @@ public class AuctionPdfService {
                 document.newPage();
             }
 
-            document.close();
+            out.flush();
 
-        } catch (DocumentException ex) {
-            ex.printStackTrace();
+            //document.close();  // Close the document and finish writing
+
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+            if (document.isOpen()) {
+                document.close();
+            }
         }
 
         return new ByteArrayInputStream(out.toByteArray());
@@ -138,9 +148,10 @@ public class AuctionPdfService {
                 System.err.println("Error processing customer photo: " + e.getMessage());
                 e.printStackTrace();
             }
-        } else {
-            System.out.println("Invalid or empty customer photo data.");
         }
+//        } else {
+//            System.out.println("Invalid or empty customer photo data.");
+//        }
 
         // Add the shop details paragraph
         document.add(shopDetailsParagraph);

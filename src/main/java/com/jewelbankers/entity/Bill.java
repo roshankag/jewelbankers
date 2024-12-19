@@ -358,15 +358,16 @@ public class Bill {
     @Transient
     private Integer noOfMonths;
     
-    @Transient
-    private LocalTime pledgeTime;
 
-    public LocalTime getPledgeTime() {
-		return pledgeTime;
+    @Column(name = "pledgetime")
+    private String pledgetime;
+
+	public String getPledgetime() {
+		return pledgetime;
 	}
 
-	public void setPledgeTime(LocalTime pledgeTime) {
-		this.pledgeTime = pledgeTime;
+	public void setPledgetime(String pledgetime) {
+		this.pledgetime = pledgetime;
 	}
 
 	public LocalTime getRedeemTime() {

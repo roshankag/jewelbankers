@@ -8,6 +8,7 @@ import com.jewelbankers.entity.Customer;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +32,20 @@ public class BillPdfService {
             addHeading(document, shopName, shopAddress);
             addBillDetailsTable(bills, document);
 
-            document.close();
+            out.flush();
 
-        } catch (DocumentException ex) {
-            ex.printStackTrace();
+            //document.close();  // Close the document and finish writing
+
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+            if (document.isOpen()) {
+                document.close();
+            }
         }
-
         return new ByteArrayInputStream(out.toByteArray());
     }
 
