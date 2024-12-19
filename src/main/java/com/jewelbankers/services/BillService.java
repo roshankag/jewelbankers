@@ -80,9 +80,6 @@ public class BillService {
 	 private EntityManager entityManager;
 	 
 	 @Autowired
-	 private CustomerPdfService customerPdfService;
-	 
-	 @Autowired
 	 private OfficePdfService officePdfService;
 	
 	 @Autowired
@@ -714,18 +711,18 @@ public class BillService {
 	    }
 	 
 	 
-	 public ByteArrayInputStream generateCustomerSendBill(Bill bill,  Map<String, String> settingsMap) {
-	        ByteArrayInputStream in = null;
-
-	        try {
-	            // Generate the PDF
-	            in = customerPdfService.generateCustomerBillPdf(bill,settingsMap); // Retrieve the PDF as a ByteArrayInputStream
-	        } catch (IOException | DocumentException e) {
-	            e.printStackTrace();
-	            throw new RuntimeException("Error generating PDF: " + e.getMessage());
-	        }
-	        return in;
-	    }
+//	 public ByteArrayInputStream generateCustomerSendBill(Bill bill,  Map<String, String> settingsMap) {
+//	        ByteArrayInputStream in = null;
+//
+//	        try {
+//	            // Generate the PDF
+//	            in = customerPdfService.generateCustomerBillPdf(bill,settingsMap); // Retrieve the PDF as a ByteArrayInputStream
+//	        } catch (IOException | DocumentException e) {
+//	            e.printStackTrace();
+//	            throw new RuntimeException("Error generating PDF: " + e.getMessage());
+//	        }
+//	        return in;
+//	    }
 	 
 	 public ByteArrayInputStream generateSendBill(Bill bill, Map<String, String> settingsMap) {
 		    ByteArrayInputStream in = null;
