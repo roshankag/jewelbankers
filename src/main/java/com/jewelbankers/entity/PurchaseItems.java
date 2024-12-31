@@ -25,17 +25,18 @@ public class PurchaseItems {
     @Column(name = "id")
     private Long id;
     
-    @JsonBackReference
+    @JsonBackReference("purchase-items")
     @ManyToOne(fetch = FetchType.LAZY)
+    //@JoinColumn(name = "purchaseitemid")
     @JoinColumn(name = "purchaseid", referencedColumnName = "id")
     private Purchase purchase;
 
-    @JsonBackReference
+    @JsonBackReference("item")
     @OneToOne
     @JoinColumn(name = "itemid", referencedColumnName = "id")
     private Item item;
     
-    @JsonBackReference
+    @JsonBackReference("barcode")
     @ManyToOne
     @JoinColumn(name = "barcodeid", referencedColumnName = "id")
     private Barcode barcode;

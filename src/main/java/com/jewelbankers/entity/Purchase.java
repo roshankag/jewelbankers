@@ -2,15 +2,21 @@ package com.jewelbankers.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "purchase")
@@ -24,10 +30,11 @@ public class Purchase {
     @ManyToOne
     @JoinColumn(name = "supplierid", referencedColumnName = "id")
     private Supplier supplier;
-
-    @ManyToOne
-    @JoinColumn(name = "purchaseitemid", referencedColumnName = "id")
-    private PurchaseItems purchaseItems;
+    
+    @JsonManagedReference("purchase-items")  // Unique reference name 
+    //@JoinColumn(name = "purchaseitemid")
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
+    private List<PurchaseItems> purchaseItems = new ArrayList<>();
 
     @Column(name = "invoiceno")
     private Long invoiceno;
@@ -72,11 +79,11 @@ public class Purchase {
 		this.supplier = supplier;
 	}
 
-	public PurchaseItems getPurchaseItems() {
+	public List<PurchaseItems> getPurchaseItems() {
 		return purchaseItems;
 	}
 
-	public void setPurchaseItems(PurchaseItems purchaseItems) {
+	public void setPurchaseItems(List<PurchaseItems> purchaseItems) {
 		this.purchaseItems = purchaseItems;
 	}
 
