@@ -17,16 +17,14 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	List<Customer> findByCustomerName(String customerName);
 	List<Customer> findByStreetIgnoreCaseContaining(String street);
 	
-	@Query("SELECT c FROM Customer c WHERE c.customerName LIKE CONCAT(:customerName, '%')")
+	@Query("SELECT c FROM Customer c WHERE LOWER(c.customerName) LIKE LOWER(CONCAT('%', :customerName, '%'))")
 	List<Customer> findByCustomerNameStartingWithIgnoreCase(@Param("customerName") String customerName, Pageable pageable);
 
-	
 	@Query("SELECT c FROM Customer c WHERE str(c.phoneno) LIKE CONCAT(:phoneno, '%')")
 	List<Customer> findByPhonenoStartingWith(@Param("phoneno") Long phoneno, Pageable pageable);
 
-	 
-	@Query("SELECT c FROM Customer c WHERE c.customerName LIKE CONCAT(:customerName, '%') AND str(c.phoneno) LIKE CONCAT(:phoneno, '%')")
-	List<Customer> findByCustomerNameStartingWithIgnoreCaseAndPhoneno(@Param("customerName") String customerName, @Param("phoneno") Long phoneno, Pageable pageable);
+	@Query("SELECT c FROM Customer c WHERE LOWER(c.customerName) LIKE LOWER(CONCAT('%', :customerName, '%')) AND str(c.phoneno) LIKE CONCAT(:phoneno, '%')")
+	List<Customer> findByCustomerNameContainingIgnoreCaseAndPhoneno(@Param("customerName") String customerName, @Param("phoneno") Long phoneno, Pageable pageable);
 
 	
 }

@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Splitter;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -89,7 +90,7 @@ public class PdfService {
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
         content.showTextAligned(Element.ALIGN_LEFT, 
-            String.valueOf(bill.getBillSerial()) + String.valueOf(bill.getBillNo()), 50, 820, 0);  // Bill serial and number
+            String.valueOf(bill.getBillSerial()) + String.valueOf(bill.getBillNo()), 30, 820, 0);  // Bill serial and number
         content.endText();
         
      // Product, Quantity, and Amount (more space)
@@ -123,7 +124,7 @@ public class PdfService {
         String displayText = "Rs. " + bill.getAmount() + "       " + productDescriptionText;
 
         // Display the text on the PDF
-        content.showTextAligned(Element.ALIGN_LEFT, displayText, 50, 805, 0);  // Adjust the position as needed
+        content.showTextAligned(Element.ALIGN_LEFT, displayText, 30, 805, 0);  // Adjust the position as needed
         content.endText();
         
         content.beginText();
@@ -131,7 +132,7 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 50, 788, 0);  // Display the current date
+        content.showTextAligned(Element.ALIGN_LEFT, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 30, 788, 0);  // Display the current date
         content.endText();
 
 
@@ -140,7 +141,7 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, String.valueOf(bill.getGrams()), 200, 788, 0);  // Display the weight (grams)
+        content.showTextAligned(Element.ALIGN_LEFT, String.valueOf(bill.getGrams()), 180, 788, 0);  // Display the weight (grams)
         content.endText();
 
         content.beginText();
@@ -148,7 +149,7 @@ public class PdfService {
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Regular rendering mode (non-bold)
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, bill.getCustomer().getCustomerName(), 50, 773, 0);  // Display the customer name
+        content.showTextAligned(Element.ALIGN_LEFT, bill.getCustomer().getCustomerName(), 30, 773, 0);  // Display the customer name
         content.endText();
         
      // Draw a horizontal line
@@ -249,11 +250,11 @@ public class PdfService {
 
 
         // Add customer details ("To" section)
-        content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 11);
-    	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-        content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 710, 0);
-        content.endText();
+//        content.beginText();
+//        content.setFontAndSize(boldFont.getBaseFont(), 11);
+//    	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+//        content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 710, 0);
+//        content.endText();
 
         if (bill.getCustomer() != null) {
             // Prepare the string with customer name and phone number
@@ -273,34 +274,59 @@ public class PdfService {
             content.setLineWidth(0.5f);                                    // Set line width for stroke effect
             
             // Display the concatenated customer name and phone number
-            content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 695, 0); // Adjust Y-coordinate as needed
+            content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 710, 0); // Adjust Y-coordinate as needed
             content.endText();
         
 
+         // Main logic for rendering customer address
+            if (bill.getCustomer() != null && bill.getCustomer().getAddress() != null) {
+                String address = bill.getCustomer().getAddress();
 
+                // Split the address into lines without breaking words
+                List<String> addressLines = new ArrayList<>();
+                StringBuilder currentLine = new StringBuilder();
+                int maxLineLength = 24; // Maximum characters per line
 
-            // Customer Address (Split into lines and ensure it's not null)
-            String[] addressLines = bill.getCustomer().getAddress() != null ? bill.getCustomer().getAddress().split(",") : new String[]{"Address Line 1", "Address Line 2", "Address Line 3"};
-         // Customer Address (Normal Font)
-            if (bill.getCustomer() != null) {
-                content.beginText();
-                content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
-                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 250, 680, 0);  // First line of address
-                content.endText();
+                for (String word : address.split(" ")) {
+                    if (currentLine.length() + word.length() + 1 <= maxLineLength) {
+                        if (currentLine.length() > 0) currentLine.append(" ");
+                        currentLine.append(word);
+                    } else {
+                        addressLines.add(currentLine.toString());
+                        currentLine = new StringBuilder(word);
+                    }
+                }
+                if (currentLine.length() > 0) {
+                    addressLines.add(currentLine.toString());
+                }
 
-                content.beginText();
-                content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
-                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 245, 665, 0);  // Second line of address
-                content.endText();
+                int yPosition = 695; // Starting Y position for the first line
+                int lineHeight = 15; // Spacing between lines
 
-                content.beginText();
-                content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
-                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 245, 650, 0);  // Third line of address
-                content.endText();
-                
+                for (String line : addressLines) {
+                    content.beginText();
+                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
+                    content.showTextAligned(Element.ALIGN_LEFT, line.trim(), 250, yPosition, 0); // Align each line
+                    content.endText();
+                    yPosition -= lineHeight; // Move to the next line position
+                }
+            } else {
+                // Fallback in case address is null
+                String[] defaultAddress = {"Address Line 1", "Address Line 2", "Address Line 3"};
+                int yPosition = 695;
+                int lineHeight = 15;
+
+                for (String line : defaultAddress) {
+                    content.beginText();
+                    content.setFontAndSize(regularFont.getBaseFont(), 12);
+                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+                    content.showTextAligned(Element.ALIGN_LEFT, line, 250, yPosition, 0);
+                    content.endText();
+                    yPosition -= lineHeight;
+                }
+            }
+
              // Check if the customer has a photo and retrieve it as byte array
                 byte[] customerPhoto = bill.getCustomer() != null ? bill.getCustomer().getPhoto() : null;
 
@@ -351,6 +377,34 @@ public class PdfService {
                 } else {
                     System.out.println("ARTICLE_PRINT setting is disabled (value: " + articlePrintSetting + "). Article photo will not be printed.");
                 }
+                
+         // Add old bill no 
+                
+                content.beginText();
+                content.setFontAndSize(boldFont.getBaseFont(), 10);  // Set font and size for the Old Bill No label
+                content.setColorFill(BaseColor.BLACK);              // Set the text color to black
+                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Normal rendering mode (no bold)
+
+                // Fetch the full serial number (e.g., "A6876")
+                String oldBillSerialNo = bill.getOldbillserialno();
+
+                // Check if the value is non-null and non-empty
+                if (oldBillSerialNo != null && !oldBillSerialNo.trim().isEmpty()) {
+                    String formattedOldBillNo;
+
+                    // Add a space between serial and number
+                    if (oldBillSerialNo.length() > 1) {
+                        formattedOldBillNo = oldBillSerialNo.substring(0, 1) + " " + oldBillSerialNo.substring(1); // Split after first character
+                    } else {
+                        formattedOldBillNo = oldBillSerialNo; // Fallback for unexpected data
+                    }
+
+                    // Display "Old Bill No" only if a valid value exists
+                    content.showTextAligned(Element.ALIGN_LEFT, "Old Bill No: " + formattedOldBillNo, 460, 430, 0); // Align and position
+                }
+                content.endText();
+
+
             
 
         // Add date and pledge number
@@ -606,7 +660,7 @@ public class PdfService {
         content.lineTo(600, 370);  // Ending point of the line (x2, y2)
         content.stroke();          // Render the line
         }      
-    }
+    
 
     // Helper method to capitalize only the first letter of each word
        private String capitalizeWords(String text) {
@@ -702,11 +756,11 @@ public class PdfService {
 
 
            // Add customer details ("To" section)
-           content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 11);
-       	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-           content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 330, 0);
-           content.endText();
+//           content.beginText();
+//           content.setFontAndSize(boldFont.getBaseFont(), 11);
+//       	content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+//           content.showTextAligned(Element.ALIGN_LEFT, "To,", 240, 330, 0);
+//           content.endText();
 
            if (bill.getCustomer() != null) {
         	    // Prepare the string with customer name and phone number
@@ -724,31 +778,57 @@ public class PdfService {
         	    content.setLineWidth(0.5f);                        // Set line width for stroke effect
 
         	    // Display the concatenated customer details
-        	    content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 315, 0);
+        	    content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 330, 0);
         	    content.endText();
 
-               // Customer Address (Split into lines and ensure it's not null)
-               String[] addressLines = bill.getCustomer().getAddress() != null ? bill.getCustomer().getAddress().split(",") : new String[]{"Address Line 1", "Address Line 2", "Address Line 3"};
-            // Customer Address (Normal Font)
-               if (bill.getCustomer() != null) {
-                   content.beginText();
-                   content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
-                   content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 250, 300, 0);  // First line of address
-                   content.endText();
+        	 // Customer Address Logic
+        	    if (bill.getCustomer() != null && bill.getCustomer().getAddress() != null) {
+        	        String address = bill.getCustomer().getAddress();
 
-                   content.beginText();
-                   content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
-                   content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 245, 285, 0);  // Second line of address
-                   content.endText();
+        	        // Split the address by spaces and wrap lines to fit within a width of approximately 18 characters
+        	        List<String> wrappedAddressLines = new ArrayList<>();
+        	        StringBuilder currentLine = new StringBuilder();
 
-                   content.beginText();
-                   content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
-                   content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                   content.showTextAligned(Element.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 245, 270, 0);  // Third line of address
-                   content.endText();
-                   
+        	        for (String word : address.split(" ")) {
+        	            if (currentLine.length() + word.length() + 1 <= 24) {
+        	                if (currentLine.length() > 0) currentLine.append(" ");
+        	                currentLine.append(word);
+        	            } else {
+        	                wrappedAddressLines.add(currentLine.toString());
+        	                currentLine = new StringBuilder(word);
+        	            }
+        	        }
+        	        if (currentLine.length() > 0) {
+        	            wrappedAddressLines.add(currentLine.toString());
+        	        }
+
+        	        int yPosition = 315; // Starting Y position for the first line
+        	        int lineHeight = 15; // Spacing between lines
+
+        	        for (String line : wrappedAddressLines) {
+        	            content.beginText();
+        	            content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+        	            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
+        	            content.showTextAligned(Element.ALIGN_LEFT, line.trim(), 250, yPosition, 0); // Align each line
+        	            content.endText();
+        	            yPosition -= lineHeight; // Move to the next line position
+        	        }
+        	    } else {
+        	        // Fallback in case address is null
+        	        String[] defaultAddress = {"Address Line 1", "Address Line 2", "Address Line 3"};
+        	        int yPosition = 315;
+        	        int lineHeight = 15;
+
+        	        for (String line : defaultAddress) {
+        	            content.beginText();
+        	            content.setFontAndSize(regularFont.getBaseFont(), 12);
+        	            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+        	            content.showTextAligned(Element.ALIGN_LEFT, line, 250, yPosition, 0);
+        	            content.endText();
+        	            yPosition -= lineHeight;
+        	        }
+        	    }
+
                 // Check if the customer has a photo and retrieve it as byte array
                    byte[] customerPhoto = bill.getCustomer() != null ? bill.getCustomer().getPhoto() : null;
 
@@ -799,21 +879,59 @@ public class PdfService {
                    System.out.println("ARTICLE_PRINT setting is disabled (value: " + articlePrintSetting + "). Article photo will not be printed.");
                }
                
-         
+               content.beginText();
+               content.setFontAndSize(boldFont.getBaseFont(), 10);  // Set font and size for the Old Bill No label
+               content.setColorFill(BaseColor.BLACK);              // Set the text color to black
+               content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Normal rendering mode (no bold)
+
+               // Fetch the full serial number (e.g., "A6876")
+               String oldBillSerialNo = bill.getOldbillserialno();
+
+               // Check if the value is non-null and non-empty
+               if (oldBillSerialNo != null && !oldBillSerialNo.trim().isEmpty()) {
+                   String formattedOldBillNo;
+
+                   // Add a space between serial and number
+                   if (oldBillSerialNo.length() > 1) {
+                       formattedOldBillNo = oldBillSerialNo.substring(0, 1) + " " + oldBillSerialNo.substring(1); // Split after first character
+                   } else {
+                       formattedOldBillNo = oldBillSerialNo; // Fallback for unexpected data
+                   }
+
+                   // Display "Old Bill No" only if a valid value exists
+                   content.showTextAligned(Element.ALIGN_LEFT, "Old Bill No: " + formattedOldBillNo, 460, 60, 0); // Align and position
+               }
+               content.endText();
+
 
            // Add date and pledge number
                
                content.beginText();
-               content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for the pledgeTime label
+               content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for pledgeTime
                content.setColorFill(BaseColor.BLACK);  // Set the text color to black
                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
                content.setLineWidth(0.5f);  // Set line width for stroke effect
 
                // Display only pledge time with AM/PM
-               String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
-               content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 350, 0);  // Adjusted Y-coordinate for pledgeTime
+//               String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+               String pledgeTime = "Pledge Time: " + bill.getPledgetime(); 
+               
 
+               // Positioning pledgeTime above the date
+               content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 350, 0);  // Adjust y-position to 700 for pledgeTime
                content.endText();
+               
+//               content.beginText();
+//               content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for the pledgeTime label
+//               content.setColorFill(BaseColor.BLACK);  // Set the text color to black
+//               content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+//               content.setLineWidth(0.5f);  // Set line width for stroke effect
+//
+//               // Display only pledge time with AM/PM
+//               String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+//               content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 350, 0);  // Adjusted Y-coordinate for pledgeTime
+//
+//               content.endText();
 
 
         
@@ -1040,7 +1158,7 @@ public class PdfService {
            content.endText();
 
        }
-    }
+    
        /**
         * Converts a number to words (e.g., 17 -> "Seventeen").
         * This is a utility function for handling quantities in words.

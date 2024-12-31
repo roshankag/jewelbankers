@@ -45,7 +45,8 @@ public class BillPdfController {
             @RequestParam(value = "toDate", required = false) String toDateStr,
             @RequestParam(value = "amount", required = false) Integer amount,
             @RequestParam(value = "status", required = false) Character status,
-            @RequestParam(value = "productTypeNo", required = false) Integer productTypeNo) throws IOException {
+            @RequestParam(value = "productTypeNo", required = false) Integer productTypeNo,
+            @RequestParam(value = "phoneno", required = false) Long phoneno) throws IOException {
         try {
             // Parse date parameters
             LocalDate fromDate = null;
@@ -61,7 +62,7 @@ public class BillPdfController {
                     .collect(HashMap::new, (m, v) -> m.put(v.getParamId(), v.getParamValue()), HashMap::putAll);
 
             // Fetch bills based on search criteria
-            List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, "customername");
+            List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, "customername", phoneno);
 
             // Check if bills list is empty and return a user-friendly message
             if (bills == null || bills.isEmpty()) {

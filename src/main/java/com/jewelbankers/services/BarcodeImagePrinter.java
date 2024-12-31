@@ -8,13 +8,16 @@ import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.stereotype.Service;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
-public class BarcodeIMGPrinter {
+@Service
+public class BarcodeImagePrinter {
 
     // Method to generate a barcode image in JPG format
     public static byte[] generateBarcodeImage(String barcodeText) throws Exception {

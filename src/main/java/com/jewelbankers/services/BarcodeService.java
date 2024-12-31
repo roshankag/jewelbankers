@@ -2,6 +2,7 @@
 //
 //import java.io.FileOutputStream;
 //import java.time.LocalDate;
+//import java.time.format.DateTimeFormatter;
 //import java.util.ArrayList;
 //import java.util.List;
 //
@@ -16,7 +17,7 @@
 //
 //import jakarta.persistence.EntityNotFoundException;
 //
-////@Service
+//@Service
 //public class BarcodeService {
 //
 //    @Autowired
@@ -24,18 +25,22 @@
 //    
 //    @Autowired
 //    private ItemTypeRepository itemTypeRepository;
-//
+//    
+//    
 //    public Barcode createBarcode(Barcode barcode) {
-//        // Set creation date for new barcode
-//        barcode.setBarcodeCreatedDate(LocalDate.now());
-//        
+//        // Set creation date for new barcode as a string
+//        String formattedDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+//        barcode.setBarcodetime(formattedDate);
+//
 //        // Save barcode to the database
 //        return barcodeRepository.save(barcode);
 //    }
-//    
+//
 //    public List<Barcode> bulkCreateBarcodes(List<Barcode> barcodes) {
+//        String formattedDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+//
 //        for (Barcode barcode : barcodes) {
-//            barcode.setBarcodeCreatedDate(LocalDate.now()); // Add a creation date for each barcode
+//            barcode.setBarcodetime(formattedDate); // Add a creation date as a string for each barcode
 //        }
 //        return barcodeRepository.saveAll(barcodes);
 //    }
@@ -152,18 +157,14 @@
 //    	    }
 //
 //    	    // Update all fields
-//    	    existingBarcode.setGrossWeight(updatedBarcode.getGrossWeight());
-//    	    existingBarcode.setNetWeight(updatedBarcode.getNetWeight());
+//    	    existingBarcode.setGrossweight(updatedBarcode.getGrossweight());
+//    	    existingBarcode.setNetweight(updatedBarcode.getNetweight());
 //    	    existingBarcode.setPurity(updatedBarcode.getPurity());
-//    	    existingBarcode.setBlackBeadsWeight(updatedBarcode.getBlackBeadsWeight());
-//    	    existingBarcode.setStoneWeight(updatedBarcode.getStoneWeight());
-//    	    existingBarcode.setMakingChargePerGram(updatedBarcode.getMakingChargePerGram());
-//    	    existingBarcode.setMakingPercentage(updatedBarcode.getMakingPercentage());
+//    	    existingBarcode.setStoneweight(updatedBarcode.getStoneweight());
+//    	    existingBarcode.setMakingcharge(updatedBarcode.getMakingcharge());
+//    	    existingBarcode.setMakingpercentage(updatedBarcode.getMakingpercentage());
 //    	    existingBarcode.setSize(updatedBarcode.getSize());
-//    	    existingBarcode.setHallmarkCharges(updatedBarcode.getHallmarkCharges());
-//    	    existingBarcode.setHuid(updatedBarcode.getHuid());
-//    	    existingBarcode.setBarcodeCreatedDate(updatedBarcode.getBarcodeCreatedDate());
-//    	    existingBarcode.setBarcodeExpiryDate(updatedBarcode.getBarcodeExpiryDate());
+//    	    existingBarcode.setHallmarkcharges(updatedBarcode.getHallmarkcharges());
 //    	 // Assuming you have an ItemType repository or service to fetch ItemType by its ID
 //    	    ItemType itemType = itemTypeRepository.findById(updatedBarcode.getItemType().getItemtypeno())
 //    	                                          .orElseThrow(() -> new RuntimeException("ItemType not found"));

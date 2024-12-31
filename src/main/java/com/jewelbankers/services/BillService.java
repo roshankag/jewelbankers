@@ -107,9 +107,10 @@ public class BillService {
         this.billRepository = billRepository;
     }
     
-	public ByteArrayInputStream exportBillsToExcel(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) throws IOException {
+	public ByteArrayInputStream exportBillsToExcel(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, 
+			Integer productTypeNo, String sortOrder, Long phoneno) throws IOException {
         // Retrieve the list of bills based on the search criteria
-        List<Bill> bills = findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, sortOrder);
+        List<Bill> bills = findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, sortOrder, phoneno);
 
         if (bills.isEmpty()) {
             return null; // Return null if no bills are found
@@ -152,7 +153,7 @@ public class BillService {
 	    }    
 	}
 	
-	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder) {
+	public List<Bill> findBillsBySearch(String search, LocalDate fromDate, LocalDate toDate, Integer amount, Character status, Integer productTypeNo, String sortOrder, Long phoneno) {
         try {
             List<Bill> bills = billRepository.findAll(new Specification<Bill>() {
                 
@@ -174,6 +175,11 @@ public class BillService {
                     } else if (search != null && !search.isEmpty()) {
                         searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
                         predicates.add(searchPredicate);
+                    }
+                    
+                 // Handle search by Phone Number
+                    if (phoneno != null) {
+                        predicates.add(cb.equal(root.get("customer").get("phoneno"), phoneno));
                     }
                     
                  // Handle date filtering based on status
@@ -216,7 +222,11 @@ public class BillService {
                     if (sortOrder != null && sortOrder.equalsIgnoreCase("customername")) {
                         query.orderBy(cb.asc(root.get("customer").get("customerName")));
                     } else if (status != null && status == 'R') {
-                        query.orderBy(cb.desc(root.get("redemptionDate")));
+                        query.orderBy(
+                            cb.desc(root.get("redemptionDate")),
+                            cb.desc(root.get("billRedemSerial")), // Sorting by BILL_REDEM_SERIAL
+                            cb.desc(root.get("billRedemNo"))      // Sorting by BILL_REDEM_NO
+                        );
                     } else {
                         query.orderBy(cb.desc(root.get("billSequence")));
                     }
@@ -271,9 +281,12 @@ public class BillService {
 	// Method to save bill without an image
 	@Transactional
 	public Bill saveBill(Bill bill, MultipartFile photo, MultipartFile articlephoto) throws IOException {
-				
-		if(bill.getCustomer().getCustomerid() != null) {
-			
+		 // Set the current time as pledge time (this will be stored as LocalTime)
+        String pledgeTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+        //System.out.println("pledgeTime"+pledgeTime);
+        bill.setPledgetime(pledgeTime);
+        System.out.println("Formatted Pledge Time: " + pledgeTime);
+		if(bill.getCustomer().getCustomerid() != null) {			
 	            // Set the updated customer back to the bill
 	            bill.setCustomer(setCustomer(bill, photo));
 	    }
@@ -286,17 +299,6 @@ public class BillService {
 	              byte[] articlephotobytes = articlephoto.getBytes();
 	              bill.getBillDetails().get(0).setArticlephoto(articlephotobytes);
 	          }
-	          
-	       // Set the current time as pledge time (this will be stored as LocalTime)
-	          //bill.setPledgeTime(LocalTime.now());
-
-	          // Format the pledge time using TimeFormatterUtil (but do not save it in the database)
-	          //String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(LocalTime.now());
-	          String pledgeTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
-	          //System.out.println("pledgeTime"+pledgeTime);
-	          bill.setPledgetime(pledgeTime);
-	          //System.out.println("Formatted Pledge Time: " + formattedPledgeTime);
-	          
 	          // Optional: Convert photo to Base64 and store it in the transient field for easy JSON transmission
 	          //String photoBase64 = Base64.getEncoder().encodeToString(photoBytes);
 	          //customer.setPhotoBase64(photoBase64);
@@ -462,13 +464,13 @@ public class BillService {
 	public int getNextBillNo() {
         // Logic to fetch the next available bill number
         Integer currentBillNo = billRepository.findCurrentBillNo();
-        return (currentBillNo == null) ? 1 : currentBillNo + 1;
+        return (currentBillNo == null) ? 0 : currentBillNo + 1;
     }
 	
 	public int getNextBillRedemNo() {
         // Logic to fetch the next available redeem number
         Integer currentBillNo = billRepository. findCurrentBillRedemNo();
-        return (currentBillNo == null) ? 1 : currentBillNo + 1;
+        return (currentBillNo == null) ? 0 : currentBillNo + 1;
     }
 	public List<Bill> findBillsByBillNo(Character billSerial, Integer billNo, Long billSequence, LocalDate chosenRedemptionDate) { 
 	    Map<String, String> settingsMap = getSettingMap();

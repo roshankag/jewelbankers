@@ -1,11 +1,11 @@
 package com.jewelbankers.repository;
 
+import com.jewelbankers.entity.SalesItems;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import com.jewelbankers.entity.SupplierWeight;
-
 @Repository
-public interface SupplierWeightRepository extends JpaRepository<SupplierWeight, Long>,  JpaSpecificationExecutor<SupplierWeight>  {
+public interface SalesItemsRepository extends JpaRepository<SalesItems, Long>, JpaSpecificationExecutor<SalesItems> {
+    // Additional query methods can be defined here if required
 }

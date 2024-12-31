@@ -53,24 +53,31 @@ public class SupplierController {
     public ResponseEntity<?> createSupplier(@RequestBody Supplier supplier) {
         try {
             Supplier createdSupplier = supplierService.saveSupplier(supplier);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdSupplier);
+            // Return a success message with the created supplier data
+            return ResponseEntity.status(HttpStatus.CREATED)
+                                 .body("Supplier created successfully: " + createdSupplier);
         } catch (Exception e) {
+            // Return a failure message with the exception details
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body("Error creating supplier: " + e.getMessage());
         }
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSupplier(@PathVariable Long id, @RequestBody Supplier supplier) {
         try {
             supplier.setId(id);
             Supplier updatedSupplier = supplierService.saveSupplier(supplier);
-            return ResponseEntity.ok(updatedSupplier);
+            // Return a success message with the updated supplier data
+            return ResponseEntity.ok("Supplier updated successfully: " + updatedSupplier);
         } catch (Exception e) {
+            // Return a failure message with the exception details
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body("Error updating supplier: " + e.getMessage());
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSupplier(@PathVariable Long id) {
@@ -88,7 +95,8 @@ public class SupplierController {
         try {
             List<Supplier> suppliers = supplierService.searchSuppliers(search);
             if (suppliers.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No suppliers match the search criteria.");
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                                     .body("There is no supplier matching the search criteria.");
             }
             return ResponseEntity.ok(suppliers);
         } catch (Exception e) {
@@ -96,4 +104,5 @@ public class SupplierController {
                                  .body("Error searching for suppliers: " + e.getMessage());
         }
     }
+
 }

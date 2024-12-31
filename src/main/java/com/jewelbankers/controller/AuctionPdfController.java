@@ -43,7 +43,9 @@ public class AuctionPdfController {
             @RequestParam(value = "toDate", required = false) String toDateStr,
             @RequestParam(value = "amount", required = false) Integer amount,
             @RequestParam(value = "status", required = false) Character status,
-            @RequestParam(value = "productTypeNo", required = false) Integer productTypeNo) throws IOException {
+            @RequestParam(value = "productTypeNo", required = false) Integer productTypeNo,
+            @RequestParam(value = "phoneno", required = false) Long phoneno
+            ) throws IOException {
         try {
             // Parse date parameters
             LocalDate fromDate = fromDateStr != null ? LocalDate.parse(fromDateStr) : null;
@@ -55,7 +57,7 @@ public class AuctionPdfController {
             // Fetching specific settings by paramId
             String auctionDescription = settingsMap.get("AUCTION_DETAILS");
 
-            List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, "customername");
+            List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, "customername", phoneno);
 
             // Check if bills list is empty and return a user-friendly message
             if (bills == null || bills.isEmpty()) {
@@ -92,7 +94,8 @@ public class AuctionPdfController {
             shopAddress.put("SHOP_CITY", settingsMap.getOrDefault("SHOP_CITY", ""));
             shopAddress.put("SHOP_STATE", settingsMap.getOrDefault("SHOP_STATE", ""));
             shopAddress.put("SHOP_PINCODE", settingsMap.getOrDefault("SHOP_PINCODE", ""));
-
+            
+           // String isGrams = settingsMap.get("IS_GRAMS");
 
             ByteArrayInputStream pdfStream = auctionPdfService.generateAuctionPdf(
                     bills, 
@@ -100,7 +103,8 @@ public class AuctionPdfController {
                     fromAddressText,
                     settingsMap.get("SHOP_NAME"), 
                     shopAddress,
-                    settingsMap);
+                    settingsMap
+                    );
 
             byte[] pdfBytes = pdfStream.readAllBytes();
 

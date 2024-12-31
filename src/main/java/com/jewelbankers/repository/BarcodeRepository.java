@@ -9,7 +9,7 @@
 //
 //import com.jewelbankers.entity.Barcode;
 //
-////@Repository
+//@Repository
 //public interface BarcodeRepository extends JpaRepository<Barcode, Long>, JpaSpecificationExecutor<Barcode>  {
 //    // Custom queries if needed can be added later
 //	 Barcode findByTag(String tag);

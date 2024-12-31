@@ -43,7 +43,7 @@
 //        try {
 //        	// Validate input barcode fields (e.g., required fields like weight, purity, etc.)
 //        	if (barcode.getItemType().getItemtypeno() == null || 
-//        	    barcode.getGrossWeight() == null || barcode.getGrossWeight().compareTo(BigDecimal.ZERO) == 0 || 
+//        	    barcode.getGrossweight() == null || barcode.getGrossweight().compareTo(BigDecimal.ZERO) == 0 || 
 //        	    barcode.getPurity() == null || barcode.getPurity().compareTo(BigDecimal.ZERO) == 0) {
 //        	    
 //        	    return ResponseEntity.badRequest().body("Missing required barcode details. Ensure item type, weight, and purity are provided.");

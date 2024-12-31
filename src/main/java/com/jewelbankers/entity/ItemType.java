@@ -2,48 +2,81 @@ package com.jewelbankers.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "item_type")
 public class ItemType {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+	private Long id;
+
+	@Column(name = "code")
+	private String code;
+
+	@Column(name = "description")
+	private String description;
+
+	@Column(name = "currentrate")
+	private String currentrate;
+
+	@Column(name = "gstpercentage")
+	private String gstpercentage;
 	
-	@Id
-    @Column(name = "itemtypeno")
-    private Integer itemtypeno;     
+	@Column(name = "gstmakingpercentage")
+	private String gstmakingpercentage;
 
-    @Column(name = "itemtypecode")
-    private String itemtypecode; 
+	public String getGstmakingpercentage() {
+		return gstmakingpercentage;
+	}
 
-    @Column(name = "itemtypedescription")
-    private String itemtypedescription;
+	public void setGstmakingpercentage(String gstmakingpercentage) {
+		this.gstmakingpercentage = gstmakingpercentage;
+	}
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getCurrentrate() {
+		return currentrate;
+	}
+
+	public void setCurrentrate(String currentrate) {
+		this.currentrate = currentrate;
+	}
+
+	public String getGstpercentage() {
+		return gstpercentage;
+	}
+
+	public void setGstpercentage(String gstpercentage) {
+		this.gstpercentage = gstpercentage;
+	}
 	
-	public Integer getItemtypeno() {
-		return itemtypeno;
-	}
-
-	public void setItemtypeno(Integer itemtypeno) {
-		this.itemtypeno = itemtypeno;
-	}
-
-	public String getItemtypecode() {
-		return itemtypecode;
-	}
-
-	public void setItemtypecode(String itemtypecode) {
-		this.itemtypecode = itemtypecode;
-	}
-
-	public String getItemtypedescription() {
-		return itemtypedescription;
-	}
-
-	public void setItemtypedescription(String itemtypedescription) {
-		this.itemtypedescription = itemtypedescription;
-	}
-
-	
-
 }

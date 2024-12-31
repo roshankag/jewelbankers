@@ -1,5 +1,7 @@
 package com.jewelbankers.services;
 
+import org.springframework.stereotype.Service;
+
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -7,7 +9,8 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 
-public class BarcodePDFPrinter {
+@Service
+public class BarcodePdfPrinter {
 
     // Method to generate a PDF containing the barcode
     public static void generateBarcodePDF(byte[] barcodeImageData, String outputFilePath) throws Exception {

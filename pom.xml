@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.jewelbankers</groupId>
 	<artifactId>jewelbankers-api</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.7</version>
 	<name>jewelbankersapi</name>
 	<description>Demo project for Spring Boot Security - JWT</description>
 
@@ -42,6 +42,17 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.2.3</version>
 		</dependency>
+		<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi</artifactId>
+    <version>5.2.3</version>
+</dependency>
+
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-scratchpad</artifactId>
+    <version>5.2.3</version>
+</dependency>
 		<!-- Twilio SDK for sending WhatsApp messages -->
 		<dependency>
 			<groupId>com.twilio.sdk</groupId>
@@ -107,6 +118,12 @@
 			<scope>runtime</scope>
 		</dependency>
 		
+		<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+    <version>32.0.1-jre</version> <!-- Use the latest stable version -->
+</dependency>
+
 		<!-- ZXing Barcode generation dependency -->
 <dependency>
     <groupId>com.google.zxing</groupId>
@@ -198,6 +215,11 @@
 		<dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <optional>true</optional>
 </dependency>
 
 

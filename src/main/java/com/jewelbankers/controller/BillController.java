@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +55,9 @@ public class BillController {
     @Autowired
     private SettingsService settingsService; 
 
+    @Value("${excel.type}")
+    private String fileFormat;
+    
 //    @GetMapping("/searchByProductTypeNo")
 //    public ResponseEntity<List<Bill>> getBillsByProductTypeNo(@RequestParam Long productTypeNo) {
 //        List<Bill> bills = billService.findBillsByProductTypeNo(productTypeNo);
@@ -81,10 +85,7 @@ public class BillController {
             response.put("message", "Bill successfully pledged with customerId: " + createdBill.getCustomer()!= null && 
             		createdBill.getCustomer().getCustomerid() != null ? 
             				createdBill.getCustomer().getCustomerid() : "");
-            
-         // Add pledgeTime formatted response
-           // String formattedPledgeTime = TimeFormatterUtil.formatTo12Hour(createdBill.getPledgeTime());
-            //response.put("pledgeTime", formattedPledgeTime);            
+               
             response.put("bill", createdBill);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -142,10 +143,11 @@ public class BillController {
             @RequestParam(required = false) Integer amount,
             @RequestParam(required = false) Character status,
             @RequestParam(required = false) Integer productTypeNo,
-            @RequestParam(required = false) String sortOrder) throws IOException {
+            @RequestParam(required = false) String sortOrder,
+            @RequestParam(required = false) Long phoneno) throws IOException {
 
         // Call the service to handle the Excel export logic
-        ByteArrayInputStream excelFile = billService.exportBillsToExcel(search, fromDate, endDate, amount, status, productTypeNo, sortOrder);
+        ByteArrayInputStream excelFile = billService.exportBillsToExcel(search, fromDate, endDate, amount, status, productTypeNo, sortOrder, phoneno);
 
         if (excelFile == null) {
             // Return a 200 OK response with a message indicating no bills were found or an error occurred
@@ -156,12 +158,21 @@ public class BillController {
 
         // Set headers for the response
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
+        String fileExtension = fileFormat.equalsIgnoreCase("xlsx") ? ".xlsx" : ".xls"  ;  // Dynamically set the file extension
+        headers.add("Content-Disposition", "attachment; filename=bills" + fileExtension);
 
+        // Set the correct content type for .xls and .xlsx
+		/*
+		 * String contentType = fileFormat.equalsIgnoreCase("xlsx") ?
+		 * "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :
+		 * "application/vnd.ms-excel" ;
+		 */
+
+        String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"+fileExtension ;
         
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentType(MediaType.parseMediaType(contentType))
                 .body(new InputStreamResource(excelFile));
     }
     
@@ -304,13 +315,14 @@ public class BillController {
             @RequestParam(required = false) Integer amount,
             @RequestParam(required = false) Character status,
             @RequestParam(required = false) Integer productTypeNo,
+            @RequestParam(required = false) Long phoneno,
             @RequestParam(required = false, defaultValue = "0") int page, // Default page 0
             @RequestParam(required = false, defaultValue = "100") int size) { // Limit to 100 records
 
         Pageable pageable = PageRequest.of(page, size); // Set page size to 100
 
         // Fetch results from service with pagination applied
-        List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, null);
+        List<Bill> bills = billService.findBillsBySearch(search, fromDate, toDate, amount, status, productTypeNo, null, phoneno);
 
         // If you want to return only the first 100 results:
         List<Bill> limitedBills = bills.stream().limit(100).collect(Collectors.toList());

@@ -8,35 +8,14 @@ import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.jewelbankers.entity.Barcode;
-import com.jewelbankers.entity.ItemMaster;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 public class SearchSpecification<T> {
 
-    public Specification<T> getSearchSpecification(Map<String, String> search) {
-        return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            search.forEach((key, value) -> {
-                if (value != null && !value.isEmpty()) {
-                    predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get(key)), "%" + value.toLowerCase() + "%"
-                    ));
-                }
-            });
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-    
-    public static Specification<ItemMaster> searchByTerm(String search) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.or(
-                criteriaBuilder.like(criteriaBuilder.lower(root.get("itemName")), "%" + search.toLowerCase() + "%"),
-                criteriaBuilder.like(criteriaBuilder.lower(root.get("purity")), "%" + search.toLowerCase() + "%")
-        );
-    }
-    
     public static Specification<Barcode> filterByFullSearch(LocalDate startDate, LocalDate endDate, Integer itemTypeNo) {
         return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();

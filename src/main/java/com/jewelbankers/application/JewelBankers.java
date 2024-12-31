@@ -23,7 +23,7 @@ public class JewelBankers {
 
 	@RequestMapping("/hell") 
 	String home() { 
-		return "Hello World!";	
+		return "Hello World!";	 
 	}
 
 	@RequestMapping("/roshan1")

@@ -78,7 +78,7 @@ public class CustomerService {
 
     public List<Customer> findByNameAndPhone(String customerName, Long phoneno) {
         Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
-        return customerRepository.findByCustomerNameStartingWithIgnoreCaseAndPhoneno(customerName, phoneno, pageable);
+        return customerRepository.findByCustomerNameContainingIgnoreCaseAndPhoneno(customerName, phoneno, pageable);
     }
 
 	

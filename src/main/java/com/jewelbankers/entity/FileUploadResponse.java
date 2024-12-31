@@ -13,12 +13,12 @@ import jakarta.persistence.Table;
 
 
 
-@Entity
-@Table(name = "file_upload_response") // Specify the table name if needed
+//@Entity
+//@Table(name = "file_upload_response") // Specify the table name if needed
 public class FileUploadResponse {
 
-    @Id
-     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@Id
+     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
     private String key;

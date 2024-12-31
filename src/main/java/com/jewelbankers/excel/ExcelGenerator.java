@@ -3,14 +3,16 @@ package com.jewelbankers.excel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.security.GeneralSecurityException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
 import org.apache.poi.poifs.crypt.Encryptor;
@@ -23,7 +25,8 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.jewelbankers.entity.Bill;
@@ -34,9 +37,17 @@ public class ExcelGenerator {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    public static ByteArrayInputStream generateBillExcel(List<Bill> bills, String password, ProductTypeRepository productTypeRepository) throws IOException {
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("Bills");
+    public static ByteArrayInputStream generateBillExcel(List<Bill> bills, String password, 
+    		ProductTypeRepository productTypeRepository) throws IOException {
+    	// Choose the correct workbook type based on the file format
+        Workbook workbook;
+        //if (fileFormat.equalsIgnoreCase("xlsx")) {
+            workbook = new XSSFWorkbook(); // Use XSSFWorkbook for .xlsx
+//        } else {
+//            workbook = new HSSFWorkbook(); // Use HSSFWorkbook for .xls
+//        }
+    	
+        Sheet sheet = workbook.createSheet("Bills");
 
         // Create styles for header, content, and total rows
         CellStyle headerStyle = createHeaderStyle(workbook);
@@ -128,9 +139,64 @@ public class ExcelGenerator {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
-       
+ 
+        ByteArrayInputStream byteArrayInputStream = null;
+        try {
+        	//if (fileFormat.equalsIgnoreCase("xlsx")) {
+        		
+            	byteArrayInputStream = getByteArrayForPasswordProtectedXLSX(password, out);            
 
-        // Encrypt the Excel file with the password
+            	
+//            } else {
+//            	
+//            	byteArrayInputStream = getByteArrayForPasswordProtectedXLSX(password, out);
+//            	}
+//        	
+        } catch (Exception e) {
+           throw new IOException("Error during Excel file encryption", e);
+        }
+        finally {
+        	//fs.close();
+        	workbook.close();
+        	out.close();
+        }
+        return byteArrayInputStream;
+    }
+    
+	/*
+	 * private static ByteArrayInputStream getPasswordProtectedXLS(ByteArrayOutputStream
+	 * out) { // Convert the raw Excel data into a ByteArrayInputStream
+	 * ByteArrayInputStream byteArrayInputStream = new
+	 * ByteArrayInputStream(out.toByteArray()); return byteArrayInputStream; }
+	 */
+	/*
+	 * private static ByteArrayInputStream
+	 * getPasswordProtectedXLS(ByteArrayOutputStream rawExcelOutput, String
+	 * password) throws IOException { // Step 1: Create a POIFSFileSystem instance
+	 * for adding encryption try (POIFSFileSystem fs = new POIFSFileSystem()) {
+	 * 
+	 * // Step 2: Write the raw Excel data into a document within the filesystem try
+	 * (InputStream rawExcelInput = new
+	 * ByteArrayInputStream(rawExcelOutput.toByteArray())) {
+	 * fs.createDocument(rawExcelInput, "Workbook"); }
+	 * 
+	 * // Step 3: Set the password using Biff8EncryptionKey
+	 * //Biff8EncryptionKey.setCurrentUserPassword(password);
+	 * 
+	 * // Step 4: Save the encrypted filesystem to a ByteArrayOutputStream
+	 * ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
+	 * fs.writeFilesystem(encryptedOutput);
+	 * 
+	 * // Step 5: Clear the password for security
+	 * //Biff8EncryptionKey.setCurrentUserPassword(null);
+	 * 
+	 * // Step 6: Return the encrypted data as a ByteArrayInputStream return new
+	 * ByteArrayInputStream(encryptedOutput.toByteArray()); } }
+	 */
+
+    
+    private static ByteArrayInputStream getByteArrayForPasswordProtectedXLSX(String password, ByteArrayOutputStream out) throws Exception {
+    	 // Encrypt the Excel file with the password
         POIFSFileSystem fs = new POIFSFileSystem();
         EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
         Encryptor encryptor = info.getEncryptor();
@@ -151,16 +217,17 @@ public class ExcelGenerator {
 
             // Return the encrypted data as a ByteArrayInputStream
             return new ByteArrayInputStream(encryptedOut.toByteArray());
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (IOException e) {
             throw new IOException("Error during Excel file encryption", e);
         }
         finally {
         	fs.close();
-        	workbook.close();
+        	//workbook.close();
         	out.close();
         }
     }
 
+    // Helper method to create a cell with content
     // Helper method to create a cell with content
     private static void createContentCell(Row row, int col, String value, CellStyle style) {
         Cell cell = row.createCell(col);
@@ -176,7 +243,7 @@ public class ExcelGenerator {
     }
 
     // Create style for the header
-    private static CellStyle createHeaderStyle(XSSFWorkbook workbook) {
+    private static CellStyle createHeaderStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setBold(true);
@@ -192,7 +259,7 @@ public class ExcelGenerator {
     }
 
     // Create style for content
-    private static CellStyle createContentStyle(XSSFWorkbook workbook) {
+    private static CellStyle createContentStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
         style.setBorderBottom(BorderStyle.THIN);
@@ -203,7 +270,7 @@ public class ExcelGenerator {
     }
 
     // Create style for the total amount row
-    private static CellStyle createTotalStyle(XSSFWorkbook workbook) {
+    private static CellStyle createTotalStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setBold(true);
@@ -219,7 +286,7 @@ public class ExcelGenerator {
     }
     
  // Create style for the total gold weight row
-    private static CellStyle createGoldWeightStyle(XSSFWorkbook workbook) {
+    private static CellStyle createGoldWeightStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setBold(true);
@@ -236,7 +303,7 @@ public class ExcelGenerator {
     }
 
     // Create style for the total silver weight row
-    private static CellStyle createSilverWeightStyle(XSSFWorkbook workbook) {
+    private static CellStyle createSilverWeightStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setBold(true);
