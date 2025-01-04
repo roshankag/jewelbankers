@@ -14,7 +14,35 @@ public interface BillDetailRepository extends JpaRepository<BillDetail, Integer>
 //	List<String> findProductDescriptionsByPrefix(@Param("prefix") String prefix, Pageable pageable);
 	
 
-	@Query("SELECT DISTINCT bd.productDescription FROM BillDetail bd WHERE bd.productDescription LIKE CONCAT(:prefix, '%')")
-	List<String> findProductDescriptionsByPrefix(@Param("prefix") String prefix);
+	 @Query(value = """
+		        WITH RECURSIVE split_cte AS (
+		            SELECT 
+		                bill_sequence AS billSequence,
+		                TRIM(SUBSTRING_INDEX(product_description, ',', 1)) AS description,
+		                CASE 
+		                    WHEN LOCATE(',', product_description) > 0 THEN 
+		                        SUBSTRING(product_description, LOCATE(',', product_description) + 1)
+		                    ELSE NULL
+		                END AS remaining
+		            FROM bill_detail
+
+		            UNION ALL
+
+		            SELECT 
+		                billSequence,
+		                TRIM(SUBSTRING_INDEX(remaining, ',', 1)) AS description,
+		                CASE 
+		                    WHEN LOCATE(',', remaining) > 0 THEN 
+		                        SUBSTRING(remaining, LOCATE(',', remaining) + 1)
+		                    ELSE NULL
+		                END AS remaining
+		            FROM split_cte
+		            WHERE remaining IS NOT NULL
+		        )
+		        SELECT DISTINCT description
+		        FROM split_cte
+		        WHERE TRIM(description) <> '' AND description LIKE CONCAT(:prefix, '%')
+		    """, nativeQuery = true)
+		    List<String> findProductDescriptionsByPrefix(@Param("prefix") String prefix);
 	
 }
