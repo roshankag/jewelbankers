@@ -25,7 +25,7 @@ public class Barcode {
     @Column(name = "tag")
     private String tag;
     
-    @JsonBackReference
+    @JsonBackReference("barcode")
     @ManyToOne
     @JoinColumn(name = "purchaseitemid", referencedColumnName = "id")
     private PurchaseItems purchaseItems;

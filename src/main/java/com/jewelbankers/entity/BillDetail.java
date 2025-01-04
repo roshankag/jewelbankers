@@ -18,12 +18,6 @@ import jakarta.persistence.Table;
 @Table(name = "bill_detail")
 public class BillDetail {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @JoinColumn(name = "BILL_SEQUENCE", referencedColumnName = "billSequence",insertable = true, updatable = true)
-//    @Column(name = "BILL_SEQUENCE") 
-//    private Integer billSequence;
-    
     @Id
     @Column(name = "PRODUCT_NO")
     private int productNo;
@@ -58,13 +52,6 @@ public class BillDetail {
 	public void setBill(Bill bill) {
 		this.bill = bill;
 	}
-
-	/*
-	 * public int getBillSequence() { return billSequence; }
-	 * 
-	 * public void setBillSequence(int billSequence) { this.billSequence =
-	 * billSequence; }
-	 */
 
 	public int getProductNo() {
 		return productNo;

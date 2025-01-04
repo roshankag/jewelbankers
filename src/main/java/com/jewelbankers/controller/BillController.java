@@ -511,5 +511,6 @@ public class BillController {
         List<String> filteredDescriptions = billService.getAllProductDescriptions(prefix);
         return ResponseEntity.ok(filteredDescriptions);
     }
+
     
 }

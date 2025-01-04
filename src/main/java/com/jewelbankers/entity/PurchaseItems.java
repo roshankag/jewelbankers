@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,22 +28,33 @@ public class PurchaseItems {
     @Column(name = "id")
     private Long id;
     
-    @JsonBackReference("purchase-items")
+    public long getItemid() {
+		return itemid;
+	}
+
+	public void setItemid(long itemid) {
+		this.itemid = itemid;
+	}
+
+	@JsonBackReference("purchase-items")
     @ManyToOne(fetch = FetchType.LAZY)
     //@JoinColumn(name = "purchaseitemid")
     @JoinColumn(name = "purchaseid", referencedColumnName = "id")
     private Purchase purchase;
 
-    @JsonBackReference("item")
-    @OneToOne
-    @JoinColumn(name = "itemid", referencedColumnName = "id")
-    private Item item;
+//    //@JsonIgnore // Exclude the full Item object from JSON
+//    @OneToOne(cascade = {CascadeType.MERGE})
+//    @JoinColumn(name = "itemid", referencedColumnName = "id")
+//    private Item item;
+
+    @Column(name = "itemid")
+    private long itemid;
     
-    @JsonBackReference("barcode")
+    @JsonManagedReference("barcode")
     @ManyToOne
     @JoinColumn(name = "barcodeid", referencedColumnName = "id")
     private Barcode barcode;
-
+    
 	@Column(name = "wastagepercent")
     private double wastagepercent;
     
@@ -61,6 +75,17 @@ public class PurchaseItems {
     
     @Column(name = "totalamount")
     private BigDecimal totalamount;
+    
+    @Column(name = "status", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'P'")
+    private Character status;
+
+	public Character getStatus() {
+		return status;
+	}
+
+	public void setStatus(Character status) {
+		this.status = status;
+	}
 
 	public Long getId() {
 		return id;
@@ -76,14 +101,6 @@ public class PurchaseItems {
 
 	public void setPurchase(Purchase purchase) {
 		this.purchase = purchase;
-	}
-
-	public Item getItem() {
-		return item;
-	}
-
-	public void setItem(Item item) {
-		this.item = item;
 	}
 	
 	public Barcode getBarcode() {

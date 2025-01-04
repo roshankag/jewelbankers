@@ -26,11 +26,14 @@ public class Item {
     @JoinColumn(name = "itemtypeid", referencedColumnName = "id")
     private ItemType itemType;
     
-    // Optional if one-to-one relationship is needed for reverse side
-    @JsonBackReference
-    @OneToOne(mappedBy = "item")
-    private PurchaseItems purchaseItem; // Single purchase item per item
-
+	/*
+	 * // Optional if one-to-one relationship is needed for reverse side
+	 * 
+	 * @JsonBackReference
+	 * 
+	 * @OneToOne(mappedBy = "item") private PurchaseItems purchaseItem; // Single
+	 * purchase item per item
+	 */
 	@Column(name = "name")
     private String name;
 
@@ -102,11 +105,11 @@ public class Item {
 		this.quantity = quantity;
 	}
 
-    public PurchaseItems getPurchaseItem() {
-		return purchaseItem;
-	}
-
-	public void setPurchaseItem(PurchaseItems purchaseItem) {
-		this.purchaseItem = purchaseItem;
-	}
+//    public PurchaseItems getPurchaseItem() {
+//		return purchaseItem;
+//	}
+//
+//	public void setPurchaseItem(PurchaseItems purchaseItem) {
+//		this.purchaseItem = purchaseItem;
+//	}
 }

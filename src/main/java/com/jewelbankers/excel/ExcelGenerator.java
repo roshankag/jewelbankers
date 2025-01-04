@@ -54,16 +54,18 @@ public class ExcelGenerator {
         CellStyle contentStyle = createContentStyle(workbook);
         CellStyle totalStyle = createTotalStyle(workbook);
 
-        // Create header row
+     // Create header row
         Row headerRow = sheet.createRow(0);
         createHeaderCell(headerRow, 0, "PledgeNo", headerStyle);
         createHeaderCell(headerRow, 1, "Bill Date", headerStyle);
-        createHeaderCell(headerRow, 2, "Customer Details", headerStyle);
-        createHeaderCell(headerRow, 3, "Weight", headerStyle);
-        createHeaderCell(headerRow, 4, "Amount", headerStyle);
-        createHeaderCell(headerRow, 5, "Product Description", headerStyle);
-        createHeaderCell(headerRow, 6, "Amount in Words", headerStyle);
-
+        createHeaderCell(headerRow, 2, "Customer Name", headerStyle);
+        createHeaderCell(headerRow, 3, "Customer Address", headerStyle);
+        createHeaderCell(headerRow, 4, "Status", headerStyle);
+        createHeaderCell(headerRow, 5, "Weight", headerStyle);
+        createHeaderCell(headerRow, 6, "Amount", headerStyle);
+        createHeaderCell(headerRow, 7, "Product Description", headerStyle);
+        
+        
         int rowIdx = 1;
         double totalAmount = 0.0; // Variable to keep track of the total amount
         AtomicReference<BigDecimal> totalGoldWeight = new AtomicReference<>(BigDecimal.ZERO);
@@ -80,22 +82,44 @@ public class ExcelGenerator {
             // Format Bill Date to "dd-MM-yyyy"
             String formattedDate = bill.getBillDate() != null ? bill.getBillDate().format(DATE_FORMATTER) : "";
             createContentCell(row, 1, formattedDate, contentStyle);
+            
+         // Separate Customer Name and Address
+            String customerName = bill.getCustomer() != null ? bill.getCustomer().getCustomerName() : "";
+            String customerAddress = bill.getCustomer() != null ? bill.getCustomer().getAddress() : "";
+            createContentCell(row, 2, customerName, contentStyle);
+            createContentCell(row, 3, customerAddress, contentStyle);
+            
+         // Redemption Status
+            String redemptionStatus = "Not Available";
 
-            // Merge Customer Name and Address as Customer Details
-            String customerDetails = (bill.getCustomer() != null ? bill.getCustomer().getCustomerName() + ", " + bill.getCustomer().getAddress() : "");
-            createContentCell(row, 2, customerDetails, contentStyle);
+            if (bill.getRedemptionStatus() != null) {
+                switch (bill.getRedemptionStatus()) {
+                    case 'O':
+                        redemptionStatus = "Open";
+                        break;
+                    case 'R':
+                        redemptionStatus = "Redeem";
+                        break;
+                    case 'C':
+                        redemptionStatus = "Cancel";
+                        break;
+                    default:
+                        redemptionStatus = "Unknown";
+                }
+            }
 
-            createContentCell(row, 3, bill.getGrams() != null ? bill.getGrams().toString() : "", contentStyle);
-            createContentCell(row, 4, String.valueOf(bill.getAmount()), contentStyle);
+            createContentCell(row, 4, redemptionStatus, contentStyle);
 
-            createContentCell(row, 6, bill.getAmountInWords(), contentStyle);
+
+            createContentCell(row, 5, bill.getGrams() != null ? bill.getGrams().toString() : "", contentStyle);
+            createContentCell(row, 6, String.valueOf(bill.getAmount()), contentStyle);
 
             // Add the bill amount to the total
             totalAmount += bill.getAmount();
 
             // Add BillDetail rows below each Bill row
             for (BillDetail detail : bill.getBillDetails()) {
-                createContentCell(row, 5, detail.getProductDescription(), contentStyle);
+                createContentCell(row, 7, detail.getProductDescription(), contentStyle);
                 
                 productTypeRepository.findByProductTypeNo(bill.getProductTypeNo()).ifPresent(productType -> {
                     // Use the correct method to get the name of the product type
@@ -113,27 +137,27 @@ public class ExcelGenerator {
 
         // Add the total amount row
         Row totalRow = sheet.createRow(rowIdx++);  // Increment rowIdx
-        createContentCell(totalRow, 3, "Total Amount", totalStyle);
+        createContentCell(totalRow, 5, "Total Amount", totalStyle);
 
         // Format the totalAmount using the Indian numbering system format
         DecimalFormat formatter = new DecimalFormat("##,##,##,###");
         String formattedTotalAmount = formatter.format(totalAmount);
-        createContentCell(totalRow, 4, formattedTotalAmount, totalStyle);
+        createContentCell(totalRow, 6, formattedTotalAmount, totalStyle);
         
         
      // Add total gold weight row
         Row goldWeightRow = sheet.createRow(rowIdx++);
-        createContentCell(goldWeightRow, 3, "Total Gold Weight", createGoldWeightStyle(workbook));
-        createContentCell(goldWeightRow, 4, String.valueOf(totalGoldWeight), createGoldWeightStyle(workbook));
+        createContentCell(goldWeightRow, 5, "Total Gold Weight", createGoldWeightStyle(workbook));
+        createContentCell(goldWeightRow, 6, String.valueOf(totalGoldWeight), createGoldWeightStyle(workbook));
 
         // Add total silver weight row
         Row silverWeightRow = sheet.createRow(rowIdx++);
-        createContentCell(silverWeightRow, 3, "Total Silver Weight", createSilverWeightStyle(workbook));
-        createContentCell(silverWeightRow, 4, String.valueOf(totalSilverWeight), createSilverWeightStyle(workbook));
+        createContentCell(silverWeightRow, 5, "Total Silver Weight", createSilverWeightStyle(workbook));
+        createContentCell(silverWeightRow, 6, String.valueOf(totalSilverWeight), createSilverWeightStyle(workbook));
         
 
         // Auto-size columns for better alignment
-        for (int i = 0; i <= 6; i++) {
+        for (int i = 0; i <= 7; i++) {
             sheet.autoSizeColumn(i);
         }
 
@@ -162,39 +186,7 @@ public class ExcelGenerator {
         }
         return byteArrayInputStream;
     }
-    
-	/*
-	 * private static ByteArrayInputStream getPasswordProtectedXLS(ByteArrayOutputStream
-	 * out) { // Convert the raw Excel data into a ByteArrayInputStream
-	 * ByteArrayInputStream byteArrayInputStream = new
-	 * ByteArrayInputStream(out.toByteArray()); return byteArrayInputStream; }
-	 */
-	/*
-	 * private static ByteArrayInputStream
-	 * getPasswordProtectedXLS(ByteArrayOutputStream rawExcelOutput, String
-	 * password) throws IOException { // Step 1: Create a POIFSFileSystem instance
-	 * for adding encryption try (POIFSFileSystem fs = new POIFSFileSystem()) {
-	 * 
-	 * // Step 2: Write the raw Excel data into a document within the filesystem try
-	 * (InputStream rawExcelInput = new
-	 * ByteArrayInputStream(rawExcelOutput.toByteArray())) {
-	 * fs.createDocument(rawExcelInput, "Workbook"); }
-	 * 
-	 * // Step 3: Set the password using Biff8EncryptionKey
-	 * //Biff8EncryptionKey.setCurrentUserPassword(password);
-	 * 
-	 * // Step 4: Save the encrypted filesystem to a ByteArrayOutputStream
-	 * ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
-	 * fs.writeFilesystem(encryptedOutput);
-	 * 
-	 * // Step 5: Clear the password for security
-	 * //Biff8EncryptionKey.setCurrentUserPassword(null);
-	 * 
-	 * // Step 6: Return the encrypted data as a ByteArrayInputStream return new
-	 * ByteArrayInputStream(encryptedOutput.toByteArray()); } }
-	 */
-
-    
+        
     private static ByteArrayInputStream getByteArrayForPasswordProtectedXLSX(String password, ByteArrayOutputStream out) throws Exception {
     	 // Encrypt the Excel file with the password
         POIFSFileSystem fs = new POIFSFileSystem();
@@ -226,9 +218,7 @@ public class ExcelGenerator {
         	out.close();
         }
     }
-
-    // Helper method to create a cell with content
-    // Helper method to create a cell with content
+    
     private static void createContentCell(Row row, int col, String value, CellStyle style) {
         Cell cell = row.createCell(col);
         cell.setCellValue(value);

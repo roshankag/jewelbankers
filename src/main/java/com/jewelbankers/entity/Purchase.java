@@ -27,7 +27,7 @@ public class Purchase {
     @Column(name = "id")
     private Long id;
     
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "supplierid", referencedColumnName = "id")
     private Supplier supplier;
     

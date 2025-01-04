@@ -3,6 +3,10 @@ package com.jewelbankers.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "sales")
@@ -17,9 +21,10 @@ public class Sales {
     @JoinColumn(name = "customerid", referencedColumnName = "customerid")
     private Customer customer;
     
-    @ManyToOne
-    @JoinColumn(name = "salesitemid", referencedColumnName = "id")
-    private SalesItems salesitems;
+    
+    @JsonManagedReference("sales-items")
+    @OneToMany(mappedBy = "sales", cascade = CascadeType.ALL)
+    private List<SalesItems> salesItems = new ArrayList<>();
 
     @Column(name = "billno")
     private Long billno;
@@ -82,12 +87,12 @@ public class Sales {
 		this.customer = customer;
 	}
 
-	public SalesItems getSalesitems() {
-		return salesitems;
+	public List<SalesItems> getSalesItems() {
+		return salesItems;
 	}
 
-	public void setSalesitems(SalesItems salesitems) {
-		this.salesitems = salesitems;
+	public void setSalesItems(List<SalesItems> salesItems) {
+		this.salesItems = salesItems;
 	}
 
 	public Long getBillno() {

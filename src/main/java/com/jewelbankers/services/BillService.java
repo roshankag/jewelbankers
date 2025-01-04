@@ -888,10 +888,8 @@ public class BillService {
 		}
 		
 		public List<String> getAllProductDescriptions(String prefix) {
-		    Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
-		    return billDetailRepository.findProductDescriptionsByPrefix(prefix, pageable);
+		    return billDetailRepository.findProductDescriptionsByPrefix(prefix);
 		}
-
 
 
 }

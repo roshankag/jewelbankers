@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.jewelbankers.entity.Sales;
+import com.jewelbankers.entity.SalesItems;
 import com.jewelbankers.repository.SalesRepository;
 
 @Service
@@ -35,6 +36,44 @@ public class SalesService {
 
     public List<Sales> getAllSales() {
         return salesRepository.findAll();
+    }
+    
+    public Sales calculateMakingWastageCharges(Long salesId) {
+        // Fetch sales data
+        Sales sales = salesRepository.findById(salesId)
+                .orElseThrow(() -> new RuntimeException("Sales not found for ID: " + salesId));
+
+        // Initialize total amount
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        // Iterate over SalesItems to calculate charges
+        for (SalesItems item : sales.getSalesItems()) {
+            // Convert primitive values to BigDecimal
+            BigDecimal weight = BigDecimal.valueOf(item.getGrosswt());
+            BigDecimal rate = BigDecimal.valueOf(item.getRate());
+            BigDecimal makingPercent = BigDecimal.valueOf(item.getMakingpercent());
+            BigDecimal wastagePercent = BigDecimal.valueOf(item.getWastagepercent());
+
+            // Calculate values
+            BigDecimal amount = weight.multiply(rate);
+            BigDecimal wastageCharges = weight.multiply(wastagePercent).multiply(rate).divide(BigDecimal.valueOf(100));
+            BigDecimal makingCharges = weight.multiply(makingPercent).multiply(rate).divide(BigDecimal.valueOf(100));
+            BigDecimal itemTotalAmount = amount.add(wastageCharges).add(makingCharges);
+
+            // Set calculated values back to the entity
+            item.setAmount(amount);
+            item.setWastagecharge(wastageCharges.doubleValue());
+            item.setMakinggcharge(makingCharges.doubleValue());
+
+            // Accumulate total amount
+            totalAmount = totalAmount.add(itemTotalAmount);
+        }
+
+        // Set total amount in Sales entity
+        sales.setTotalamount(totalAmount.doubleValue());
+
+        // Save updated sales entity
+        return salesRepository.save(sales);
     }
 
     public List<Sales> searchSales(Map<String, String> searchParams) {

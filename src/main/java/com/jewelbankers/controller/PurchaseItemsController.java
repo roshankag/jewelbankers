@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/jewelbankersapi/purchase-items")
+@RequestMapping("/jewelbankersapi/purchase/items")
 public class PurchaseItemsController {
 
     @Autowired

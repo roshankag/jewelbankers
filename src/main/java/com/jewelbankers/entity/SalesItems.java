@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -11,9 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "sales_item")
@@ -24,25 +23,17 @@ public class SalesItems {
     @Column(name = "id")
     private Long id;
 
-    @JsonBackReference
+    @JsonBackReference("sales-items")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "salesid", referencedColumnName = "id")
     private Sales sales;
     
-    @ManyToOne
-    @JoinColumn(name = "purchaseid", referencedColumnName = "id")
-    private Purchase purchase;
-
-    @JsonBackReference
-    @ManyToOne
+    //@JsonManagedReference("purchase-item") // Use @JsonManagedReference here
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchaseitemid", referencedColumnName = "id")
-    private PurchaseItems purchaseItems;
-    
-    @OneToOne
-    @JoinColumn(name = "itemid", referencedColumnName = "id")
-    private Item item;
-     
-    @Column(name = "quantity")
+    private PurchaseItems purchaseItem;  // Relationship with PurchaseItems
+
+	@Column(name = "quantity")
     private Integer quantity;
     
     @Column(name = "grosswt")
@@ -57,25 +48,56 @@ public class SalesItems {
     @Column(name = "wastagecharge")
     private double wastagecharge;
     
+    @Column(name = "wastagepercent")
+    private double wastagepercent;
+    
     @Column(name = "rate")
     private double rate;
     
-    @Column(name = "makinggcharge")
+    @Column(name = "makingpercent")
+    private double makingpercent;
+
+	@Column(name = "makinggcharge")
     private double makinggcharge;
     
     @Column(name = "hallmarkcharges")
     private double hallmarkcharges;
     
-    @ManyToOne
-    @JoinColumn(name = "barcodeid", referencedColumnName = "id")
-    private Barcode barcode;
+	/*
+	 * @ManyToOne
+	 * 
+	 * @JoinColumn(name = "barcodeid", referencedColumnName = "id") private Barcode
+	 * barcode;
+	 */
     
-    public Barcode getBarcode() {
-		return barcode;
+	@Column(name = "gstamount")
+    private BigDecimal gstamount;
+    
+    @Column(name = "amount")
+    private BigDecimal amount;
+    
+    public PurchaseItems getPurchaseItem() {
+		return purchaseItem;
 	}
 
-	public void setBarcode(Barcode barcode) {
-		this.barcode = barcode;
+	public void setPurchaseItem(PurchaseItems purchaseItem) {
+		this.purchaseItem = purchaseItem;
+	}
+
+	public double getWastagepercent() {
+		return wastagepercent;
+	}
+
+	public void setWastagepercent(double wastagepercent) {
+		this.wastagepercent = wastagepercent;
+	}
+
+	public double getMakingpercent() {
+		return makingpercent;
+	}
+
+	public void setMakingpercent(double makingpercent) {
+		this.makingpercent = makingpercent;
 	}
 
 	public double getHallmarkcharges() {
@@ -84,15 +106,7 @@ public class SalesItems {
 
 	public void setHallmarkcharges(double hallmarkcharges) {
 		this.hallmarkcharges = hallmarkcharges;
-	}
-
-	@Column(name = "gstamount")
-    private BigDecimal gstamount;
-    
-    @Column(name = "amount")
-    private BigDecimal amount;
-    
-    
+	}    
 
 	public Long getId() {
 		return id;
@@ -108,30 +122,6 @@ public class SalesItems {
 
 	public void setSales(Sales sales) {
 		this.sales = sales;
-	}
-
-	public Purchase getPurchase() {
-		return purchase;
-	}
-
-	public void setPurchase(Purchase purchase) {
-		this.purchase = purchase;
-	}
-
-	public PurchaseItems getPurchaseItems() {
-		return purchaseItems;
-	}
-
-	public void setPurchaseItems(PurchaseItems purchaseItems) {
-		this.purchaseItems = purchaseItems;
-	}
-
-	public Item getItem() {
-		return item;
-	}
-
-	public void setItem(Item item) {
-		this.item = item;
 	}
 
 	public Integer getQuantity() {
