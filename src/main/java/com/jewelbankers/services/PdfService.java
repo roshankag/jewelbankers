@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Splitter;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -52,9 +52,9 @@ public class PdfService {
             document.open();
 
             // Set up font for the content (use built-in Helvetica font)
-            BaseFont baseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
-            Font boldFont = new Font(baseFont, 13, Font.BOLD);
-            Font regularFont = new Font(baseFont, 12, Font.NORMAL);
+            BaseFont baseFont = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED);
+            Font boldFont = new Font(baseFont, 9, Font.BOLD);
+            Font regularFont = new Font(baseFont, 8, Font.NORMAL);
 
             // Add first section with content to the PDF
             addFirstSection(document, bill,boldFont, regularFont, writer);
@@ -85,18 +85,18 @@ public class PdfService {
         PdfContentByte content = writer.getDirectContent();
 
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for Bill Serial and Bill Number
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for Bill Serial and Bill Number
         content.setColorFill(BaseColor.BLACK);  // Set color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
         content.showTextAligned(Element.ALIGN_LEFT, 
-            String.valueOf(bill.getBillSerial()) + String.valueOf(bill.getBillNo()), 30, 820, 0);  // Bill serial and number
+            String.valueOf(bill.getBillSerial()) + String.valueOf(bill.getBillNo()), 30, 822, 0);  // Bill serial and number
         content.endText();
         
      // Product, Quantity, and Amount (more space)
      // Assuming you have a Bill object with details
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for product and quantity
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for product and quantity
         content.setColorFill(BaseColor.BLACK);  // Set color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -124,39 +124,39 @@ public class PdfService {
         String displayText = "Rs. " + bill.getAmount() + "       " + productDescriptionText;
 
         // Display the text on the PDF
-        content.showTextAligned(Element.ALIGN_LEFT, displayText, 30, 805, 0);  // Adjust the position as needed
+        content.showTextAligned(Element.ALIGN_LEFT, displayText, 30, 807, 0);  // Adjust the position as needed
         content.endText();
         
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the date
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for the date
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 30, 788, 0);  // Display the current date
+        content.showTextAligned(Element.ALIGN_LEFT, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 30, 792, 0);  // Display the current date
         content.endText();
 
 
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the weight
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for the weight
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, String.valueOf(bill.getGrams()), 180, 788, 0);  // Display the weight (grams)
+        content.showTextAligned(Element.ALIGN_LEFT, String.valueOf(bill.getGrams()), 180, 792, 0);  // Display the weight (grams)
         content.endText();
 
         content.beginText();
-        content.setFontAndSize(regularFont.getBaseFont(), 12);  // Font size 12 for the customer name
+        content.setFontAndSize(regularFont.getBaseFont(), 9);  // Font size 12 for the customer name
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Regular rendering mode (non-bold)
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, bill.getCustomer().getCustomerName(), 30, 773, 0);  // Display the customer name
+        content.showTextAligned(Element.ALIGN_LEFT, bill.getCustomer().getCustomerName(), 30, 777, 0);  // Display the customer name
         content.endText();
         
-     // Draw a horizontal line
-        content.setLineWidth(0.5f);  // Adjust the line width if needed
-        content.moveTo(0, 750);   // Starting point of the line (x1, y1)
-        content.lineTo(600, 750);  // Ending point of the line (x2, y2)
-        content.stroke();          // Render the line
+//     // Draw a horizontal line
+//        content.setLineWidth(0.5f);  // Adjust the line width if needed
+//        content.moveTo(0, 750);   // Starting point of the line (x1, y1)
+//        content.lineTo(600, 750);  // Ending point of the line (x2, y2)
+//        content.stroke();          // Render the line
 
     }
     
@@ -172,9 +172,9 @@ public class PdfService {
         PdfContentByte content = writer.getDirectContent();
         
         content.beginText();
-        content.setFontAndSize(regularFont.getBaseFont(), 10);
+        content.setFontAndSize(regularFont.getBaseFont(), 7);
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-        content.showTextAligned(Element.ALIGN_LEFT, "Office Copy", 20, 735, 0);
+        content.showTextAligned(Element.ALIGN_LEFT, "OC", 15, 740, 0);
         content.endText();
         
 //     // Underline "Office Copy"
@@ -184,30 +184,42 @@ public class PdfService {
         
      // Add heading
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 16);  // Bold font for "PAWN TICKET" with font size 16
+        content.setFontAndSize(boldFont.getBaseFont(), 10);  // Bold font for "PAWN TICKET" with font size 16
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_CENTER, "PAWN TICKET", 300, 730, 0);  // Center alignment with coordinates (300, 730)
+        content.showTextAligned(Element.ALIGN_CENTER, "PAWN TICKET", 300, 735, 0);  // Center alignment with coordinates (300, 730)
         content.endText();
 
         // Draw underline below "PAWN TICKET"
-        float textWidth = boldFont.getBaseFont().getWidthPoint("PAWN TICKET", 16);  // Get the width of the text at font size 16
+        float textWidth = boldFont.getBaseFont().getWidthPoint("PAWN TICKET", 10);  // Get the width of the text at font size 16
         float startX = 300 - (textWidth / 2);  // Calculate starting X for the underline
         float endX = 300 + (textWidth / 2);    // Calculate ending X for the underline
         content.setLineWidth(0.5f);              // Set line width for the underline
-        content.moveTo(startX, 725);           // Start point for the underline just below the text
-        content.lineTo(endX, 725);             // End point for the underline
+        content.moveTo(startX, 730);           // Start point for the underline just below the text
+        content.lineTo(endX, 730);             // End point for the underline
         content.stroke();                      // Render the line
 
-        // Get License Number
+        String gstNumber = settingsService.getGstNumber(); // Fetch GST_Number from database
+        String isGstPrint = settingsService.getIsGstPrint(); // Fetch IS_GSTPRINT from database
         String licenseNumber = settingsService.getLicenceNo(); // Fetch from database
+        
         content.beginText();
-        content.setFontAndSize(regularFont.getBaseFont(), 12);
+        content.setFontAndSize(regularFont.getBaseFont(), 8);
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-        content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 720, 0);  // License number
-        content.endText();
 
+        // Check the IS_GSTPRINT value
+        if ("Y".equalsIgnoreCase(isGstPrint)) {
+            // Display GST Number above License Number
+            content.showTextAligned(Element.ALIGN_LEFT,"GST No : " + gstNumber, 50, 735, 0); // GST number
+            content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 720, 0); // License number
+        } else {
+            // Display only the License Number
+            content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 720, 0);
+        }
+
+        content.endText();
+        
         // Retrieve shop details from settings map
         String shopName = settingsMap.getOrDefault("SHOP_NAME", "Shop Name");
         String shopLine1 = settingsMap.getOrDefault("SHOP_NO", "") + " " + settingsMap.getOrDefault("SHOP_STREET", "");
@@ -215,7 +227,7 @@ public class PdfService {
         String shopLine3 = settingsMap.getOrDefault("SHOP_STATE", "") + " - " + settingsMap.getOrDefault("SHOP_PINCODE", "");
 
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Bold font for Shop Name with font size 14
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Bold font for Shop Name with font size 14
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -231,19 +243,19 @@ public class PdfService {
      // Write the formatted text to PDF content (no bold, regular font)
      // Shop Address (Normal Font)
         content.beginText();
-        content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+        content.setFontAndSize(regularFont.getBaseFont(), 9);  // Regular font with size 12
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
         content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine1, 50, 680, 0);  // Position at (50, 640)
         content.endText();
 
         content.beginText();
-        content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+        content.setFontAndSize(regularFont.getBaseFont(), 9);  // Regular font with size 12
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
         content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine2, 50, 660, 0);  // Position at (50, 620)
         content.endText();
 
         content.beginText();
-        content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+        content.setFontAndSize(regularFont.getBaseFont(), 9);  // Regular font with size 12
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
         content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine3, 50, 640, 0);  // Position at (50, 600)
         content.endText();
@@ -257,35 +269,24 @@ public class PdfService {
 //        content.endText();
 
         if (bill.getCustomer() != null) {
-            // Prepare the string with customer name and phone number
-            String customerDetails = bill.getCustomer().getCustomerName(); // Get customer name
-            Long phoneNo = bill.getCustomer().getPhoneno();               // Get phone number
-            
-            // Append phone number if it's not null or 0
-            if (phoneNo != null && phoneNo != 0) {
-                customerDetails += "  -  " + phoneNo;
+            String customerName = bill.getCustomer().getCustomerName();
+            Long phoneNo = bill.getCustomer().getPhoneno();
+            String address = bill.getCustomer().getAddress();
+
+            // Render the full customer name (including S/O, W/O, C/O if present)
+            if (customerName != null) {
+                content.beginText();
+                content.setFontAndSize(boldFont.getBaseFont(), 9);
+                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Regular rendering mode (bold)
+                content.showTextAligned(Element.ALIGN_LEFT, customerName.trim(), 250, 710, 0);
+                content.endText();
             }
-            
-            // Set up the text rendering
-            content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 12);            // Font size 13
-            content.setColorFill(BaseColor.BLACK);                         // Text color: black
-            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-            content.setLineWidth(0.5f);                                    // Set line width for stroke effect
-            
-            // Display the concatenated customer name and phone number
-            content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 710, 0); // Adjust Y-coordinate as needed
-            content.endText();
-        
 
-         // Main logic for rendering customer address
-            if (bill.getCustomer() != null && bill.getCustomer().getAddress() != null) {
-                String address = bill.getCustomer().getAddress();
-
-                // Split the address into lines without breaking words
+            // Render address split into multiple lines (if needed)
+            if (address != null) {
                 List<String> addressLines = new ArrayList<>();
                 StringBuilder currentLine = new StringBuilder();
-                int maxLineLength = 24; // Maximum characters per line
+                int maxLineLength = 30; // Maximum number of characters per line
 
                 for (String word : address.split(" ")) {
                     if (currentLine.length() + word.length() + 1 <= maxLineLength) {
@@ -300,32 +301,29 @@ public class PdfService {
                     addressLines.add(currentLine.toString());
                 }
 
-                int yPosition = 695; // Starting Y position for the first line
-                int lineHeight = 15; // Spacing between lines
+                int yPosition = 695; // Starting Y position for the first address line
+                int lineHeight = 15;
 
                 for (String line : addressLines) {
                     content.beginText();
-                    content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+                    content.setFontAndSize(regularFont.getBaseFont(), 8);
                     content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-                    content.showTextAligned(Element.ALIGN_LEFT, line.trim(), 250, yPosition, 0); // Align each line
-                    content.endText();
-                    yPosition -= lineHeight; // Move to the next line position
-                }
-            } else {
-                // Fallback in case address is null
-                String[] defaultAddress = {"Address Line 1", "Address Line 2", "Address Line 3"};
-                int yPosition = 695;
-                int lineHeight = 15;
-
-                for (String line : defaultAddress) {
-                    content.beginText();
-                    content.setFontAndSize(regularFont.getBaseFont(), 12);
-                    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-                    content.showTextAligned(Element.ALIGN_LEFT, line, 250, yPosition, 0);
+                    content.showTextAligned(Element.ALIGN_LEFT, line.trim(), 250, yPosition, 0);
                     content.endText();
                     yPosition -= lineHeight;
                 }
             }
+
+            // Render phone number below the address
+            if (phoneNo != null && phoneNo != 0) {
+                content.beginText();
+                content.setFontAndSize(regularFont.getBaseFont(), 8);
+                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
+                content.showTextAligned(Element.ALIGN_LEFT, "Phone: " + phoneNo, 250, 665, 0);
+                content.endText();
+            }
+        }
+
 
              // Check if the customer has a photo and retrieve it as byte array
                 byte[] customerPhoto = bill.getCustomer() != null ? bill.getCustomer().getPhoto() : null;
@@ -347,7 +345,7 @@ public class PdfService {
                         System.out.println("Failed to add photo: " + e.getMessage());
                     }
             }
-        }
+        
         
                 // Retrieve the ARTICLE_PRINT setting value
                 String articlePrintSetting = settingsService.getArticlePrint();
@@ -381,7 +379,7 @@ public class PdfService {
          // Add old bill no 
                 
                 content.beginText();
-                content.setFontAndSize(boldFont.getBaseFont(), 10);  // Set font and size for the Old Bill No label
+                content.setFontAndSize(boldFont.getBaseFont(), 8);  // Set font and size for the Old Bill No label
                 content.setColorFill(BaseColor.BLACK);              // Set the text color to black
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Normal rendering mode (no bold)
 
@@ -411,24 +409,25 @@ public class PdfService {
                 
              // Display pledgeTime above the date
                 content.beginText();
-                content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for pledgeTime
+                content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 11 for pledgeTime
                 content.setColorFill(BaseColor.BLACK);  // Set the text color to black
                 content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
                 content.setLineWidth(0.5f);  // Set line width for stroke effect
 
-                // Display only pledge time with AM/PM
-//                String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
-                String pledgeTime = "Pledge Time: " + bill.getPledgetime(); 
-                
+                // Get pledge time in IST with AM/PM format
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a"); // Format time as hh:mm AM/PM
+                ZoneId indiaTimeZone = ZoneId.of("Asia/Kolkata"); // Set timezone to IST
+                String pledgeTime = "Pledge Time: " + LocalTime.now(indiaTimeZone).format(formatter); 
 
                 // Positioning pledgeTime above the date
-                content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 730, 0);  // Adjust y-position to 700 for pledgeTime
+                content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 730, 0);  // Adjust y-position for pledgeTime
                 content.endText();
+
 
                 
      // Display Date
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the date label
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 13 for the date label
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -437,7 +436,7 @@ public class PdfService {
 
      // Display Pledge No
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the pledge number label
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 13 for the pledge number label
         content.setColorFill(BaseColor.BLACK);              // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);                         // Set line width for stroke effect
@@ -451,7 +450,7 @@ public class PdfService {
 
      // Add Loan Amount
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the loan amount
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 13 for the loan amount
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -467,7 +466,7 @@ public class PdfService {
 
         // Write the formatted amount in words to the PDF content
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the words representation
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for the words representation
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -481,7 +480,7 @@ public class PdfService {
 
         // Write the formatted text with the product type name to the PDF content
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the product type line
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for the product type line
         content.setColorFill(BaseColor.BLACK);  // Set the text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -489,16 +488,18 @@ public class PdfService {
         content.endText();
         
      // Write the formatted text with the product type name to the PDF content
-        content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the product type line
-        content.setColorFill(BaseColor.BLACK);  // Set the text color to black
-        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-        content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 600, 0);  // Text displayed at (40, 600)
-        content.endText();
+//        content.beginText();
+//        content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the product type line
+//        content.setColorFill(BaseColor.BLACK);  // Set the text color to black
+//        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
+//        content.setLineWidth(0.5f);  // Set line width for stroke effect
+//        content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 600, 0);  // Text displayed at (40, 600)
+//        content.endText();
 
         // Adjust the table position to render just below the text
         float tableYPosition = 590; // Adjust the Y position of the table relative to the text
+        float tableBottomLineY = 460; // Extend table bottom to Y-axis 460
+
 
         // Create the table for the pledge details
         PdfPTable table = new PdfPTable(3); // 3 columns for item details
@@ -508,7 +509,7 @@ public class PdfService {
 
         // Font for the header
         BaseFont baseFont = BaseFont.createFont();
-        Font headerFont = new Font(baseFont, 12, Font.BOLD);
+        Font headerFont = new Font(baseFont, 9, Font.BOLD);
 
         // Add table headers
         PdfPCell cell = new PdfPCell(new Phrase("S.No.", headerFont));
@@ -527,7 +528,7 @@ public class PdfService {
         table.addCell(cell);
 
         // Font for the table data
-        Font dataFont = new Font(baseFont, 10);
+        Font dataFont = new Font(baseFont, 8);
 
         // Assuming bill is a single Bill object
         Bill item = bill;
@@ -572,6 +573,11 @@ public class PdfService {
      // Write the table directly below the text
         table.writeSelectedRows(0, -1, 40, tableYPosition, content);
         
+     // Draw a bottom line at Y = 460 to close the gap
+        content.moveTo(40, tableBottomLineY); // Starting point of the line
+        content.lineTo(540, tableBottomLineY); // Ending point of the line (adjust width as needed)
+        content.stroke(); // Draw the line
+        
      // Calculate Net Weight as Gross Weight - 0.500
         BigDecimal grossWeightDecimal = bill.getGrams();
         BigDecimal netWeightValue = grossWeightDecimal.subtract(BigDecimal.valueOf(0.500));
@@ -585,7 +591,7 @@ public class PdfService {
         content.beginText();
 
         // Font and size for custom fields
-        content.setFontAndSize(boldFont.getBaseFont(), 12); // Use a bold font size 10
+        content.setFontAndSize(boldFont.getBaseFont(), 9); // Use a bold font size 10
         content.setColorFill(BaseColor.BLACK); // Set text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -602,63 +608,63 @@ public class PdfService {
         content.endText();
 
 
-     /// Date format for displaying the date as dd-MM-yyyy
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-     // Calculate the due date by adding 1 year and 7 days to the bill date
-     LocalDate billDate = bill.getBillDate();  // Assuming bill.getBillDate() returns a LocalDate object
-     LocalDate dueDate = billDate.plusYears(1).plusDays(7);
-     String formattedDueDate = dueDate.format(dateFormatter);
-
-     // Add note text
-     content.beginText();
-     content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the note
-     content.setColorFill(BaseColor.BLACK);  // Set text color to black
-     content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
-     content.setLineWidth(0.5f);  // Set line width for stroke effect
-
-     // Display the first line of the note
-     content.showTextAligned(Element.ALIGN_LEFT, "Note: Interest must be paid every 3 months. Maximum redemption period is 1 year.", 40, 430, 0);
-
-     // Display the second line with the calculated due date
-     content.showTextAligned(Element.ALIGN_LEFT, "The final due date for pledged items is only 1 year and 7 days : ",40, 415, 0);
-     content.endText();
+//     /// Date format for displaying the date as dd-MM-yyyy
+//        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//
+//     // Calculate the due date by adding 1 year and 7 days to the bill date
+//     LocalDate billDate = bill.getBillDate();  // Assuming bill.getBillDate() returns a LocalDate object
+//     LocalDate dueDate = billDate.plusYears(1).plusDays(7);
+//     String formattedDueDate = dueDate.format(dateFormatter);
+//
+//     // Add note text
+//     content.beginText();
+//     content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the note
+//     content.setColorFill(BaseColor.BLACK);  // Set text color to black
+//     content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
+//     content.setLineWidth(0.5f);  // Set line width for stroke effect
+//
+//     // Display the first line of the note
+//     content.showTextAligned(Element.ALIGN_LEFT, "Note: Interest must be paid every 3 months. Maximum redemption period is 1 year.", 40, 430, 0);
+//
+//     // Display the second line with the calculated due date
+//     content.showTextAligned(Element.ALIGN_LEFT, "The final due date for pledged items is only 1 year and 7 days : ",40, 415, 0);
+//     content.endText();
      
      // Display the date in a different color
-     content.beginText();
-     content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the date
-     content.setColorFill(BaseColor.MAGENTA);  // Set text color to red for the date
-     content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
-
-     // Display the date next to the first part of the note
-     content.showTextAligned(Element.ALIGN_LEFT, formattedDueDate, 325, 415, 0);  // Adjust X position to align after the text
-     content.endText();
+//     content.beginText();
+//     content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the date
+//     content.setColorFill(BaseColor.MAGENTA);  // Set text color to red for the date
+//     content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
+//
+//     // Display the date next to the first part of the note
+//     content.showTextAligned(Element.ALIGN_LEFT, formattedDueDate, 325, 415, 0);  // Adjust X position to align after the text
+//     content.endText();
      
 
      // Add signature lines - Pawn Broker
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for signature line
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 10 for signature line
         content.setColorFill(BaseColor.BLACK);  // Set text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "Signature of Pawn Broker", 40, 380, 0);  // Position at (40, 440)
+        content.showTextAligned(Element.ALIGN_LEFT, "Signature of Pawn Broker", 40, 415, 0);  // Position at (40, 440)
         content.endText();
 
 
      // Add signature lines - Customer
         content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for signature line
+        content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 10 for signature line
         content.setColorFill(BaseColor.BLACK);  // Set text color to black
         content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
         content.setLineWidth(0.5f);  // Set line width for stroke effect
-        content.showTextAligned(Element.ALIGN_LEFT, "Signature of Customer", 450, 380, 0);  // Position at (450, 440)
+        content.showTextAligned(Element.ALIGN_LEFT, "Signature of Customer", 450, 415, 0);  // Position at (450, 440)
         content.endText();
         
-     // Draw a horizontal line
-        content.setLineWidth(0.5f);  // Adjust the line width if needed
-        content.moveTo(0, 370);   // Starting point of the line (x1, y1)
-        content.lineTo(600, 370);  // Ending point of the line (x2, y2)
-        content.stroke();          // Render the line
+//     // Draw a horizontal line
+//        content.setLineWidth(0.5f);  // Adjust the line width if needed
+//        content.moveTo(0, 370);   // Starting point of the line (x1, y1)
+//        content.lineTo(600, 370);  // Ending point of the line (x2, y2)
+//        content.stroke();          // Render the line
         }      
     
 
@@ -682,37 +688,51 @@ public class PdfService {
            PdfContentByte content = writer.getDirectContent();
            
            content.beginText();
-           content.setFontAndSize(regularFont.getBaseFont(), 10);
+           content.setFontAndSize(regularFont.getBaseFont(), 9);
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-           content.showTextAligned(Element.ALIGN_LEFT, "Customer Copy", 20, 355, 0);
+           content.showTextAligned(Element.ALIGN_LEFT, "CC", 15, 380, 0);
            content.endText();
            
            
         // Add heading
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 16);  // Bold font for "PAWN TICKET" with font size 16
+           content.setFontAndSize(boldFont.getBaseFont(), 10);  // Bold font for "PAWN TICKET" with font size 16
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_CENTER, "PAWN TICKET", 300, 350, 0);  // Center alignment with coordinates (300, 330)
+           content.showTextAligned(Element.ALIGN_CENTER, "PAWN TICKET", 300, 380, 0);  // Center alignment with coordinates (300, 330)
            content.endText();
 
            // Draw underline below "PAWN TICKET"
-           float textWidth = boldFont.getBaseFont().getWidthPoint("PAWN TICKET", 16);  // Get the width of the text at font size 16
+           float textWidth = boldFont.getBaseFont().getWidthPoint("PAWN TICKET", 10);  // Get the width of the text at font size 16
            float startX = 300 - (textWidth / 2);  // Calculate starting X for the underline
            float endX = 300 + (textWidth / 2);    // Calculate ending X for the underline
            content.setLineWidth(0.5f);              // Set line width for the underline
-           content.moveTo(startX, 345);           // Start point for the underline just below the text at y = 330
-           content.lineTo(endX, 345);             // End point for the underline
+           content.moveTo(startX, 375);           // Start point for the underline just below the text at y = 330
+           content.lineTo(endX, 375);             // End point for the underline
            content.stroke();                      // Render the line
         
-           // Get License Number
-           String licenseNumber = settingsService.getLicenceNo(); // Fetch from database
+        // Fetch values from the database
+           String licenseNumber = settingsService.getLicenceNo(); // Fetch License Number
+           String gstNumber = settingsService.getGstNumber(); // Fetch GST Number
+           String isGstPrint = settingsService.getIsGstPrint(); // Fetch IS_GSTPRINT
+
            content.beginText();
-           content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+           content.setFontAndSize(regularFont.getBaseFont(), 9); // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 340, 0);  // License number
+
+           // Check the value of IS_GSTPRINT
+           if ("Y".equalsIgnoreCase(isGstPrint)) {
+               // Display GST Number above License Number
+               content.showTextAligned(Element.ALIGN_LEFT, "GST No : " + gstNumber, 50, 370, 0); // GST Number at y-coordinate 360
+               content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 355, 0); // License Number at y-coordinate 340
+           } else {
+               // Only display the License Number
+               content.showTextAligned(Element.ALIGN_LEFT, licenseNumber, 50, 355, 0);
+           }
+
            content.endText();
+
 
            // Retrieve shop details from settings map
            String shopName = settingsMap.getOrDefault("SHOP_NAME", "Shop Name");
@@ -721,11 +741,11 @@ public class PdfService {
            String shopLine3 = settingsMap.getOrDefault("SHOP_STATE", "") + " - " + settingsMap.getOrDefault("SHOP_PINCODE", "");
 
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Bold font for Shop Name with font size 14
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Bold font for Shop Name with font size 14
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 323, 0);  // Left alignment with coordinates (50, 665)
+           content.showTextAligned(Element.ALIGN_LEFT, shopName, 50, 335, 0);  // Left alignment with coordinates (50, 665)
            content.endText();
 
 
@@ -737,21 +757,21 @@ public class PdfService {
         // Write the formatted text to PDF content (no bold, regular font)
         // Shop Address (Normal Font)
            content.beginText();
-           content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+           content.setFontAndSize(regularFont.getBaseFont(), 8);  // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine1, 50, 305, 0);  // Position at (50, 640)
+           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine1, 50, 315, 0);  // Position at (50, 640)
            content.endText();
 
            content.beginText();
-           content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+           content.setFontAndSize(regularFont.getBaseFont(), 8);  // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine2, 50, 285, 0);  // Position at (50, 620)
+           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine2, 50, 295, 0);  // Position at (50, 620)
            content.endText();
 
            content.beginText();
-           content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
+           content.setFontAndSize(regularFont.getBaseFont(), 8);  // Regular font with size 12
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine3, 50, 265, 0);  // Position at (50, 600)
+           content.showTextAligned(Element.ALIGN_LEFT, formattedShopLine3, 50, 275, 0);  // Position at (50, 600)
            content.endText();
 
 
@@ -763,71 +783,64 @@ public class PdfService {
 //           content.endText();
 
            if (bill.getCustomer() != null) {
-        	    // Prepare the string with customer name and phone number
+        	    // Customer Name and Relationship (if applicable)
         	    String customerDetails = bill.getCustomer().getCustomerName();
         	    Long phoneNo = bill.getCustomer().getPhoneno();
-        	    if (phoneNo != null && phoneNo != 0) {
-        	        customerDetails += "  -  " + phoneNo;
-        	    }
         	    
-        	    // Set up the text rendering
+        	    // Render customer name on the first line
         	    content.beginText();
-        	    content.setFontAndSize(boldFont.getBaseFont(), 12); // Font size 13 for the details
-        	    content.setColorFill(BaseColor.BLACK);             // Set the text color to black
+        	    content.setFontAndSize(boldFont.getBaseFont(), 9); // Font size 9
+        	    content.setColorFill(BaseColor.BLACK);             // Black color for text
         	    content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-        	    content.setLineWidth(0.5f);                        // Set line width for stroke effect
-
-        	    // Display the concatenated customer details
-        	    content.showTextAligned(Element.ALIGN_LEFT, customerDetails, 250, 330, 0);
+        	    content.setLineWidth(0.5f);                        // Line width for bold effect
+        	    content.showTextAligned(Element.ALIGN_LEFT, customerDetails.trim(), 250, 353, 0); // Align customer name
         	    content.endText();
 
-        	 // Customer Address Logic
-        	    if (bill.getCustomer() != null && bill.getCustomer().getAddress() != null) {
+        	    // Render the customer's address below the name
+        	    if (bill.getCustomer().getAddress() != null) {
         	        String address = bill.getCustomer().getAddress();
 
-        	        // Split the address by spaces and wrap lines to fit within a width of approximately 18 characters
-        	        List<String> wrappedAddressLines = new ArrayList<>();
+        	        // Break address into lines
+        	        List<String> addressLines = new ArrayList<>();
         	        StringBuilder currentLine = new StringBuilder();
 
         	        for (String word : address.split(" ")) {
-        	            if (currentLine.length() + word.length() + 1 <= 24) {
+        	            if (currentLine.length() + word.length() + 1 <= 30) { // Adjust width as needed
         	                if (currentLine.length() > 0) currentLine.append(" ");
         	                currentLine.append(word);
         	            } else {
-        	                wrappedAddressLines.add(currentLine.toString());
+        	                addressLines.add(currentLine.toString());
         	                currentLine = new StringBuilder(word);
         	            }
         	        }
         	        if (currentLine.length() > 0) {
-        	            wrappedAddressLines.add(currentLine.toString());
+        	            addressLines.add(currentLine.toString());
         	        }
 
-        	        int yPosition = 315; // Starting Y position for the first line
-        	        int lineHeight = 15; // Spacing between lines
+        	        // Render each line of the address
+        	        int yPosition = 333; // Starting Y position for the address
+        	        int lineHeight = 20; // Spacing between lines
 
-        	        for (String line : wrappedAddressLines) {
+        	        for (String line : addressLines) {
         	            content.beginText();
-        	            content.setFontAndSize(regularFont.getBaseFont(), 12);  // Regular font with size 12
-        	            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode (no bold)
-        	            content.showTextAligned(Element.ALIGN_LEFT, line.trim(), 250, yPosition, 0); // Align each line
-        	            content.endText();
-        	            yPosition -= lineHeight; // Move to the next line position
-        	        }
-        	    } else {
-        	        // Fallback in case address is null
-        	        String[] defaultAddress = {"Address Line 1", "Address Line 2", "Address Line 3"};
-        	        int yPosition = 315;
-        	        int lineHeight = 15;
-
-        	        for (String line : defaultAddress) {
-        	            content.beginText();
-        	            content.setFontAndSize(regularFont.getBaseFont(), 12);
-        	            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-        	            content.showTextAligned(Element.ALIGN_LEFT, line, 250, yPosition, 0);
+        	            content.setFontAndSize(regularFont.getBaseFont(), 8); // Font size 8
+        	            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode
+        	            content.showTextAligned(Element.ALIGN_LEFT, line.trim(), 250, yPosition, 0);
         	            content.endText();
         	            yPosition -= lineHeight;
         	        }
         	    }
+
+        	    // Render phone number below the address
+        	    if (phoneNo != null && phoneNo != 0) {
+        	        content.beginText();
+        	        content.setFontAndSize(regularFont.getBaseFont(), 8); // Font size 8
+        	        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Regular rendering mode
+        	        content.showTextAligned(Element.ALIGN_LEFT, "Phone: " + phoneNo, 250, 293, 0); // Position below address
+        	        content.endText();
+        	    }
+        	}
+
 
                 // Check if the customer has a photo and retrieve it as byte array
                    byte[] customerPhoto = bill.getCustomer() != null ? bill.getCustomer().getPhoto() : null;
@@ -838,7 +851,7 @@ public class PdfService {
                            Image photo = Image.getInstance(customerPhoto);
 
                            // Set the position and scale of the photo as needed
-                           photo.setAbsolutePosition(453, 175); // Adjusted Y-coordinate to place below Pledge No, with some gap
+                           photo.setAbsolutePosition(453, 185); // Adjusted Y-coordinate to place below Pledge No, with some gap
                            photo.scaleToFit(130, 130); // Adjust the size to fit within 80x80 dimensions
 
                            // Add the photo to the PDF content
@@ -848,7 +861,7 @@ public class PdfService {
                        }
 
                }
-               }
+               
           
                // Retrieve the ARTICLE_PRINT setting value
                String articlePrintSetting = settingsService.getArticlePrint();
@@ -864,7 +877,7 @@ public class PdfService {
                            Image articleImage = Image.getInstance(articlePhoto);
 
                            // Set the position of the article photo below the customer photo
-                           articleImage.setAbsolutePosition(453, 75); // Adjust coordinates based on layout
+                           articleImage.setAbsolutePosition(453, 85); // Adjust coordinates based on layout
                            articleImage.scaleToFit(130, 130); // Set same dimensions as customer photo
 
                            // Add the article photo to the PDF content
@@ -880,7 +893,7 @@ public class PdfService {
                }
                
                content.beginText();
-               content.setFontAndSize(boldFont.getBaseFont(), 10);  // Set font and size for the Old Bill No label
+               content.setFontAndSize(boldFont.getBaseFont(), 8);  // Set font and size for the Old Bill No label
                content.setColorFill(BaseColor.BLACK);              // Set the text color to black
                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL); // Normal rendering mode (no bold)
 
@@ -907,19 +920,20 @@ public class PdfService {
            // Add date and pledge number
                
                content.beginText();
-               content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for pledgeTime
+               content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 11 for pledgeTime
                content.setColorFill(BaseColor.BLACK);  // Set the text color to black
                content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
                content.setLineWidth(0.5f);  // Set line width for stroke effect
 
-               // Display only pledge time with AM/PM
-//               String pledgeTime = "Pledge Time: " + LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
-               String pledgeTime = "Pledge Time: " + bill.getPledgetime(); 
-               
+               // Display pledge time with AM/PM in IST
+               DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a"); // Format as hh:mm AM/PM
+               ZoneId indiaTimeZone = ZoneId.of("Asia/Kolkata"); // Set the timezone to IST
+               String pledgeTime = "Pledge Time: " + LocalTime.now(indiaTimeZone).format(formatter); 
 
                // Positioning pledgeTime above the date
-               content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 460, 350, 0);  // Adjust y-position to 700 for pledgeTime
+               content.showTextAligned(Element.ALIGN_LEFT, pledgeTime, 465, 375, 0);  // Adjust y-position for pledgeTime
                content.endText();
+
                
 //               content.beginText();
 //               content.setFontAndSize(boldFont.getBaseFont(), 11);  // Font size 13 for the pledgeTime label
@@ -937,16 +951,16 @@ public class PdfService {
         
         // Display Date
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the date label
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 13 for the date label
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 460, 300, 0);  // Date aligned to left with label
+           content.showTextAligned(Element.ALIGN_LEFT, "Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), 460, 310, 0);  // Date aligned to left with label
            content.endText();
 
         // Display Pledge No
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 13 for the pledge number label
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 13 for the pledge number label
            content.setColorFill(BaseColor.BLACK);              // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);                         // Set line width for stroke effect
@@ -954,17 +968,17 @@ public class PdfService {
            // Format Pledge No with space between serial and number
            String pledgeNo = bill.getBillSerial() + " " + bill.getBillNo(); 
 
-           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 460, 280, 0);  // Pledge No aligned to left with label
+           content.showTextAligned(Element.ALIGN_LEFT, "Pledge No: " + pledgeNo, 460, 290, 0);  // Pledge No aligned to left with label
            content.endText();
 
 
         // Add Loan Amount
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 13);  // Font size 13 for the loan amount
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 13 for the loan amount
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Loan Amount : " + bill.getAmount(), 40, 245, 0);  // Loan amount displayed at (40, 600)
+           content.showTextAligned(Element.ALIGN_LEFT, "Loan Amount : " + bill.getAmount(), 40, 250, 0);  // Loan amount displayed at (40, 600)
            content.endText();
 
            // Convert Amount in Words to Capitalize the First Letter of Each Word
@@ -976,11 +990,11 @@ public class PdfService {
 
            // Write the formatted amount in words to the PDF content
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the words representation
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for the words representation
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "In Words: " + formattedAmountInWords, 180, 245, 0);  // Formatted words displayed at (190, 600)
+           content.showTextAligned(Element.ALIGN_LEFT, "In Words: " + formattedAmountInWords, 180, 250, 0);  // Formatted words displayed at (190, 600)
            content.endText();
 
 
@@ -990,11 +1004,11 @@ public class PdfService {
 
            // Write the formatted text with the product type name to the PDF content
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 12);  // Font size 12 for the product type line
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 12 for the product type line
            content.setColorFill(BaseColor.BLACK);  // Set the text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 225, 0);  // Text displayed at (40, 580)
+           content.showTextAligned(Element.ALIGN_LEFT, "The following     " + formattedProductTypeName + "     article / articles is / are pawned with us / me.", 40, 230, 0);  // Text displayed at (40, 580)
            content.endText();
            
         // Adjust the table position to render just below the text
@@ -1008,7 +1022,7 @@ public class PdfService {
 
            // Font for the header
            BaseFont baseFont = BaseFont.createFont();
-           Font headerFont = new Font(baseFont, 12, Font.BOLD);
+           Font headerFont = new Font(baseFont, 9, Font.BOLD);
 
            // Add table headers
            PdfPCell cell = new PdfPCell(new Phrase("S.No.", headerFont));
@@ -1027,7 +1041,7 @@ public class PdfService {
            table.addCell(cell);
 
            // Font for the table data
-           Font dataFont = new Font(baseFont, 10);
+           Font dataFont = new Font(baseFont, 9);
 
            // Assuming bill is a single Bill object
            Bill item = bill;
@@ -1085,7 +1099,7 @@ public class PdfService {
            content.beginText();
 
            // Font and size for custom fields
-           content.setFontAndSize(boldFont.getBaseFont(), 12); // Use a bold font size 10
+           content.setFontAndSize(boldFont.getBaseFont(), 9); // Use a bold font size 10
            content.setColorFill(BaseColor.BLACK); // Set text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
@@ -1105,56 +1119,56 @@ public class PdfService {
 
 
 
-        /// Date format for displaying the date as dd-MM-yyyy
-           DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-        // Calculate the due date by adding 1 year and 7 days to the bill date
-        LocalDate billDate = bill.getBillDate();  // Assuming bill.getBillDate() returns a LocalDate object
-        LocalDate dueDate = billDate.plusYears(1).plusDays(7);
-        String formattedDueDate = dueDate.format(dateFormatter);
-
-        // Add note text
-        content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the note
-        content.setColorFill(BaseColor.BLACK);  // Set text color to black
-        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
-        content.setLineWidth(0.5f);  // Set line width for stroke effect
-
-        // Display the first line of the note
-        content.showTextAligned(Element.ALIGN_LEFT, "Note: Interest must be paid every 3 months. Maximum redemption period is 1 year.", 40, 60, 0);
-
-        // Display the second line with the calculated due date
-        content.showTextAligned(Element.ALIGN_LEFT, "The final due date for pledged items is only 1 year and 7 days : ",40, 45, 0);
-        content.endText();
-        
-        // Display the date in a different color
-        content.beginText();
-        content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the date
-        content.setColorFill(BaseColor.MAGENTA);  // Set text color to red for the date
-        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
-
-        // Display the date next to the first part of the note
-        content.showTextAligned(Element.ALIGN_LEFT, formattedDueDate, 325, 45, 0);  // Adjust X position to align after the text
-        content.endText();
+//        /// Date format for displaying the date as dd-MM-yyyy
+//           DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//
+//        // Calculate the due date by adding 1 year and 7 days to the bill date
+//        LocalDate billDate = bill.getBillDate();  // Assuming bill.getBillDate() returns a LocalDate object
+//        LocalDate dueDate = billDate.plusYears(1).plusDays(7);
+//        String formattedDueDate = dueDate.format(dateFormatter);
+//
+//        // Add note text
+//        content.beginText();
+//        content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the note
+//        content.setColorFill(BaseColor.BLACK);  // Set text color to black
+//        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
+//        content.setLineWidth(0.5f);  // Set line width for stroke effect
+//
+//        // Display the first line of the note
+//        content.showTextAligned(Element.ALIGN_LEFT, "Note: Interest must be paid every 3 months. Maximum redemption period is 1 year.", 40, 60, 0);
+//
+//        // Display the second line with the calculated due date
+//        content.showTextAligned(Element.ALIGN_LEFT, "The final due date for pledged items is only 1 year and 7 days : ",40, 45, 0);
+//        content.endText();
+//        
+//        // Display the date in a different color
+//        content.beginText();
+//        content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for the date
+//        content.setColorFill(BaseColor.MAGENTA);  // Set text color to red for the date
+//        content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
+//
+//        // Display the date next to the first part of the note
+//        content.showTextAligned(Element.ALIGN_LEFT, formattedDueDate, 325, 45, 0);  // Adjust X position to align after the text
+//        content.endText();
         
 
         // Add signature lines - Pawn Broker
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for signature line
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 10 for signature line
            content.setColorFill(BaseColor.BLACK);  // Set text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Signature of Pawn Broker", 40, 10, 0);  // Position at (40, 440)
+           content.showTextAligned(Element.ALIGN_LEFT, "Signature of Pawn Broker", 40, 20, 0);  // Position at (40, 440)
            content.endText();
 
 
         // Add signature lines - Customer
            content.beginText();
-           content.setFontAndSize(boldFont.getBaseFont(), 10);  // Font size 10 for signature line
+           content.setFontAndSize(boldFont.getBaseFont(), 9);  // Font size 10 for signature line
            content.setColorFill(BaseColor.BLACK);  // Set text color to black
            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Apply bold rendering mode
            content.setLineWidth(0.5f);  // Set line width for stroke effect
-           content.showTextAligned(Element.ALIGN_LEFT, "Signature of Customer", 450, 10, 0);  // Position at (450, 440)
+           content.showTextAligned(Element.ALIGN_LEFT, "Signature of Customer", 450, 20, 0);  // Position at (450, 440)
            content.endText();
 
        }

@@ -34,12 +34,15 @@ public class PurchaseController {
     public ResponseEntity<?> createPurchase(@RequestBody Purchase purchase) {
         try {
             Purchase createdPurchase = purchaseService.savePurchase(purchase);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Purchase created successfully with ID: " + createdPurchase.getId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Purchase created successfully with ID: " + createdPurchase.getId());
         } catch (Exception e) {
+            e.printStackTrace(); // Print full stack trace for debugging
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Error creating purchase: " + e.getMessage());
+                    .body("Error creating purchase: " + e.getMessage());
         }
     }
+
 
     // Update Purchase
     @PutMapping("/{id}")
@@ -49,6 +52,7 @@ public class PurchaseController {
             Purchase updatedPurchase = purchaseService.savePurchase(purchase);
             return ResponseEntity.ok("Purchase updated successfully with ID: " + updatedPurchase.getId());
         } catch (Exception e) {
+        	e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body("Error updating purchase: " + e.getMessage());
         }
@@ -61,6 +65,7 @@ public class PurchaseController {
             purchaseService.deletePurchase(id);
             return ResponseEntity.status(HttpStatus.OK).body("Purchase deleted successfully with ID: " + id);
         } catch (Exception e) {
+        	e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("Error deleting purchase: " + e.getMessage());
         }
@@ -78,6 +83,7 @@ public class PurchaseController {
                                      .body("Purchase not found for ID: " + id);
             }
         } catch (Exception e) {
+        	e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("Error retrieving purchase: " + e.getMessage());
         }
@@ -93,6 +99,7 @@ public class PurchaseController {
             }
             return ResponseEntity.ok(purchases);
         } catch (Exception e) {
+        	e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("Error retrieving purchases: " + e.getMessage());
         }
@@ -107,6 +114,7 @@ public class PurchaseController {
             }
             return ResponseEntity.ok(purchases);
         } catch (Exception e) {
+        	e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("Error searching for purchases: " + e.getMessage());
         }

@@ -3,11 +3,8 @@ package com.jewelbankers.entity;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,7 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -76,16 +73,23 @@ public class PurchaseItems {
     @Column(name = "totalamount")
     private BigDecimal totalamount;
     
-    @Column(name = "status", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'P'")
+    @Column(name = "status")//, nullable = false, columnDefinition = "CHAR(1) DEFAULT 'P'")
     private Character status;
 
 	public Character getStatus() {
 		return status;
 	}
 
-	public void setStatus(Character status) {
-		this.status = status;
+	@PrePersist
+	public void prePersist() {
+	    if (this.status == null) {
+	        this.status = 'P'; // ✅ Set default if not provided
+	    }
 	}
+
+//	public void setStatus(Character status) {
+//		this.status = status;
+//	}
 
 	public Long getId() {
 		return id;

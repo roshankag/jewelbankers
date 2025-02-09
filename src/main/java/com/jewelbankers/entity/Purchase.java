@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -27,7 +28,7 @@ public class Purchase {
     @Column(name = "id")
     private Long id;
     
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.MERGE) 
     @JoinColumn(name = "supplierid", referencedColumnName = "id")
     private Supplier supplier;
     
@@ -55,7 +56,7 @@ public class Purchase {
     private BigDecimal totalamount;
     
     @Column(name = "status")
-    private String status;
+    private Character status;
     
     @Column(name = "gstamount")
     private BigDecimal gstamount;
@@ -94,6 +95,14 @@ public class Purchase {
 	public void setInvoiceno(Long invoiceno) {
 		this.invoiceno = invoiceno;
 	}
+	
+//	@PrePersist
+//	public void prePersist() {
+//	    if (invoiceno == null) {
+//	        invoiceno = id; // This will still be null at this point
+//	    }
+//	}
+
 
 	public String getInvoiceprefix() {
 		return invoiceprefix;
@@ -135,12 +144,16 @@ public class Purchase {
 		this.totalamount = totalamount;
 	}
 
-	public String getStatus() {
+	
+	public Character getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	@PrePersist
+	public void prePersist() {
+	    if (this.status == null) {
+	        this.status = 'P'; // ✅ Set default if not provided
+	    }
 	}
 
 	public BigDecimal getGstamount() {

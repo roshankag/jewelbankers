@@ -17,7 +17,7 @@ public class Sales {
     @Column(name = "id")
     private Long id;
     
-    @OneToOne(fetch = FetchType.EAGER,  cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToOne(fetch = FetchType.EAGER,  cascade = {CascadeType.DETACH})
     @JoinColumn(name = "customerid", referencedColumnName = "customerid")
     private Customer customer;
     

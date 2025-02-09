@@ -58,6 +58,16 @@ public class SettingsService {
         return licenceSetting.map(Settings::getParamValue).orElse("Not Available");
     }
 	
+	public String getGstNumber() {
+	    Optional<Settings> gstSetting = settingsRepository.findByParamId("GST_NUMBER");
+	    return gstSetting.map(Settings::getParamValue).orElse("Not Available");
+	}
+
+	public String getIsGstPrint() {
+	    Optional<Settings> gstPrintSetting = settingsRepository.findByParamId("IS_GSTPRINT");
+	    return gstPrintSetting.map(Settings::getParamValue).orElse("N");
+	}
+	
 	public String getArticlePrint() {
         // Fetch ARTICLE_PHOTO setting from database
         Optional<Settings> licenceSetting = settingsRepository.findByParamId("ARTICLE_PHOTO");

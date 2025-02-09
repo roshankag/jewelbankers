@@ -29,10 +29,12 @@ public class SalesItems {
     private Sales sales;
     
     //@JsonManagedReference("purchase-item") // Use @JsonManagedReference here
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchaseitemid", referencedColumnName = "id")
-    private PurchaseItems purchaseItem;  // Relationship with PurchaseItems
-
+	/*
+	 * @ManyToOne(fetch = FetchType.LAZY)
+	 * 
+	 * @JoinColumn(name = "purchaseitemid", referencedColumnName = "id") private
+	 * PurchaseItems purchaseItem; // Relationship with PurchaseItems
+	 */
 	@Column(name = "quantity")
     private Integer quantity;
     
@@ -70,19 +72,19 @@ public class SalesItems {
 	 * barcode;
 	 */
     
-	@Column(name = "gstamount")
-    private BigDecimal gstamount;
+	/*
+	 * @Column(name = "gstamount") private BigDecimal gstamount;
+	 */
     
     @Column(name = "amount")
     private BigDecimal amount;
     
-    public PurchaseItems getPurchaseItem() {
-		return purchaseItem;
-	}
-
-	public void setPurchaseItem(PurchaseItems purchaseItem) {
-		this.purchaseItem = purchaseItem;
-	}
+	/*
+	 * public PurchaseItems getPurchaseItem() { return purchaseItem; }
+	 * 
+	 * public void setPurchaseItem(PurchaseItems purchaseItem) { this.purchaseItem =
+	 * purchaseItem; }
+	 */
 
 	public double getWastagepercent() {
 		return wastagepercent;
@@ -180,13 +182,12 @@ public class SalesItems {
 		this.makinggcharge = makinggcharge;
 	}
 
-	public BigDecimal getGstamount() {
-		return gstamount;
-	}
-
-	public void setGstamount(BigDecimal gstamount) {
-		this.gstamount = gstamount;
-	}
+	/*
+	 * public BigDecimal getGstamount() { return gstamount; }
+	 * 
+	 * public void setGstamount(BigDecimal gstamount) { this.gstamount = gstamount;
+	 * }
+	 */
 
 	public BigDecimal getAmount() {
 		return amount;

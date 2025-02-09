@@ -15,15 +15,39 @@ import com.jewelbankers.entity.Sales;
 import com.jewelbankers.entity.SalesItems;
 import com.jewelbankers.repository.SalesRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class SalesService {
 
     @Autowired
     private SalesRepository salesRepository;
 
+    @Transactional
     public Sales saveSales(Sales sales) {
-        return salesRepository.save(sales);
+        // First save to generate the ID
+        Sales savedSales = salesRepository.save(sales);
+
+        // Set bill number based on the generated ID if it's null
+        if (savedSales.getBillno() == null) {
+            savedSales.setBillno(savedSales.getId());
+            
+            //set bill due date 
+            //total ammount = sales amout bill dues date null, if not add 30 days
+            //set payment balance amount 
+            //if total amount is not the paid amount , calculate balance amout
+            //set payment type
+            //CASH, ONLINE, DEBIT CARD/CREDIT CARD, UPI
+            //SET PAYMENT SUB TYPE
+            //IF UPI THEN GPAY,PHONEPAY 
+            
+            
+            return salesRepository.save(savedSales); // Save again with the updated bill number
+        }
+
+        return savedSales;
     }
+
 
     public Sales getSalesById(Long id) {
         Optional<Sales> sales = salesRepository.findById(id);

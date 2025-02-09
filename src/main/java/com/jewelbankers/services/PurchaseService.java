@@ -11,18 +11,48 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.jewelbankers.entity.Purchase;
+import com.jewelbankers.entity.Supplier;
 import com.jewelbankers.repository.PurchaseRepository;
+import com.jewelbankers.repository.SupplierRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class PurchaseService {
 
     @Autowired
     private PurchaseRepository purchaseRepository;
+    
+    private final SupplierRepository supplierRepository;
 
-    // Save new Purchase
-    public Purchase savePurchase(Purchase purchase) {
-        return purchaseRepository.save(purchase);
+    public PurchaseService(PurchaseRepository purchaseRepository, SupplierRepository supplierRepository) {
+        this.purchaseRepository = purchaseRepository;
+        this.supplierRepository = supplierRepository;
     }
+
+    @Transactional
+    public Purchase savePurchase(Purchase purchase) {
+        if (purchase.getSupplier() != null && purchase.getSupplier().getId() != null) {
+            Supplier existingSupplier = supplierRepository.findById(purchase.getSupplier().getId()).orElse(null);
+            if (existingSupplier != null) {
+                purchase.setSupplier(existingSupplier); // Attach existing supplier
+            }
+        }
+
+        // First save to generate the ID
+        Purchase savedPurchase = purchaseRepository.save(purchase);
+
+        // Set invoice number based on the generated ID
+        if (savedPurchase.getInvoiceno() == null) {
+            savedPurchase.setInvoiceno(savedPurchase.getId());
+            return purchaseRepository.save(savedPurchase); // Save again with the updated invoice number
+        }
+
+        return savedPurchase;
+    }
+
+    
+
 
     // Get Purchase by ID
     public Purchase getPurchaseById(Long id) {

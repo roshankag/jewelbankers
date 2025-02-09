@@ -26,7 +26,8 @@ public class SalesController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Sales record created successfully with ID: " + createdSales.getId());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        	e.printStackTrace();            
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Failed to create sales record. Error: " + e.getMessage());
         }
     }
@@ -39,6 +40,7 @@ public class SalesController {
             Sales updatedSales = salesService.saveSales(sales);
             return ResponseEntity.ok("Sales record updated successfully with ID: " + updatedSales.getId());
         } catch (Exception e) {
+        	e.printStackTrace();    
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Failed to update sales record with ID: " + id + ". Error: " + e.getMessage());
         }
@@ -51,6 +53,7 @@ public class SalesController {
             salesService.deleteSales(id);
             return ResponseEntity.ok("Sales record deleted successfully with ID: " + id);
         } catch (Exception e) {
+        	e.printStackTrace();    
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to delete sales record with ID: " + id + ". Error: " + e.getMessage());
         }
@@ -68,6 +71,7 @@ public class SalesController {
                         .body("Sales record not found for ID: " + id);
             }
         } catch (Exception e) {
+        	e.printStackTrace();    
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving sales record with ID: " + id + ". Error: " + e.getMessage());
         }
@@ -85,6 +89,7 @@ public class SalesController {
                         .body("No sales records found.");
             }
         } catch (Exception e) {
+        	e.printStackTrace();    
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving all sales records. Error: " + e.getMessage());
         }
@@ -102,6 +107,7 @@ public class SalesController {
                         .body("No sales records match the search criteria.");
             }
         } catch (Exception e) {
+        	e.printStackTrace();    
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error searching for sales records. Error: " + e.getMessage());
         }
