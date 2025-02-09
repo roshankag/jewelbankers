@@ -1,7 +1,9 @@
 package com.jewelbankers.services;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,7 +13,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.jewelbankers.entity.Purchase;
+import com.jewelbankers.entity.PurchaseItems;
 import com.jewelbankers.entity.Supplier;
+import com.jewelbankers.repository.PurchaseItemsRepository;
 import com.jewelbankers.repository.PurchaseRepository;
 import com.jewelbankers.repository.SupplierRepository;
 
@@ -23,12 +27,35 @@ public class PurchaseService {
     @Autowired
     private PurchaseRepository purchaseRepository;
     
+    
+    @Autowired
+    private PurchaseItemsRepository purchaseItemsRepository;
     private final SupplierRepository supplierRepository;
 
     public PurchaseService(PurchaseRepository purchaseRepository, SupplierRepository supplierRepository) {
         this.purchaseRepository = purchaseRepository;
         this.supplierRepository = supplierRepository;
     }
+
+	/*
+	 * @Transactional public Purchase savePurchase(Purchase purchase) { if
+	 * (purchase.getSupplier() != null && purchase.getSupplier().getId() != null) {
+	 * Supplier existingSupplier =
+	 * supplierRepository.findById(purchase.getSupplier().getId()).orElse(null); if
+	 * (existingSupplier != null) { purchase.setSupplier(existingSupplier); //
+	 * Attach existing supplier } }
+	 * 
+	 * // First save to generate the ID Purchase savedPurchase =
+	 * purchaseRepository.save(purchase);
+	 * 
+	 * // Set invoice number based on the generated ID if
+	 * (savedPurchase.getInvoiceno() == null) {
+	 * savedPurchase.setInvoiceno(savedPurchase.getId()); return
+	 * purchaseRepository.save(savedPurchase); // Save again with the updated
+	 * invoice number }
+	 * 
+	 * return savedPurchase; }
+	 */
 
     @Transactional
     public Purchase savePurchase(Purchase purchase) {
@@ -39,18 +66,50 @@ public class PurchaseService {
             }
         }
 
-        // First save to generate the ID
+        // Save purchase first to generate the ID
         Purchase savedPurchase = purchaseRepository.save(purchase);
 
         // Set invoice number based on the generated ID
         if (savedPurchase.getInvoiceno() == null) {
             savedPurchase.setInvoiceno(savedPurchase.getId());
-            return purchaseRepository.save(savedPurchase); // Save again with the updated invoice number
+            savedPurchase = purchaseRepository.save(savedPurchase); // Save again with the updated invoice number
         }
+
+        // ✅ Generate and save purchase items separately
+        List<PurchaseItems> purchaseItemsList = generatePurchaseItems(savedPurchase, purchase.getPurchaseItems());
+        purchaseItemsRepository.saveAll(purchaseItemsList);
 
         return savedPurchase;
     }
 
+    /**
+     * Generates purchase items based on quantity.
+     */
+    private List<PurchaseItems> generatePurchaseItems(Purchase savedPurchase, List<PurchaseItems> purchaseItems) {
+        List<PurchaseItems> purchaseItemsList = new ArrayList<>();
+        
+        for (PurchaseItems item : purchaseItems) {
+        	//TODO hardcoded
+            int quantity = 10; // Assuming `quantity` is a field in `PurchaseItems`
+            for (int i = 0; i < quantity; i++) {
+                PurchaseItems newItem = new PurchaseItems();
+                newItem.setPurchase(savedPurchase);
+                newItem.setItemid(item.getItemid());
+                newItem.setWastagepercent(item.getWastagepercent()/quantity);
+                newItem.setWeight(item.getWeight()/quantity);
+                newItem.setStoneweight(item.getStoneweight().divide(BigDecimal.valueOf(quantity), RoundingMode.HALF_UP));
+                newItem.setPurity(item.getPurity()/quantity);
+                newItem.setStoneweight(item.getRate().divide(BigDecimal.valueOf(quantity), RoundingMode.HALF_UP));
+                newItem.setAmount(item.getAmount().divide(BigDecimal.valueOf(quantity), RoundingMode.HALF_UP));
+                newItem.setTotalamount(item.getTotalamount().divide(BigDecimal.valueOf(quantity), RoundingMode.HALF_UP));
+                newItem.setStatus('P'); // Default status
+                
+                //TODO set barcode id
+                purchaseItemsList.add(newItem);
+            }
+        }
+        return purchaseItemsList;
+    }
     
 
 

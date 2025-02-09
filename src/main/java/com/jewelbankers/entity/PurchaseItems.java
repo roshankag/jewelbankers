@@ -87,9 +87,9 @@ public class PurchaseItems {
 	    }
 	}
 
-//	public void setStatus(Character status) {
-//		this.status = status;
-//	}
+	public void setStatus(Character status) {
+		this.status = status;
+	}
 
 	public Long getId() {
 		return id;
