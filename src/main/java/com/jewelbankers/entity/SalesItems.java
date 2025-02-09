@@ -76,8 +76,37 @@ public class SalesItems {
 	 * @Column(name = "gstamount") private BigDecimal gstamount;
 	 */
     
+    
+    //Set all foreign key mappings in sales table
     @Column(name = "amount")
     private BigDecimal amount;
+    
+    @Column(name = "itemid")
+    private long itemid;
+    
+
+	@Column(name = "purchaseid")
+    private long purchaseid;
+    
+    @Column(name = "purchaseitemid")
+    private long purchaseitemid;
+    
+    public long getPurchaseid() {
+		return purchaseid;
+	}
+
+	public void setPurchaseid(long purchaseid) {
+		this.purchaseid = purchaseid;
+	}
+
+	public long getPurchaseitemid() {
+		return purchaseitemid;
+	}
+
+	public void setPurchaseitemid(long purchaseitemid) {
+		this.purchaseitemid = purchaseitemid;
+	}
+
     
 	/*
 	 * public PurchaseItems getPurchaseItem() { return purchaseItem; }
@@ -85,6 +114,14 @@ public class SalesItems {
 	 * public void setPurchaseItem(PurchaseItems purchaseItem) { this.purchaseItem =
 	 * purchaseItem; }
 	 */
+
+	public long getItemid() {
+		return itemid;
+	}
+
+	public void setItemid(long itemid) {
+		this.itemid = itemid;
+	}
 
 	public double getWastagepercent() {
 		return wastagepercent;
