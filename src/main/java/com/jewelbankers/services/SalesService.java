@@ -85,12 +85,12 @@ public class SalesService {
             BigDecimal itemTotalAmount = amount.add(wastageCharges).add(makingCharges);
 
             // Set calculated values back to the entity
-            item.setAmount(amount);
-            item.setWastagecharge(wastageCharges.doubleValue());
-            item.setMakinggcharge(makingCharges.doubleValue());
-
-            // Accumulate total amount
-            totalAmount = totalAmount.add(itemTotalAmount);
+//            item.setAmount(amount);
+//            item.setWastagecharge(wastageCharges.doubleValue());
+//            item.setMakingcharge(makingCharges.doubleValue());
+//
+//            // Accumulate total amount
+//            totalAmount = totalAmount.add(itemTotalAmount);
         }
 
         // Set total amount in Sales entity

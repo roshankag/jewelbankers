@@ -59,8 +59,8 @@ public class SalesItems {
     @Column(name = "makingpercent")
     private double makingpercent;
 
-	@Column(name = "makinggcharge")
-    private double makinggcharge;
+	@Column(name = "makingcharge")
+    private double makingcharge;
     
     @Column(name = "hallmarkcharges")
     private double hallmarkcharges;
@@ -211,13 +211,6 @@ public class SalesItems {
 		this.rate = rate;
 	}
 
-	public double getMakinggcharge() {
-		return makinggcharge;
-	}
-
-	public void setMakinggcharge(double makinggcharge) {
-		this.makinggcharge = makinggcharge;
-	}
 
 	/*
 	 * public BigDecimal getGstamount() { return gstamount; }
@@ -225,6 +218,14 @@ public class SalesItems {
 	 * public void setGstamount(BigDecimal gstamount) { this.gstamount = gstamount;
 	 * }
 	 */
+
+	public double getMakingcharge() {
+		return makingcharge;
+	}
+
+	public void setMakingcharge(double makingcharge) {
+		this.makingcharge = makingcharge;
+	}
 
 	public BigDecimal getAmount() {
 		return amount;
