@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,14 +14,15 @@ import jakarta.persistence.Table;
 
 
 
-//@Entity
-//@Table(name = "file_upload_response") // Specify the table name if needed
+@Entity
+@Table(name = "file_upload_response") // Specify the table name if needed
 public class FileUploadResponse {
 
-    //@Id
-     //@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(name = "file_key")
     private String key;
     private String path;
     private String nodeType;

@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.jewelbankers.entity.FileUploadResponse;
 
 
-/*
- * //@Repository public interface FileUploadResponseRepository extends
- * JpaRepository<FileUploadResponse, String> { FileUploadResponse
- * findByFileId(String fileId); }
- */
+@Repository
+public interface FileUploadResponseRepository extends JpaRepository<FileUploadResponse, Long> {
+    FileUploadResponse findByFileId(String fileId);
+}

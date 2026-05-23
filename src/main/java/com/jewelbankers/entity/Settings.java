@@ -19,10 +19,10 @@ public class Settings {
     @Column(name = "PARAM_ID")
     private String paramId;
 
-    @Column(name = "PARAM_VALUE")
+    @Column(name = "PARAM_VALUE", length = 1000)
     private String paramValue;
 
-    @Column(name = "PARAM_EXAMPLE")
+    @Column(name = "PARAM_EXAMPLE", length = 1000)
     private String paramExample;
 
     // Getters and Setters
