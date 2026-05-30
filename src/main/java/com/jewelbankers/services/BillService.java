@@ -150,6 +150,13 @@ public class BillService {
 	            search.toUpperCase().charAt(0), 
 	            Integer.parseInt(search.substring(1))
 	        );
+	    } else if (search != null && search.matches("\\d{10}")) {
+	        try {
+	            Long phone = Long.parseLong(search);
+	            return billRepository.findByCustomerPhonenoOrCustomerMobilenoOrderByBillSequenceDesc(phone, phone);
+	        } catch (NumberFormatException e) {
+	            return billRepository.findByCustomerCustomerNameOrderByBillSequenceDesc(search);
+	        }
 	    } else {
 	        // Returning bills sorted by 'billSeq' in descending order
 	        return billRepository.findByCustomerCustomerNameOrderByBillSequenceDesc(search);
@@ -176,7 +183,19 @@ public class BillService {
                         );
                         predicates.add(searchPredicate);
                     } else if (search != null && !search.isEmpty()) {
-                        searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
+                        if (search.matches("\\d{10}")) {
+                            try {
+                                Long phone = Long.parseLong(search);
+                                searchPredicate = cb.or(
+                                    cb.equal(root.get("customer").get("phoneno"), phone),
+                                    cb.equal(root.get("customer").get("mobileno"), phone)
+                                );
+                            } catch (NumberFormatException e) {
+                                searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
+                            }
+                        } else {
+                            searchPredicate = cb.like(root.get("customer").get("customerName"), "%" + search + "%");
+                        }
                         predicates.add(searchPredicate);
                     }
                     

@@ -36,6 +36,9 @@ public interface BillRepository extends JpaRepository<Bill, Long>,  JpaSpecifica
     
     // Find bills by Customer Name, sorted by 'billSeq' in descending order
     List<Bill> findByCustomerCustomerNameOrderByBillSequenceDesc(String customerName);
+
+    // Find bills by Customer Phone or Mobile No, sorted by billSequence in descending order
+    List<Bill> findByCustomerPhonenoOrCustomerMobilenoOrderByBillSequenceDesc(Long phoneno, Long mobileno);
 	
 //	List<Bill> findByRedeemBillSerialAndBillNo(Character billSerial, Integer billNo);
 	
