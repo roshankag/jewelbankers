@@ -56,7 +56,7 @@ public class Purchase {
     private BigDecimal totalamount;
     
     @Column(name = "status")
-    private Character status;
+    private String status;
     
     @Column(name = "gstamount")
     private BigDecimal gstamount;
@@ -145,14 +145,14 @@ public class Purchase {
 	}
 
 	
-	public Character getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
 	@PrePersist
 	public void prePersist() {
 	    if (this.status == null) {
-	        this.status = 'P'; // ✅ Set default if not provided
+	        this.status = "P"; // ✅ Set default if not provided
 	    }
 	}
 

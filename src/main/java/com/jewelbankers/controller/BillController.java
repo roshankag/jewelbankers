@@ -419,6 +419,30 @@ public class BillController {
 //        }
 //    }
     
+    @GetMapping("fullpdf/{billSequence}")
+    public ResponseEntity<?> printOldPledgeBillPdf(@PathVariable Long billSequence) {
+        try {
+            Map<String, String> settingsMap = settingsService.getShopDetails();
+            Optional<Bill> bill = billService.findById(billSequence);
+            if (bill.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Bill not found");
+            }
+            String filename = "Bill-Old-" + bill.get().getBillSerial() + "" + bill.get().getBillNo();
+            ByteArrayInputStream pdfStream = billService.generateOldPledgeBillPdf(bill.get(), settingsMap);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + filename + ".pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(new InputStreamResource(pdfStream));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error generating PDF: " + e.getMessage());
+        }
+    }
+    
     @GetMapping("sendbill/{billSequence}")
     public ResponseEntity<?> generateSendBill(@PathVariable Long billSequence) {
         try {

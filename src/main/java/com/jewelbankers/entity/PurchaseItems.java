@@ -73,21 +73,21 @@ public class PurchaseItems {
     @Column(name = "totalamount")
     private BigDecimal totalamount;
     
-    @Column(name = "status")//, nullable = false, columnDefinition = "CHAR(1) DEFAULT 'P'")
-    private Character status;
+    @Column(name = "status")
+    private String status;
 
-	public Character getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
 	@PrePersist
 	public void prePersist() {
 	    if (this.status == null) {
-	        this.status = 'P'; // ✅ Set default if not provided
+	        this.status = "P"; // ✅ Set default if not provided
 	    }
 	}
 
-	public void setStatus(Character status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 

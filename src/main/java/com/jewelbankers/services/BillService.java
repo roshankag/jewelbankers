@@ -94,6 +94,9 @@ public class BillService {
 	 @Autowired
 	 private PdfService pdfService;
 	 
+	 @Autowired
+	 private OldBillPdfService oldBillPdfService;
+	 
 	 
 	public List<Bill> findBillsByProductTypeNo(Long productTypeNo) {
         return billRepository.findByProductTypeNo(productTypeNo);
@@ -889,6 +892,17 @@ public class BillService {
 		
 		public List<String> getAllProductDescriptions(String prefix) {
 		    return billDetailRepository.findProductDescriptionsByPrefix(prefix);
+		}
+
+		public ByteArrayInputStream generateOldPledgeBillPdf(Bill bill, Map<String, String> settingsMap) {
+		    ByteArrayInputStream in = null;
+		    try {
+		        in = oldBillPdfService.generateOldBillPdf(bill, settingsMap);
+		    } catch (IOException | com.itextpdf.text.DocumentException e) {
+		        e.printStackTrace();
+		        throw new RuntimeException("Error generating old PDF: " + e.getMessage());
+		    }
+		    return in;
 		}
 
 

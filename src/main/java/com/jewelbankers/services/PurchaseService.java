@@ -102,7 +102,7 @@ public class PurchaseService {
                 newItem.setStoneweight(item.getRate().divide(BigDecimal.valueOf(quantity), RoundingMode.HALF_UP));
                 newItem.setAmount(item.getAmount().divide(BigDecimal.valueOf(quantity), RoundingMode.HALF_UP));
                 newItem.setTotalamount(item.getTotalamount().divide(BigDecimal.valueOf(quantity), RoundingMode.HALF_UP));
-                newItem.setStatus('P'); // Default status
+                newItem.setStatus("P"); // Default status
                 
                 //TODO set barcode id
                 purchaseItemsList.add(newItem);
