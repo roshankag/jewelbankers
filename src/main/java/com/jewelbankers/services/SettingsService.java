@@ -98,6 +98,9 @@ public class SettingsService {
         shopDetails.put("SHOP_CITY", findByParamSeq(25L).map(Settings::getParamValue).orElse(""));
         shopDetails.put("SHOP_PINCODE", findByParamSeq(26L).map(Settings::getParamValue).orElse(""));
         shopDetails.put("SHOP_STATE", findByParamSeq(27L).map(Settings::getParamValue).orElse(""));
+        // SHOP_OWNER was missing – fetch by paramId so OldBillPdfService can use it
+        shopDetails.put("SHOP_OWNER", settingsRepository.findByParamId("SHOP_OWNER")
+                .map(Settings::getParamValue).orElse(""));
 
         return shopDetails;
     }

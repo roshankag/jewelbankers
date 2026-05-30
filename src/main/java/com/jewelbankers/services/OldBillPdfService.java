@@ -39,7 +39,7 @@ public class OldBillPdfService {
     @Autowired
     SettingsService settingsService;
 
-    private static final String TEMPLATE_PATH = "template/customercopy.pdf";
+    private static final String TEMPLATE_PATH = "template/customercopy_new_edited.pdf";
     private static final String OUTPUT_PATH = "bills";
 
     public ByteArrayInputStream generateOldBillPdf(Bill bill, Map<String, String> settingsMap)
@@ -63,6 +63,7 @@ public class OldBillPdfService {
         try {
             // Ensure essential settings are not null
             String shopName = settingsMap.getOrDefault("SHOP_NAME", "Shop Name");
+            String shopOwner = settingsMap.getOrDefault("SHOP_OWNER", shopName); // fallback to shop name
             String shopLine1 = settingsMap.getOrDefault("SHOP_NO", "") + " "
                     + settingsMap.getOrDefault("SHOP_STREET", "");
             String shopLine2 = settingsMap.getOrDefault("SHOP_AREA", "") + " "
@@ -118,58 +119,53 @@ public class OldBillPdfService {
             // Get the PDF content
             PdfContentByte content = stamper.getOverContent(1);
 
-            // Set the font and size
-            BaseFont baseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
-            Font boldFont = new Font(baseFont, 14, Font.BOLD);
-            Font regularFont = new Font(baseFont, 12, Font.NORMAL);
+            // ── Font definitions ──────────────────────────────────────────────────
+            // Times Roman family: classic, professional, ideal for financial documents
+            BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.WINANSI, BaseFont.EMBEDDED);
+            BaseFont bfBold = BaseFont.createFont(BaseFont.TIMES_BOLD, BaseFont.WINANSI, BaseFont.EMBEDDED);
+            BaseFont bfOblique = BaseFont.createFont(BaseFont.TIMES_ITALIC, BaseFont.WINANSI, BaseFont.EMBEDDED);
 
-            // Shop Name (BOLD and CENTERED)
+            // Keep legacy aliases used below
+            Font boldFont = new Font(bfBold, 14, Font.BOLD);
+            Font regularFont = new Font(bf, 12, Font.NORMAL);
+
+            // ── Shop Name – centred, large bold ──────────────────────────────────
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 16); // Bold font for Shop Name
+            content.setFontAndSize(bfBold, 17);
             content.setColorFill(BaseColor.BLACK);
-            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE); // Bold rendering mode
-            content.setLineWidth(0.5f);
-            content.showTextAligned(Element.ALIGN_CENTER, shopName, 300, 745, 0); // Center alignment with coordinates
-                                                                                  // (300, 745)
+            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+            content.showTextAligned(Element.ALIGN_CENTER, shopName, 300, 745, 0);
             content.endText();
 
-            // Shop Address (Regular Font, split into three lines)
+            // ── Shop Address – centred, regular ──────────────────────────────────
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.showTextAligned(Element.ALIGN_CENTER, shopLine1, 300, 730, 0); // First line
-            content.showTextAligned(Element.ALIGN_CENTER, shopLine2, 300, 715, 0); // Second line
-            content.showTextAligned(Element.ALIGN_CENTER, shopLine3, 300, 700, 0); // Third line
+            content.setFontAndSize(bf, 13); // increased from 11
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(Element.ALIGN_CENTER, shopLine1, 300, 730, 0);
+            content.showTextAligned(Element.ALIGN_CENTER, shopLine2, 300, 714, 0); // adjusted Y spacing
+            content.showTextAligned(Element.ALIGN_CENTER, shopLine3, 300, 698, 0); // adjusted Y spacing
             content.endText();
 
-            // Bill Serial and No (Ensure they are not null)
-            content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 13); // Use a bold font
-            content.setColorFill(BaseColor.BLACK); // Set text color to black
-            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE);
-            content.setLineWidth(0.5f); // Increase line width for more bold effect
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    bill.getBillSerial() + " " + (bill.getBillNo() != null ? bill.getBillNo().toString() : "N/A"),
-                    85, 665, 0);
-            content.endText();
-
-            // Define the desired output format
+            // ── BILL NO value only (template already prints "BILL NO :" label) ──
+            // Print only the bill serial+number value, positioned after template's label
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-            // Assuming bill.getBillDate() returns a LocalDate
             LocalDate billDate = bill.getBillDate();
-            String billDateFormatted;
+            String billDateFormatted = billDate != null ? billDate.format(outputFormatter) : "N/A";
 
-            // Format the LocalDate object into the desired format
-            if (billDate != null) {
-                billDateFormatted = billDate.format(outputFormatter);
-            } else {
-                billDateFormatted = "N/A";
-            }
-
-            // Bill Date (Ensure it's not null)
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 13);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, billDateFormatted, 455, 665, 0);
+            content.setFontAndSize(bfBold, 18); // increased from 14
+            content.setColorFill(BaseColor.BLACK); // black – Bill No value
+            content.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
+                    bill.getBillSerial() + (bill.getBillNo() != null ? bill.getBillNo().toString() : "N/A"),
+                    80, 665, 0); // moved left to X=80 to follow the pre-printed "Bill No :" label (ends at X=75.6)
+            content.endText();
+
+            // ── DATE value only – pushed far enough right past template's "Date :" label
+            content.beginText();
+            content.setFontAndSize(bfBold, 18); // increased from 15
+            content.setColorFill(BaseColor.BLACK); // black – Date value
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, billDateFormatted, 478, 665, 0); // moved right to X=478 to follow "Date :" label (ends at X=471.6)
             content.endText();
 
             // Check if the customer has a photo and retrieve it as byte array
@@ -186,79 +182,157 @@ public class OldBillPdfService {
                 }
             }
 
+            // ── Customer Name (value only – template prints the label) ────────────
             String customerName = bill.getCustomer() != null && bill.getCustomer().getCustomerName() != null
                     ? bill.getCustomer().getCustomerName()
                     : "Customer Name";
-            content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 14);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 35, 610, 0);
-            content.endText();
-
-            // Customer Address (Split into lines and ensure it's not null)
-            String[] addressLines = bill.getCustomer() != null && bill.getCustomer().getAddress() != null
-                    ? bill.getCustomer().getAddress().split(",")
-                    : new String[] { "Address Line 1", "Address Line 2", "Address Line 3" };
 
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 0 ? addressLines[0] : "", 35, 590,
-                    0); // First line of address
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 1 ? addressLines[1] : "", 30, 570,
-                    0); // Second line of address
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addressLines.length > 2 ? addressLines[2] : "", 30, 550,
-                    0); // Third line of address
+            content.setFontAndSize(bfBold, 14); // bigger
+            content.setColorFill(BaseColor.BLACK); // black – Customer Name
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 30, 610, 0);
             content.endText();
 
-            // Bill Details (Ensure non-null and non-empty lists)
+            // ── Address (value only – template prints "ADDRESS :" label) ──────────
+            String rawAddress = bill.getCustomer() != null && bill.getCustomer().getAddress() != null
+                    ? bill.getCustomer().getAddress()
+                    : "Address Line 1, Address Line 2";
+            String[] addressParts = rawAddress.split(",");
+            int half = (addressParts.length + 1) / 2;
+            StringBuilder addrLine1 = new StringBuilder();
+            StringBuilder addrLine2 = new StringBuilder();
+            for (int i = 0; i < addressParts.length; i++) {
+                if (i < half) {
+                    if (addrLine1.length() > 0)
+                        addrLine1.append(",");
+                    addrLine1.append(addressParts[i].trim());
+                } else {
+                    if (addrLine2.length() > 0)
+                        addrLine2.append(",");
+                    addrLine2.append(addressParts[i].trim());
+                }
+            }
+
+            content.beginText();
+            content.setFontAndSize(bf, 12); // bigger
+            content.setColorFill(BaseColor.BLACK); // black – Address
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addrLine1.toString(), 30, 593, 0); // down from 607
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, addrLine2.toString(), 30, 578, 0); // down from 593
+            content.endText();
+
+            // ── MOBILE NO (template may not have this label – we print it) ────────
+            String phoneNo = bill.getCustomer() != null && bill.getCustomer().getPhoneno() != null
+                    ? bill.getCustomer().getPhoneno().toString()
+                    : "";
+            content.beginText();
+            content.setFontAndSize(bfBold, 13); // bigger
+            content.setColorFill(BaseColor.BLACK); // black – Mobile No
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "MOBILE NO: " + phoneNo, 30, 560, 0); // down from 575
+            content.endText();
+
+            // ── Article Description value / NO column ────────────────────────────
             if (bill.getBillDetails() != null && !bill.getBillDetails().isEmpty()) {
+                String desc = bill.getBillDetails().get(0).getProductDescription() != null
+                        ? bill.getBillDetails().get(0).getProductDescription()
+                        : "N/A";
+
+                // Ensure robust wrapping by adding spaces after commas and cleaning whitespace
+                String processedDesc = desc.replace("\r", " ").replace("\n", " ").replace(",", ", ").replaceAll("\\s+", " ").trim();
+
+                // ── Word-wrap description within the Articles Description column ──
+                float descX = 30; // left edge of description column
+                float descMaxWidth = 345; // reduced from 380 to guarantee no overlap with 'No' column
+                float descFontSize = 11;
+                float descLineHeight = 15;
+                float descY = 480; // starting Y position
+
+                // Split text into lines that fit within maxWidth
+                java.util.List<String> wrappedLines = new java.util.ArrayList<>();
+                String[] words = processedDesc.split(" ");
+                StringBuilder currentLine = new StringBuilder();
+                for (String word : words) {
+                    if (word.isEmpty()) continue;
+                    String testLine = currentLine.length() == 0 ? word : currentLine + " " + word;
+                    float testWidth = bf.getWidthPoint(testLine, descFontSize);
+                    if (testWidth <= descMaxWidth) {
+                        currentLine = new StringBuilder(testLine);
+                    } else {
+                        if (currentLine.length() > 0)
+                            wrappedLines.add(currentLine.toString());
+                        currentLine = new StringBuilder(word);
+                    }
+                }
+                if (currentLine.length() > 0)
+                    wrappedLines.add(currentLine.toString());
+
                 content.beginText();
-                content.setFontAndSize(regularFont.getBaseFont(), 14);
-                content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                        bill.getBillDetails().get(0).getProductDescription() != null
-                                ? bill.getBillDetails().get(0).getProductDescription()
-                                : "N/A",
-                        30, 470, 0);
-                content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                        String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 390, 470, 0);
+                content.setFontAndSize(bf, descFontSize);
+                content.setColorFill(BaseColor.BLACK); // black – Article description
+                for (String line : wrappedLines) {
+                    content.showTextAligned(PdfContentByte.ALIGN_LEFT, line, descX, descY, 0);
+                    descY -= descLineHeight;
+                }
+                // Quantity (NO) – right-aligned under "No" column header
+                content.showTextAligned(PdfContentByte.ALIGN_RIGHT,
+                        String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 415, 480, 0);
                 content.endText();
             }
 
-            // Grams (Ensure non-null)
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 14);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    String.valueOf(bill.getGrams() != null ? bill.getGrams() : "N/A"), 495, 479, 0);
+            content.setFontAndSize(bfBold, 17); // increased from 13 – Gross Wt
+            content.setColorFill(BaseColor.BLACK); // black – Gross Wt value
+            content.showTextAligned(PdfContentByte.ALIGN_RIGHT,
+                    String.valueOf(bill.getGrams() != null ? bill.getGrams() : "N/A") + " grms", 558, 478, 0);
             content.endText();
 
-            // NetWt->Grams (Ensure non-null)
+            // ── Net Wt value (right column, under "Net Wt:" label) ───────────────
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 14);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    String.valueOf(bill.getGrams() != null ? bill.getGrams() : "N/A"), 495, 387, 0);
+            content.setFontAndSize(bfBold, 17); // increased from 13 – Net Wt
+            content.setColorFill(BaseColor.BLACK); // black – Net Wt value
+            content.showTextAligned(PdfContentByte.ALIGN_RIGHT,
+                    String.valueOf(bill.getGrams() != null ? bill.getGrams() : "N/A") + " grms", 558, 378, 0);
             content.endText();
 
-            // Amount Value (Ensure non-null)
+            // ── Present Value (right column, under "Present Value:" row) ─────────
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 18);
-            content.setLineWidth(0.75f); // Increase the outline width
-            content.setColorStroke(new BaseColor(0, 0, 0)); // Outline color (black)
-            content.setColorFill(new BaseColor(0, 0, 0)); // Fill color (black)
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    "Rs. " + String.valueOf(bill.getAmount() != null ? bill.getAmount() : "N/A"), 280, 352, 0);
+            content.setFontAndSize(bfBold, 17); // increased from 13 – Present Value
+            content.setColorFill(BaseColor.BLACK); // black – Present Value
+            content.showTextAligned(PdfContentByte.ALIGN_RIGHT,
+                    "Rs : " + String.valueOf(bill.getPresentValue() != null ? bill.getPresentValue() : "N/A") + "/-",
+                    558, 330, 0);
             content.endText();
 
-            // AmountInWords Value (Ensure non-null)
+            // ── Old Bill Serial No – printed above Loan Amount row ───────────────
+            String oldBillSerialNo = bill.getOldbillserialno();
+            if (oldBillSerialNo != null && !oldBillSerialNo.trim().isEmpty()) {
+                String formattedOldBillNo;
+                if (oldBillSerialNo.length() > 1) {
+                    formattedOldBillNo = oldBillSerialNo.substring(0, 1) + " " + oldBillSerialNo.substring(1);
+                } else {
+                    formattedOldBillNo = oldBillSerialNo;
+                }
+                content.beginText();
+                content.setFontAndSize(bfBold, 13);
+                content.setColorFill(BaseColor.BLACK); // black – Old Bill No
+                content.showTextAligned(PdfContentByte.ALIGN_LEFT,
+                        formattedOldBillNo, 25, 375, 0);
+                content.endText();
+            }
+
+            // ── AMOUNT value – positioned to follow the new bilingual "Loan Amount :" label
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 14);
+            content.setFontAndSize(bfBold, 24); // increased from 20 – Loan Amount
+            content.setColorFill(BaseColor.BLACK); // black – Loan Amount value
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
+                    "Rs : " + String.valueOf(bill.getAmount() != null ? bill.getAmount() : "N/A") + "/-", 275, 352, 0);
+            content.endText();
+
+            // ── Amount In Words – italic, below the amount box ───────────────────
+            content.beginText();
+            content.setFontAndSize(bfOblique, 16); // increased from 13 – Amount In Words
+            content.setColorFill(BaseColor.BLACK); // black – Amount In Words
             content.showTextAligned(PdfContentByte.ALIGN_LEFT,
                     String.valueOf(bill.getAmountInWords() != null ? bill.getAmountInWords() : "N/A"), 30, 330, 0);
-            content.endText();
-
-            // Present Value (Ensure non-null)
-            content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 14);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    String.valueOf(bill.getPresentValue() != null ? bill.getPresentValue() : "N/A"), 495, 335, 0);
             content.endText();
 
             // Fetch settings from the database
@@ -274,96 +348,200 @@ public class OldBillPdfService {
                 pledgeRules = "The final due date for pledged items is only 1 year and 7 days: Interest must be paid once every three months without fail. The last date to redeem the pledged items: Reason for borrowing: My monthly income:";
             }
 
-            // Manually add line breaks at appropriate places
-            String[] lines = {
+            // Compute due date for use in pledge rules
+            LocalDate billDate1 = bill.getBillDate();
+            LocalDate dueDate = billDate1.plusYears(1).plusDays(7);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.ENGLISH);
+            String dueDateFormatted = dueDate.format(formatter);
+
+            // ── Pledge Rules – blue font, matching reference document style ──────────
+            String lastDateLabel = "The last date to redeem the pledged items: ";
+            float pledgeFontSize = 13f; // increased from 12
+            float pledgeSpacing = 18f; // tighter spacing to match reference
+            BaseColor pledgeBlue = new BaseColor(0, 51, 153); // navy blue matching reference
+
+            // Lines before the last-date line
+            String[] linesBeforeLastDate = {
                     "The final due date for pledged items is only 1 year and 7 days:",
-                    "Interest must be paid once every three months without fail.",
-                    "The last date to redeem the pledged items:",
+                    "Interest must be paid once every three months without fail."
+            };
+            // Lines after the last-date line
+            String[] linesAfterLastDate = {
                     "Reason for borrowing:",
                     "My monthly income:"
             };
 
-            float yPosition = 300;
-            float lineSpacing = 20;
+            float yPos = 295;
 
+            // Print first two lines in blue
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 14);
-            content.setColorFill(new BaseColor(0, 0, 0));
-
-            for (String line : lines) {
-                if (yPosition < 40) {
-                    break;
-                }
-                content.showTextAligned(Element.ALIGN_LEFT, line, 25, yPosition, 0);
-                yPosition -= lineSpacing;
+            content.setFontAndSize(bf, pledgeFontSize);
+            content.setColorFill(pledgeBlue);
+            for (String line : linesBeforeLastDate) {
+                content.showTextAligned(Element.ALIGN_LEFT, line, 25, yPos, 0);
+                yPos -= pledgeSpacing;
             }
-
             content.endText();
 
+            // Print "The last date..." label in blue, then bold date in blue
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 12);
+            content.setFontAndSize(bf, pledgeFontSize);
+            content.setColorFill(pledgeBlue);
+            content.showTextAligned(Element.ALIGN_LEFT, lastDateLabel, 25, yPos, 0);
+            content.endText();
+            float labelWidth = bf.getWidthPoint(lastDateLabel, pledgeFontSize);
+            content.beginText();
+            content.setFontAndSize(bfBold, pledgeFontSize);
+            content.setColorFill(BaseColor.BLACK); // date value in black bold
+            content.showTextAligned(Element.ALIGN_LEFT, dueDateFormatted, 25 + labelWidth, yPos, 0);
+            content.endText();
+            yPos -= pledgeSpacing;
+
+            // Print remaining lines in blue
+            content.beginText();
+            content.setFontAndSize(bf, pledgeFontSize);
+            content.setColorFill(pledgeBlue);
+            for (String line : linesAfterLastDate) {
+                content.showTextAligned(Element.ALIGN_LEFT, line, 25, yPos, 0);
+                yPos -= pledgeSpacing;
+            }
+            content.endText();
+
+            // ── Monthly Income value – bold BLACK, inline with blue label ─────────────
+            float monthlyIncomeY = yPos + pledgeSpacing;
+            float monthlyIncomeLabelWidth = bf.getWidthPoint("My monthly income:", pledgeFontSize);
+            content.beginText();
+            content.setFontAndSize(bfBold, pledgeFontSize);
+            content.setColorFill(BaseColor.BLACK); // income value in black bold
             content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    bill.getBillSerial() + " " + (bill.getBillNo() != null ? bill.getBillNo().toString() : "N/A"), 147,
-                    88, 0);
+                    String.valueOf(bill.getMonthlyIncome() != null ? bill.getMonthlyIncome() : "N/A"),
+                    25 + monthlyIncomeLabelWidth + 5, monthlyIncomeY, 0);
+            content.endText();
+
+            // ── Bottom stub: bill no, customer, date, grams, amount, description ──
+            // ── Bottom stub: bill no, customer, date, grams, amount, description ──
+            String formattedBillNo = bill.getBillSerial() + " " + (bill.getBillNo() != null ? bill.getBillNo().toString() : "N/A");
+
+            // 1. Bill No Row (spans 3 rows visually using size 24 bold)
+            content.beginText();
+            content.setFontAndSize(bfBold, 11);
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "No. : ", 120, 86, 0); // changed to No.
             content.endText();
 
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 140, 70, 0);
+            content.setFontAndSize(bfBold, 24); // rowspan 3 visually
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, formattedBillNo, 160, 82, 0);
             content.endText();
 
+            // 2. Customer Name Row (spans 2 rows visually using size 14 bold)
+            content.beginText();
+            content.setFontAndSize(bfBold, 11);
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Name : ", 120, 64, 0);
+            content.endText();
+
+            content.beginText();
+            content.setFontAndSize(bfBold, 14); // rowspan 2 visually
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, customerName, 165, 64, 0);
+            content.endText();
+
+            // 3. Date & Grams Row (shifted down to Y=48)
             DateTimeFormatter outputFormatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate billDate2 = bill.getBillDate();
-            String billDateFormatted1;
+            String billDateFormatted1 = (billDate != null) ? billDate2.format(outputFormatter1) : "N/A";
 
-            if (billDate != null) {
-                billDateFormatted1 = billDate2.format(outputFormatter1);
+            content.beginText();
+            content.setFontAndSize(bf, 11);
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Dt. " + billDateFormatted1, 120, 48, 0);
+            content.endText();
+
+            // Format grams to "9.00 gms"
+            String gramsText = "N/A";
+            if (bill.getGrams() != null) {
+                try {
+                    double g = Double.parseDouble(bill.getGrams().toString());
+                    gramsText = String.format(Locale.US, "%.2f gms", g);
+                } catch (Exception e) {
+                    gramsText = bill.getGrams().toString() + " gms";
+                }
             } else {
-                billDateFormatted1 = "N/A";
+                gramsText = "N/A gms";
             }
 
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT, billDateFormatted1, 140, 55, 0);
+            content.setFontAndSize(bfBold, 11);
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, gramsText, 240, 48, 0);
             content.endText();
 
+            // 4. Amount & Description Row (shifted down to Y=32)
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    String.valueOf(bill.getGrams() != null ? bill.getGrams() : "N/A"), 245, 55, 0);
+            content.setFontAndSize(bfBold, 12);
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "Amt. Rs. " + String.valueOf(bill.getAmount() != null ? bill.getAmount() : "N/A"), 120, 32, 0);
             content.endText();
 
+            // ── Bottom stub: Articles – summarize if description too long ──────────
+            String stubDesc = bill.getBillDetails().get(0).getProductDescription() != null
+                    ? bill.getBillDetails().get(0).getProductDescription()
+                    : "N/A";
+            float stubMaxWidth = 200f; // available width in the bottom stub for articles
+            float stubFontSize = 11f;
+
+            // Check if the text overflows the stub column
+            if (bf.getWidthPoint(stubDesc, stubFontSize) > stubMaxWidth) {
+                // Count items by splitting on comma
+                int itemCount = stubDesc.split(",").length;
+
+                // Detect product type from productTypeNo (gold=1, silver=2, else "")
+                String productTypeName = "";
+                if (bill.getProductTypeNo() != null) {
+                    int typeNo = bill.getProductTypeNo().intValue();
+                    if (typeNo == 1)
+                        productTypeName = "gold";
+                    else if (typeNo == 2)
+                        productTypeName = "silver";
+                }
+
+                // Convert number to English word (1–20)
+                String[] numberWords = { "", "one", "two", "three", "four", "five",
+                        "six", "seven", "eight", "nine", "ten",
+                        "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+                        "sixteen", "seventeen", "eighteen", "nineteen", "twenty" };
+                String countWord = (itemCount > 0 && itemCount <= 20)
+                        ? numberWords[itemCount]
+                        : String.valueOf(itemCount);
+
+                // Build summary e.g. "Four gold articles"
+                String suffix = "article" + (itemCount > 1 ? "s" : "");
+                stubDesc = (countWord + (productTypeName.isEmpty() ? " " : " " + productTypeName + " ") + suffix)
+                        .substring(0, 1).toUpperCase()
+                        + (countWord + (productTypeName.isEmpty() ? " " : " " + productTypeName + " ") + suffix)
+                                .substring(1);
+            }
+
+            // Print the description on the right side of the Amount value (X=250) on the same Y=32 row
             content.beginText();
-            content.setFontAndSize(boldFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    "Rs. " + String.valueOf(bill.getAmount() != null ? bill.getAmount() : "N/A"), 155, 39, 0);
+            content.setFontAndSize(bf, (int) stubFontSize);
+            content.setColorFill(BaseColor.BLACK);
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, stubDesc, 250, 32, 0);
             content.endText();
 
+            // Monthly income is now printed inline with pledge rules above
+
+            // ── "For SHOP_OWNER" – aligned to same row as template's "Sign of the Customer" ──
+            // Note: No white rectangle needed here because there is no pre-printed "For Shop" in the new template.
+            // This prevents cutting off the bottom-left corner of the navy border!
+
+            // Print "For [SHOP_OWNER]" at the same Y as "Sign of the Customer" on the right
             content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    bill.getBillDetails().get(0).getProductDescription() != null
-                            ? bill.getBillDetails().get(0).getProductDescription()
-                            : "N/A",
-                    155, 23, 0);
-            content.endText();
-
-            content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 13);
-            content.showTextAligned(PdfContentByte.ALIGN_LEFT,
-                    String.valueOf(bill.getMonthlyIncome() != null ? bill.getMonthlyIncome() : "N/A"), 175, 220, 0);
-            content.endText();
-
-            LocalDate billDate1 = bill.getBillDate();
-            LocalDate dueDate = billDate1.plusYears(1).plusDays(7);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.ENGLISH);
-            String dueDateFormatted = dueDate.format(formatter);
-
-            content.beginText();
-            content.setFontAndSize(regularFont.getBaseFont(), 12);
-            content.setColorFill(BaseColor.CYAN);
-            content.showTextAligned(Element.ALIGN_LEFT, dueDateFormatted, 425, 300, 0);
+            content.setFontAndSize(bfBold, 12);
+            content.setColorFill(new BaseColor(0, 51, 153)); // navy blue – For shopOwner
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, "For " + shopOwner, 42, 142, 0);
             content.endText();
 
             stamper.close();
