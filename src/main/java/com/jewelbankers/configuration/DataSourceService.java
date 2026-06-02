@@ -19,18 +19,25 @@ public class DataSourceService {
 
     /**
      * Switch the data source based on userId or databaseName.
-     * If the data source does not already exist for the user, it is created and added.
+     * Only switches if the datasource key is already registered.
      */
     public void switchDataSource(String databaseName) {
         lock.lock();  // acquire the lock
-        
         try {
             dynamicRoutingDataSource.clearDataSourceKey();
             dynamicRoutingDataSource.setDataSourceKey(databaseName);
-            dynamicRoutingDataSource.setDefaultDataSource(databaseName);
+            // NOTE: Do NOT call setDefaultDataSource here — it would corrupt the
+            // global default for all threads. The ThreadLocal key is sufficient.
         } finally {
             lock.unlock();  // always release the lock
         }
+    }
+
+    /**
+     * Returns true if the given database name is registered as a datasource.
+     */
+    public boolean isDataSourceRegistered(String databaseName) {
+        return dynamicRoutingDataSource.getDataSource().containsKey(databaseName);
     }
 
 
