@@ -150,7 +150,7 @@ public class BillService {
 	            search.toUpperCase().charAt(0), 
 	            Integer.parseInt(search.substring(1))
 	        );
-	    } else if (search != null && search.matches("\\d{10}")) {
+	    } else if (search != null && search.matches("\\d{7,15}")) {
 	        try {
 	            Long phone = Long.parseLong(search);
 	            return billRepository.findByCustomerPhonenoOrCustomerMobilenoOrderByBillSequenceDesc(phone, phone);
@@ -183,7 +183,7 @@ public class BillService {
                         );
                         predicates.add(searchPredicate);
                     } else if (search != null && !search.isEmpty()) {
-                        if (search.matches("\\d{10}")) {
+                        if (search.matches("\\d{7,15}")) {
                             try {
                                 Long phone = Long.parseLong(search);
                                 searchPredicate = cb.or(
@@ -201,7 +201,10 @@ public class BillService {
                     
                  // Handle search by Phone Number
                     if (phoneno != null) {
-                        predicates.add(cb.equal(root.get("customer").get("phoneno"), phoneno));
+                        predicates.add(cb.or(
+                            cb.equal(root.get("customer").get("phoneno"), phoneno),
+                            cb.equal(root.get("customer").get("mobileno"), phoneno)
+                        ));
                     }
                     
                  // Handle date filtering based on status

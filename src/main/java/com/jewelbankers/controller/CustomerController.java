@@ -40,7 +40,14 @@ public class CustomerController {
         } 
         
         else if (customerName != null && !customerName.isEmpty()) {
-            // If only customerName is provided, filter by customerName
+            if (customerName.matches("\\d+")) {
+                try {
+                    Long phone = Long.parseLong(customerName);
+                    return customerService.findByPhoneNo(phone);
+                } catch (NumberFormatException e) {
+                    return customerService.findByNameStartingWith(customerName);
+                }
+            }
             return customerService.findByNameStartingWith(customerName);
         } 
         

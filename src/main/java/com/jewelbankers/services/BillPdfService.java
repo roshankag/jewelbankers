@@ -75,26 +75,28 @@ public class BillPdfService {
     }
 
     private void addBillDetailsTable(List<Bill> bills, Document document) throws DocumentException {
-        // Adjusted column widths to give more space to "Product Desc" column
-        PdfPTable table = new PdfPTable(new float[]{0.8f, 4.0f, 1.5f, 1.5f, 1.5f, 1.2f, 3.5f, 1.5f, 1.5f, 1.2f}); // Modified width of "Product Desc" to 3.5f
+        // Split Customer Details into Name and Address to match the Excel format and fit on one line
+        PdfPTable table = new PdfPTable(new float[]{1.2f, 2.6f, 5.2f, 1.5f, 1.2f, 1.3f, 1.1f, 2.8f, 1.3f, 1.5f, 1.1f});
         table.setWidthPercentage(100);
         table.setSpacingBefore(10f);
 
-        Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10);
-        Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 9);
+        Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.0f);
+        Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 7.5f);
+        Font customerNameFont = FontFactory.getFont(FontFactory.HELVETICA, 7.5f);
+        Font customerAddressFont = FontFactory.getFont(FontFactory.HELVETICA, 7.0f);
 
         addTableHeader(table, headFont);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         for (Bill bill : bills) {
-            addTableRow(bill, table, cellFont, formatter);
+            addTableRow(bill, table, cellFont, customerNameFont, customerAddressFont, formatter);
         }
 
         document.add(table);
     }
 
     private void addTableHeader(PdfPTable table, Font headFont) {
-        Stream.of("Pledge No", "Customer Details", "Date", "Amount", "Redem Total", 
+        Stream.of("Pledge No", "Customer Name", "Customer Address", "Date", "Amount", "Redem Total", 
                   "Weight", "Product Desc", "Redem No", "Redem Date", "Status")
                 .forEach(columnTitle -> {
                     PdfPCell header = new PdfPCell(new Phrase(columnTitle, headFont));
@@ -106,16 +108,32 @@ public class BillPdfService {
                 });
     }
 
-    private void addTableRow(Bill bill, PdfPTable table, Font cellFont, DateTimeFormatter formatter) {
+    private void addTableRow(Bill bill, PdfPTable table, Font cellFont, Font customerNameFont, Font customerAddressFont, DateTimeFormatter formatter) {
         // Pledge No
         String pledgeNo = bill.getBillSerial() != null && bill.getBillNo() != null ? bill.getBillSerial() + "" + bill.getBillNo() : ""; // Handle null
         table.addCell(createTableCell(pledgeNo, cellFont));
 
-        // Customer Details
+        // Customer Name & Customer Address
         Customer customer = bill.getCustomer();
-        String customerDetails = (customer != null && customer.getCustomerName() != null && customer.getAddress() != null) 
-                                  ? customer.getCustomerName() + ", " + customer.getAddress() : ""; // Handle null
-        table.addCell(createTableCell(customerDetails, cellFont));
+        String customerName = "";
+        String customerAddress = "";
+        if (customer != null) {
+            customerName = customer.getCustomerName() != null ? customer.getCustomerName() : "";
+            customerAddress = customer.getAddress() != null ? customer.getAddress() : "";
+            Long mobile = customer.getMobileno();
+            if (mobile == null || mobile == 0) {
+                mobile = customer.getPhoneno();
+            }
+            if (mobile != null && mobile != 0) {
+                if (!customerAddress.isEmpty()) {
+                    customerAddress += ", Mob: " + mobile;
+                } else {
+                    customerAddress = "Mob: " + mobile;
+                }
+            }
+        }
+        table.addCell(createTableCell(customerName, customerNameFont, Element.ALIGN_CENTER));
+        table.addCell(createTableCell(customerAddress, customerAddressFont, Element.ALIGN_CENTER));
 
         // Date
         table.addCell(createTableCell(bill.getBillDate() != null ? bill.getBillDate().format(formatter) : "", cellFont)); // Handle null
@@ -164,13 +182,20 @@ public class BillPdfService {
     } 
 
     private PdfPCell createTableCell(String content, Font font) {
+        return createTableCell(content, font, Element.ALIGN_CENTER);
+    }
+
+    private PdfPCell createTableCell(String content, Font font, int alignment) {
         // Adjusted to handle both `null` and "null" string values by displaying them as blank
         if (content == null || "null".equals(content)) content = ""; // Handle null or "null" strings
         PdfPCell cell = new PdfPCell(new Phrase(content, font));
         cell.setPadding(3);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        if (alignment == Element.ALIGN_LEFT) {
+            cell.setPaddingLeft(5);
+        }
+        cell.setHorizontalAlignment(alignment);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setFixedHeight(16); // Compact row height
+        cell.setMinimumHeight(16); // Use minimum height instead of fixed height so it can wrap and grow
         return cell;
     }
 }

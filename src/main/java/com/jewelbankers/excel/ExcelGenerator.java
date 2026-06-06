@@ -83,9 +83,23 @@ public class ExcelGenerator {
             String formattedDate = bill.getBillDate() != null ? bill.getBillDate().format(DATE_FORMATTER) : "";
             createContentCell(row, 1, formattedDate, contentStyle);
             
-         // Separate Customer Name and Address
+            // Separate Customer Name and Address (with Mobile number appended in the same line)
             String customerName = bill.getCustomer() != null ? bill.getCustomer().getCustomerName() : "";
-            String customerAddress = bill.getCustomer() != null ? bill.getCustomer().getAddress() : "";
+            String customerAddress = "";
+            if (bill.getCustomer() != null) {
+                customerAddress = bill.getCustomer().getAddress() != null ? bill.getCustomer().getAddress() : "";
+                Long mobile = bill.getCustomer().getMobileno();
+                if (mobile == null || mobile == 0) {
+                    mobile = bill.getCustomer().getPhoneno();
+                }
+                if (mobile != null && mobile != 0) {
+                    if (!customerAddress.isEmpty()) {
+                        customerAddress += ", Mob: " + mobile;
+                    } else {
+                        customerAddress = "Mob: " + mobile;
+                    }
+                }
+            }
             createContentCell(row, 2, customerName, contentStyle);
             createContentCell(row, 3, customerAddress, contentStyle);
             
@@ -248,7 +262,6 @@ public class ExcelGenerator {
         return style;
     }
 
-    // Create style for content
     private static CellStyle createContentStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);

@@ -73,7 +73,7 @@ public class CustomerService {
 
     public List<Customer> findByPhoneNo(Long phoneno) {
         Pageable pageable = PageRequest.of(0, 25); // Limit to 100 records
-        return customerRepository.findByPhonenoStartingWith(phoneno, pageable);
+        return customerRepository.findByPhonenoOrMobilenoStartingWith(phoneno, pageable);
     }
 
     public List<Customer> findByNameAndPhone(String customerName, Long phoneno) {
