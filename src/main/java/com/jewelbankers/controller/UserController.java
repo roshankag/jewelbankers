@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jewelbankers.aop.SwitchUserDatabase;
+import com.jewelbankers.aop.SwitchDatabase;
 import com.jewelbankers.entity.User;
 import com.jewelbankers.services.UserDetailsServiceImpl;
 
@@ -31,6 +32,7 @@ public class UserController {
 	}
 
 	@GetMapping("/list")
+@SwitchDatabase
 	@PreAuthorize("hasRole('ADMIN')")
 	// @Cacheable(value = "usersListCache")
 	public ResponseEntity<List<User>> adminAccess() {

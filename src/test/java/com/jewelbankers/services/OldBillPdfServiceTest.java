@@ -19,7 +19,10 @@ import com.jewelbankers.entity.Bill;
 import com.jewelbankers.entity.BillDetail;
 import com.jewelbankers.entity.Customer;
 
+import org.springframework.test.context.TestPropertySource;
+
 @SpringBootTest(classes = com.jewelbankers.application.JewelBankers.class)
+@TestPropertySource(locations = "file:D:/jewelbankers/05-properties/application.properties")
 public class OldBillPdfServiceTest {
 
     @Autowired
