@@ -28,7 +28,7 @@ public class JwtDatabaseAspect {
     private DataSourceService dataSourceService;
 
     // Pointcut for methods in classes annotated with @SwitchDatabase
-    @Pointcut("@within(com.jewelbankers.aop.SwitchDatabase)") 
+    @Pointcut("@within(com.jewelbankers.aop.SwitchDatabase)")
     public void switchDatabase() {
         // This pointcut matches methods within classes annotated with @SwitchDatabase
     }
@@ -36,13 +36,15 @@ public class JwtDatabaseAspect {
     // Pointcut for methods in classes or methods annotated with @SwitchUserDatabase
     @Pointcut("@within(com.jewelbankers.aop.SwitchUserDatabase) || @annotation(com.jewelbankers.aop.SwitchUserDatabase)")
     public void switchUserDatabasePointcut() {
-        // This pointcut matches methods in classes or methods annotated with @SwitchUserDatabase
+        // This pointcut matches methods in classes or methods annotated with
+        // @SwitchUserDatabase
     }
 
     // Advice for switching the database based on @SwitchUserDatabase annotation
     @Before("switchUserDatabasePointcut()")
     public void switchToUserDatabase() {
-        System.out.println("Switching to default user database: " + DataSourceConfig.JEWEL_BANKERS);
+        System.out.println("JwtDatabaseAspect.switchToUserDatabase() Default DB: Jewelbankers: "
+                + DataSourceConfig.JEWEL_BANKERS);
         dataSourceService.switchDataSource(DataSourceConfig.JEWEL_BANKERS);
     }
 
@@ -56,7 +58,7 @@ public class JwtDatabaseAspect {
 
             if (jwtUtils.validateJwtToken(token)) {
                 String databaseName = jwtUtils.getRequestUserdatabaseFromJwtToken(token);
-                System.out.println("Switching to database: " + databaseName);
+                System.out.println("JwtDatabaseAspectswitchDatabase() Switch DB : " + databaseName);
                 dataSourceService.switchDataSource(databaseName); // Dynamically switch the database
             } else {
                 handleInvalidToken();
