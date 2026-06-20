@@ -272,9 +272,9 @@ public class OldBillPdfService {
                     content.showTextAligned(PdfContentByte.ALIGN_LEFT, line, descX, descY, 0);
                     descY -= descLineHeight;
                 }
-                // Quantity (NO) – right-aligned under "No" column header
-                content.showTextAligned(PdfContentByte.ALIGN_RIGHT,
-                        String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 415, 480, 0);
+                // Quantity (NO) – centered under "No" column header
+                content.showTextAligned(PdfContentByte.ALIGN_CENTER,
+                        String.valueOf(bill.getBillDetails().get(0).getProductQuantity()), 403, 480, 0);
                 content.endText();
             }
 
@@ -340,6 +340,29 @@ public class OldBillPdfService {
 
             // Convert the settings list to a map
             settingsMap = settingsUtillity.convertListToMap(settingsList);
+
+            // ── LICENCE NO: cover pre-printed "PBL. NO : 3/11-12" at top-left and print the new licence number value
+            String licenceNo = settingsUtillity.getLicenceNo(settingsMap);
+            System.out.println("--- DEBUG PDF GENERATION ---");
+            System.out.println("settingsMap keys: " + (settingsMap != null ? settingsMap.keySet() : "null"));
+            System.out.println("licenceNo from settingsMap: " + licenceNo);
+            if (licenceNo == null || licenceNo.isEmpty()) {
+                licenceNo = settingsService.getLicenceNo(); // fallback to direct DB if missing
+                System.out.println("licenceNo from settingsService fallback: " + licenceNo);
+            }
+            // Step 1: Cover pre-printed "PBL. NO : 3/11-12" at top-left
+            content.saveState();
+            content.setColorFill(BaseColor.WHITE);
+            content.rectangle(20.5f, 758, 161.5f, 20);
+            content.fill();
+            content.restoreState();
+
+            // Step 2: Print the licence number value from settings in its place
+            content.beginText();
+            content.setFontAndSize(bfBold, 11);
+            content.setColorFill(new BaseColor(0, 51, 153)); // navy blue to match template header
+            content.showTextAligned(PdfContentByte.ALIGN_LEFT, licenceNo, 25, 767, 0);
+            content.endText();
 
             // Fetch pledge rules using the utility method
             String pledgeRules = settingsUtillity.getPledgeRules(settingsMap);
@@ -545,7 +568,27 @@ public class OldBillPdfService {
             content.endText();
 
             stamper.close();
-            byte[] singlePageBytes = singlePageBaos.toByteArray();
+            byte[] stampedBytes = singlePageBaos.toByteArray();
+
+            // ── FLATTEN PASS ─────────────────────────────────────────────────────
+            // Re-read the stamped PDF and write it out with a plain PdfWriter.
+            // This merges all content streams (base + overlay) into a single flat
+            // layer so that EVERY printer / browser renders the text correctly.
+            ByteArrayOutputStream flatBaos = new ByteArrayOutputStream();
+            PdfReader flatReader = new PdfReader(stampedBytes);
+            com.itextpdf.text.Document flatDoc =
+                    new com.itextpdf.text.Document(flatReader.getPageSizeWithRotation(1));
+            com.itextpdf.text.pdf.PdfWriter flatWriter =
+                    com.itextpdf.text.pdf.PdfWriter.getInstance(flatDoc, flatBaos);
+            flatDoc.open();
+            com.itextpdf.text.pdf.PdfContentByte flatCb = flatWriter.getDirectContent();
+            com.itextpdf.text.pdf.PdfImportedPage flatPage =
+                    flatWriter.getImportedPage(flatReader, 1);
+            flatCb.addTemplate(flatPage, 0, 0);
+            flatDoc.close();
+            flatReader.close();
+            byte[] singlePageBytes = flatBaos.toByteArray();
+            // ─────────────────────────────────────────────────────────────────────
 
             // Create a 2-page PDF by duplicating this single page twice
             ByteArrayOutputStream doublePageBaos = new ByteArrayOutputStream();

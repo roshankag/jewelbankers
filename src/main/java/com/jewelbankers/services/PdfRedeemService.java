@@ -54,7 +54,8 @@ public class PdfRedeemService {
 
         PdfReader reader = null;
         PdfStamper stamper = null;
-        FileOutputStream fos = null;
+        // Stamp into memory instead of directly to file so we can flatten afterwards
+        ByteArrayOutputStream stampBaos = new ByteArrayOutputStream();
 
         try {
             String shopName = settingsMap.get("SHOP_NAME");
@@ -65,14 +66,13 @@ public class PdfRedeemService {
 
             // Read the template PDF
             reader = new PdfReader(TEMPLATE_PATH);
-            
-            // Create a new PDF with A5 size
-            fos = new FileOutputStream(outputFilePath);
-            stamper = new PdfStamper(reader, fos);
 
-         // Set the page size to A5
+            // Stamp into an in-memory buffer (not directly to file)
+            stamper = new PdfStamper(reader, stampBaos);
+
+            // Set the page size to A5
             Rectangle a5Size = PageSize.A5;
-            stamper.getWriter().setPageSize(a5Size); // Force the page size to A5
+            stamper.getWriter().setPageSize(a5Size);
 
             // Get the PDF content
             PdfContentByte content = stamper.getOverContent(1);
@@ -221,35 +221,46 @@ public class PdfRedeemService {
             content.endText();
             
             stamper.close();
+            stamper = null;
 
-            // Log the successful creation of the PDF
-            System.out.println("PDF generated and saved at: " + outputFileName);
+            // ── FLATTEN PASS ─────────────────────────────────────────────────────
+            // Re-render the stamped PDF through a plain PdfWriter so that the base
+            // template layer and the overlay text layer are merged into ONE content
+            // stream. Without this, some browsers/printers skip the overlay text.
+            byte[] stampedBytes = stampBaos.toByteArray();
+            ByteArrayOutputStream flatBaos = new ByteArrayOutputStream();
+            PdfReader flatReader = new PdfReader(stampedBytes);
+            com.itextpdf.text.Document flatDoc =
+                    new com.itextpdf.text.Document(flatReader.getPageSizeWithRotation(1));
+            com.itextpdf.text.pdf.PdfWriter flatWriter =
+                    com.itextpdf.text.pdf.PdfWriter.getInstance(flatDoc, flatBaos);
+            flatDoc.open();
+            com.itextpdf.text.pdf.PdfContentByte flatCb = flatWriter.getDirectContent();
+            com.itextpdf.text.pdf.PdfImportedPage flatPage =
+                    flatWriter.getImportedPage(flatReader, 1);
+            flatCb.addTemplate(flatPage, 0, 0);
+            flatDoc.close();
+            flatReader.close();
+            byte[] flatBytes = flatBaos.toByteArray();
+            // ─────────────────────────────────────────────────────────────────────
 
-            // Read the generated file into a byte array
-            File file = new File(outputFilePath);
-            byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileBytes);
-
-            if (fileBytes.length >= 0) {
-                System.out.println("The ByteArrayOutputStream has data.");
-            } else {
-                System.out.println("The ByteArrayOutputStream is empty.");
+            // Write the flattened bytes to the output file
+            try (FileOutputStream fos = new FileOutputStream(outputFilePath)) {
+                fos.write(flatBytes);
             }
 
-            return byteArrayInputStream;
+            System.out.println("PDF generated and saved at: " + outputFileName);
+            return new ByteArrayInputStream(flatBytes);
 
         } catch (DocumentException | IOException e) {
             System.err.println("Error generating PDF: " + e.getMessage());
             throw e;
         } finally {
             if (stamper != null) {
-                stamper.close();
+                try { stamper.close(); } catch (Exception ignored) {}
             }
             if (reader != null) {
                 reader.close();
-            }
-            if (fos != null) {
-                fos.close();
             }
         }
     }

@@ -57,7 +57,8 @@ public class OfficePdfService {
 
         PdfReader reader = null;
         PdfStamper stamper = null;
-        FileOutputStream fos = null;
+        // Stamp into memory so we can apply a flatten pass afterwards
+        ByteArrayOutputStream stampBaos = new ByteArrayOutputStream();
 
         try {
             // Ensure essential settings are not null
@@ -69,13 +70,12 @@ public class OfficePdfService {
             // Read the template PDF
             reader = new PdfReader(TEMPLATE_PATH);
 
-            // Create a new PDF with the content filled
-            fos = new FileOutputStream(outputFilePath);
-            stamper = new PdfStamper(reader, fos);
+            // Stamp into an in-memory buffer (not directly to file)
+            stamper = new PdfStamper(reader, stampBaos);
 
             // Set the page size to A5
             Rectangle a5Size = PageSize.A5;
-            stamper.getWriter().setPageSize(a5Size); // Force the page size to A5
+            stamper.getWriter().setPageSize(a5Size);
 
             // Get the PDF content
             PdfContentByte content = stamper.getOverContent(1);
@@ -284,20 +284,43 @@ public class OfficePdfService {
 
 
             
-            // Close the PDF Stamper and flush the data
             stamper.close();
+            stamper = null;
 
-            // Convert generated file to ByteArrayInputStream for return
-            File file = new File(outputFilePath);
-            byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
-            return new ByteArrayInputStream(fileBytes);
+            // ── FLATTEN PASS ─────────────────────────────────────────────────────
+            // Re-render the stamped PDF through a plain PdfWriter so that the base
+            // template layer and the overlay text layer are merged into ONE content
+            // stream. Without this, some browsers/printers skip the overlay text.
+            byte[] stampedBytes = stampBaos.toByteArray();
+            ByteArrayOutputStream flatBaos = new ByteArrayOutputStream();
+            PdfReader flatReader = new PdfReader(stampedBytes);
+            com.itextpdf.text.Document flatDoc =
+                    new com.itextpdf.text.Document(flatReader.getPageSizeWithRotation(1));
+            com.itextpdf.text.pdf.PdfWriter flatWriter =
+                    com.itextpdf.text.pdf.PdfWriter.getInstance(flatDoc, flatBaos);
+            flatDoc.open();
+            com.itextpdf.text.pdf.PdfContentByte flatCb = flatWriter.getDirectContent();
+            com.itextpdf.text.pdf.PdfImportedPage flatPage =
+                    flatWriter.getImportedPage(flatReader, 1);
+            flatCb.addTemplate(flatPage, 0, 0);
+            flatDoc.close();
+            flatReader.close();
+            byte[] flatBytes = flatBaos.toByteArray();
+            // ─────────────────────────────────────────────────────────────────────
+
+            // Write the flattened bytes to the output file
+            try (FileOutputStream fos = new FileOutputStream(outputFilePath)) {
+                fos.write(flatBytes);
+            }
+
+            return new ByteArrayInputStream(flatBytes);
 
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
             throw e;
         } finally {
-            if (fos != null) {
-                fos.close();
+            if (stamper != null) {
+                try { stamper.close(); } catch (Exception ignored) {}
             }
             if (reader != null) {
                 reader.close();
